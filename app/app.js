@@ -86,67 +86,59 @@ function applyTheme(t) {
 }
 applyTheme(state.theme);
 
-/* ================= the mascot ================= */
+/* ================= the mascot: bagl ================= */
 
-let mascotCount = 0;
-function mascot() {
-  const id = ++mascotCount;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="mascot" aria-hidden="true">
-<defs><clipPath id="cg-${id}"><path d="M129.5 52.8 C135.6 53.1 134.7 53.4 136.6 54.2 C138.5 54.9 140.1 55.8 140.9 57.4 C141.8 59.1 141.4 55.5 141.7 64.2 C141.9 73.0 142.3 94.6 142.4 110.0 C142.6 125.4 143.1 148.0 142.6 156.7 C142.2 165.4 140.7 160.6 139.6 162.2 C138.6 163.8 138.0 165.4 136.3 166.4 C134.6 167.4 135.5 167.8 129.4 168.0 C123.4 168.1 109.8 167.1 100.0 167.3 C90.2 167.4 76.8 168.9 70.8 168.7 C64.8 168.5 65.8 167.1 64.1 166.0 C62.3 164.9 61.2 163.7 60.3 162.1 C59.4 160.6 59.1 165.3 58.7 156.6 C58.3 147.9 58.2 125.4 58.0 110.0 C57.9 94.6 57.6 72.9 57.8 64.2 C58.1 55.4 58.5 59.1 59.5 57.4 C60.5 55.7 62.0 55.2 63.6 54.2 C65.3 53.1 63.1 51.5 69.2 51.2 C75.2 50.9 89.9 52.0 100.0 52.2 C110.1 52.5 123.4 52.4 129.5 52.8 Z"/></clipPath></defs>
-<g transform="translate(-6 0) scale(1.04) rotate(-5 100 150)">
-<g class="cg-hop">
-  <g class="cg-feet"><path d="M91.7 176.0 C91.6 178.0 89.9 180.4 87.9 181.6 C86.0 182.8 82.2 183.6 79.8 183.2 C77.4 182.8 74.4 180.8 73.4 179.1 C72.3 177.4 72.4 174.6 73.5 172.9 C74.5 171.2 77.3 169.3 79.8 168.8 C82.3 168.3 86.6 168.6 88.5 169.8 C90.5 171.0 91.8 174.0 91.7 176.0 Z" fill="#F6B8C8" stroke="#3B2B3A" stroke-width="5"/><path d="M128.4 176.0 C128.4 177.9 126.5 180.9 124.4 182.1 C122.3 183.2 118.4 183.5 115.8 183.1 C113.3 182.6 110.1 181.0 109.0 179.3 C107.8 177.6 108.1 174.5 109.2 172.8 C110.4 171.1 113.4 169.4 115.9 169.0 C118.3 168.6 121.9 169.2 123.9 170.4 C126.0 171.6 128.3 174.1 128.4 176.0 Z" fill="#F6B8C8" stroke="#3B2B3A" stroke-width="5"/></g>
-  <g class="cg-body">
-    <path d="M129.5 52.8 C135.6 53.1 134.7 53.4 136.6 54.2 C138.5 54.9 140.1 55.8 140.9 57.4 C141.8 59.1 141.4 55.5 141.7 64.2 C141.9 73.0 142.3 94.6 142.4 110.0 C142.6 125.4 143.1 148.0 142.6 156.7 C142.2 165.4 140.7 160.6 139.6 162.2 C138.6 163.8 138.0 165.4 136.3 166.4 C134.6 167.4 135.5 167.8 129.4 168.0 C123.4 168.1 109.8 167.1 100.0 167.3 C90.2 167.4 76.8 168.9 70.8 168.7 C64.8 168.5 65.8 167.1 64.1 166.0 C62.3 164.9 61.2 163.7 60.3 162.1 C59.4 160.6 59.1 165.3 58.7 156.6 C58.3 147.9 58.2 125.4 58.0 110.0 C57.9 94.6 57.6 72.9 57.8 64.2 C58.1 55.4 58.5 59.1 59.5 57.4 C60.5 55.7 62.0 55.2 63.6 54.2 C65.3 53.1 63.1 51.5 69.2 51.2 C75.2 50.9 89.9 52.0 100.0 52.2 C110.1 52.5 123.4 52.4 129.5 52.8 Z" fill="#F6B8C8" stroke="#3B2B3A" stroke-width="6" stroke-linejoin="round"/>
-    <g clip-path="url(#cg-${id})"><path class="cg-shine" d="M124 48 l12 0 l-34 124 l-12 0 Z" fill="#fff" opacity=".45"/></g>
-    <path d="M124.7 86.0 C129.4 86.1 127.0 86.2 128.0 86.6 C129.0 87.0 130.3 87.8 130.8 88.6 C131.3 89.5 130.8 88.6 130.9 91.6 C131.0 94.7 131.2 102.0 131.2 107.0 C131.1 112.0 130.8 118.9 130.7 121.8 C130.6 124.8 130.9 123.8 130.5 124.8 C130.0 125.8 129.1 127.2 128.1 127.7 C127.1 128.1 129.2 127.5 124.5 127.5 C119.8 127.5 108.2 127.6 100.0 127.7 C91.8 127.8 80.0 128.3 75.3 128.1 C70.6 128.0 72.7 127.5 71.7 127.0 C70.7 126.5 70.0 125.7 69.4 125.0 C68.9 124.2 68.4 125.2 68.5 122.2 C68.5 119.2 69.3 112.0 69.5 107.0 C69.7 102.0 69.4 95.4 69.5 92.3 C69.7 89.2 70.0 89.2 70.4 88.4 C70.7 87.6 70.9 87.8 71.7 87.4 C72.6 86.9 70.6 86.0 75.3 85.9 C80.0 85.8 91.8 86.5 100.0 86.5 C108.2 86.6 120.1 86.0 124.7 86.0 Z" fill="#FFF4F6" stroke="#3B2B3A" stroke-width="4.5" stroke-linejoin="round"/>
-    <g class="cg-sparkle"><path d="M100 95 Q102.16 104.84 112 107 Q102.16 109.16 100 119 Q97.84 109.16 88 107 Q97.84 104.84 100 95 Z" fill="#F4C95D" stroke="#3B2B3A" stroke-width="3.5" stroke-linejoin="round"/></g>
-    <g class="cg-sparkle2"><path d="M118 92 Q118.9 96.1 123 97 Q118.9 97.9 118 102 Q117.1 97.9 113 97 Q117.1 96.1 118 92 Z" fill="#fff" stroke="#3B2B3A" stroke-width="3.5" stroke-linejoin="round"/></g>
-    <path d="M72 140 h52" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round" opacity=".45"/><path d="M72 148 h40" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round" opacity=".45"/><path d="M72 156 h46" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round" opacity=".45"/>
-    <g class="cg-eyes"><g class="cg-look" fill="#3B2B3A">
-      <ellipse cx="88.0" cy="69" rx="3.4" ry="4"/><ellipse cx="114.0" cy="69" rx="3.4" ry="4"/>
-    </g></g>
-    <g class="cg-shut" fill="none" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round">
-      <path d="M83.0 70 q4 3 8 0"/><path d="M109.0 70 q4 3 8 0"/>
-    </g>
-    <g class="cg-glasses" fill="none" stroke="#3B2B3A" stroke-width="5" stroke-linecap="round">
-      <path d="M97.2 68.0 C97.1 70.5 96.1 73.8 94.4 75.4 C92.7 77.0 89.4 77.8 87.0 77.7 C84.6 77.6 81.9 76.4 80.2 74.8 C78.6 73.1 77.1 70.2 77.1 68.0 C77.1 65.8 78.6 62.9 80.3 61.3 C81.9 59.6 84.6 58.3 87.0 58.2 C89.4 58.0 92.8 58.8 94.5 60.5 C96.2 62.1 97.2 65.5 97.2 68.0 Z"/><path d="M122.3 70.9 C121.7 73.0 119.4 75.2 117.3 76.2 C115.3 77.2 112.4 77.6 110.2 76.9 C108.1 76.3 105.8 74.5 104.6 72.4 C103.4 70.4 102.4 67.1 103.1 64.9 C103.7 62.7 106.3 60.4 108.4 59.3 C110.6 58.3 113.7 58.0 115.9 58.7 C118.0 59.4 120.3 61.6 121.3 63.6 C122.4 65.6 123.0 68.8 122.3 70.9 Z"/><path d="M96.0 67 Q100 62 104.0 67"/>
-    </g>
-    <g class="cg-hatwrap"><g transform="rotate(-8 98 44)" stroke="#3B2B3A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
-      <path d="M118.5 46.0 C118.5 48.1 115.5 50.9 112.1 52.3 C108.7 53.8 102.7 54.9 98.0 54.9 C93.3 54.8 87.4 53.7 84.2 52.2 C80.9 50.7 78.5 48.1 78.4 46.0 C78.4 43.9 80.8 41.3 84.1 39.7 C87.4 38.2 93.4 36.9 98.0 36.9 C102.6 36.9 108.5 38.2 111.9 39.7 C115.3 41.3 118.4 43.9 118.5 46.0 Z" fill="#B8A6E8"/><path d="M63.1 34.0 L97.5 25.0 L131.2 34.1 L98.5 43.8 Z" fill="#B8A6E8"/>
-      <g class="cg-tassel"><path d="M98 34 Q118 34 122 50" fill="none" stroke-width="3.5"/>
-      <path d="M118 48 l4 12 l4 -12 Z" fill="#F4C95D" stroke-width="3.5"/></g>
-      <circle cx="98" cy="34" r="3.5" fill="#F4C95D" stroke-width="3"/>
-    </g></g>
-  </g>
-  <g class="cg-book" stroke="#3B2B3A" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M70 140 L100 146 L130 140 L130 164 L100 169 L70 164 Z" fill="#9CC7E8"/><path d="M73 138 Q86 135 100 143 L100 165 Q86 158 73 160 Z" fill="#FFFBF2"/><path d="M127 138 Q114 135 100 143 L100 165 Q114 158 127 160 Z" fill="#FFFBF2"/><path d="M78 145 q8 -2 17 1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M78 150 q8 -2 17 1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M78 155 q8 -2 17 1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M105 146.5 q8 -3.5 17 -1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M105 151.5 q8 -3.5 17 -1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M105 156.5 q8 -3.5 17 -1.5" fill="none" stroke-width="2.4" opacity=".5"/>
-    <path class="cg-page" d="M127 138 Q114 135 100 143 L100 165 Q114 158 127 160 Z" fill="#FFFBF2"/>
-    <path d="M77.0 154.0 C77.0 155.8 75.3 158.4 73.7 159.5 C72.1 160.6 69.3 161.0 67.4 160.6 C65.5 160.2 63.1 158.6 62.3 157.0 C61.5 155.4 61.8 152.8 62.7 151.2 C63.5 149.5 65.5 147.7 67.3 147.2 C69.2 146.8 71.9 147.6 73.5 148.7 C75.1 149.8 77.0 152.2 77.0 154.0 Z" fill="#F6B8C8" stroke-width="5"/><path d="M138.9 154.0 C139.0 155.8 137.5 158.6 135.9 159.7 C134.3 160.9 131.2 161.3 129.3 160.8 C127.5 160.3 125.5 158.5 124.7 156.8 C123.9 155.2 123.7 152.6 124.5 151.1 C125.3 149.5 127.6 147.8 129.4 147.4 C131.2 147.0 133.9 147.6 135.5 148.7 C137.1 149.8 138.8 152.2 138.9 154.0 Z" fill="#F6B8C8" stroke-width="5"/>
-  </g>
-</g>
-<g class="cg-z" fill="#3B2B3A" opacity=".7" font-family="Baloo 2, sans-serif" font-weight="800"><text x="150" y="58" font-size="20">z</text><text x="164" y="40" font-size="14">z</text></g>
-</g>
+const MASCOT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 28 168 168" class="mascot" aria-hidden="true">
+<ellipse cx="100" cy="194" rx="46" ry="4" fill="#000" opacity=".08"/>
+<g class="bl-fl"><ellipse cx="84" cy="191" rx="10" ry="5.5" fill="#D9C29E"/></g><g class="bl-fr"><ellipse cx="116" cy="191" rx="10" ry="5.5" fill="#D9C29E"/></g>
+<g class="bl-sway"><g class="bl-bag">
+<g class="bl-al"><path d="M48 142 Q36 148 34 158" fill="none" stroke="#D9C29E" stroke-width="10" stroke-linecap="round"/></g>
+<g class="bl-ar"><path d="M152 142 Q164 148 166 158" fill="none" stroke="#D9C29E" stroke-width="10" stroke-linecap="round"/></g>
+<path d="M82 74 C56 90 36 118 40 150 C43 178 68 190 100 190 C132 190 157 178 160 150 C164 118 144 90 118 74 Z" fill="#EBD9BC"/>
+<path d="M128 82 C150 100 163 128 159 156 C155 176 137 188 112 190 C137 180 150 160 148 134 C146 110 139 94 128 82 Z" fill="#D9C29E" opacity=".8"/>
+<path d="M56 112 Q50 126 52 142" fill="none" stroke="#F6EBD6" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+<path d="M58 172 Q100 188 142 172" fill="none" stroke="#D9C29E" stroke-width="1.8" stroke-dasharray="4 4" stroke-linecap="round"/>
+<g class="bl-top"><ellipse cx="100" cy="46" rx="24" ry="6.5" fill="#8E6A4F"/>
+<g class="bl-pile"><g transform="translate(91 44)"><g><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(108 43)"><g><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 37)"><g><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g></g>
+<path d="M76 46 Q100 58 124 46 C128 56 124 66 118 74 L82 74 C76 66 72 56 76 46 Z" fill="#EBD9BC"/>
+<path d="M76 46 Q100 58 124 46" fill="none" stroke="#F6EBD6" stroke-width="3" stroke-linecap="round"/>
+<path d="M116 52 C120 60 118 68 114 74" fill="none" stroke="#D9C29E" stroke-width="5" stroke-linecap="round" opacity=".7"/></g>
+<rect x="78" y="69" width="44" height="10" rx="5" fill="#9DB27E"/>
+<g transform="rotate(-10 136 157)"><circle cx="136" cy="157" r="12.5" fill="#E58C7A"/><circle cx="136" cy="157" r="10" fill="none" stroke="#F7E8D0" stroke-width="1.3" stroke-dasharray="2.4 2"/><path d="M131.6 157 L140.4 157 A4.4 4.4 0 1 0 139.47 159.71" fill="none" stroke="#F7E8D0" stroke-width="2.4" stroke-linecap="round"/></g><g transform="rotate(-20 64 106)"><rect x="56" y="102" width="16" height="7" rx="3.5" fill="#F2C9A8"/><rect x="61" y="102" width="6" height="7" fill="#E9B48F"/></g>
+<path d="M112 78 q-4 9 -10 13 M112 78 q6 8 4 15" fill="none" stroke="#9DB27E" stroke-width="3.4" stroke-linecap="round"/><circle cx="112" cy="76" r="4.5" fill="#7F9662"/>
+<ellipse cx="68" cy="133" rx="7" ry="4.2" fill="#F2906F" opacity=".8"/><ellipse cx="132" cy="133" rx="7" ry="4.2" fill="#F2906F" opacity=".8"/><g class="bl-b1"><path d="M109 107 q5 -3 10 -0.5" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.8" opacity=".55"/></g><g class="bl-b2"><path d="M80 107 l11 1.8" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2" opacity=".8"/><path d="M108 106.5 q6 -5 12 -1" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2" opacity=".8"/></g><g class="bl-eyes"><g class="bl-look"><g class="bl-es"><path d="M81.65 118.7 L91.95 118.7 A6 7.4 0 1 1 81.65 118.7 Z" fill="#211816"/><path d="M109.65 118.7 L119.95 118.7 A6 7.4 0 1 1 109.65 118.7 Z" fill="#211816"/></g><g class="bl-ex"><path d="M81.58 120.7 L93.22 120.7 A6 7.4 0 1 1 81.58 120.7 Z" fill="#211816"/><path d="M109.58 120.7 L121.22 120.7 A6 7.4 0 1 1 109.58 120.7 Z" fill="#211816"/></g><g class="bl-ew"><ellipse cx="86" cy="122.5" rx="6" ry="7.4" fill="#211816"/><ellipse cx="114" cy="122.5" rx="6" ry="7.4" fill="#211816"/></g></g><g class="bl-shut" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.2" stroke-linejoin="round"><path d="M82 117 L89 122 L82 127"/><path d="M118 117 L111 122 L118 127"/></g><g class="bl-sleep" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.2"><path d="M80 123 q6 4 12 0"/><path d="M108 123 q6 4 12 0"/></g></g><g transform="rotate(5 100 120)"><g class="bl-glasses"><g fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.8"><circle cx="86" cy="122" r="11.5"/><circle cx="114" cy="122" r="11.5"/><path d="M97.5 121 q2.5 -3 5 0"/><path d="M74.5 120 l-6 -1.5"/><path d="M125.5 120 l6 -1.5"/></g></g></g><path class="bl-ms" d="M94.5 139 q5.5 2.6 9.5 -1 q1.2 -1.1 1.9 -2.8" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.1"/><path class="bl-mx" d="M92.5 139 q7.5 3.2 12 -1.6 q1.6 -1.6 2.6 -4" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.2"/><ellipse class="bl-mo" cx="100" cy="138" rx="2.6" ry="3" fill="#E8794F"/><path class="bl-drop" d="M138 96 q5 7 0 10 q-5 -3 0 -10 Z" fill="#9FC3E0"/>
+</g></g>
+<g transform="translate(100 42)"><g class="bl-fly bl-f1"><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 42)"><g class="bl-fly bl-f2"><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 42)"><g class="bl-fly bl-f3"><circle r="6.5" fill="#EDBE5A"/><circle r="3.9" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.27" cy="-2.27" r="1.3" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 42)"><g class="bl-fly bl-f4"><circle r="5.5" fill="#EDBE5A"/><circle r="2.9" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-1.92" cy="-1.92" r="1.1" fill="#fff" opacity=".8"/></g></g>
+<g class="bl-z" fill="#3B2A22" font-family="Baloo 2, sans-serif" font-weight="800"><text x="146" y="70" font-size="18">z</text><text x="160" y="54" font-size="13">z</text></g>
 </svg>`;
-}
+function mascot() { return MASCOT; }
 let moodTimer;
 function mood(m, ms) {
   const b = $("buddy");
+  if (m !== "idle") b.dataset.idle = "";
   b.dataset.mood = m;
   clearTimeout(moodTimer);
   if (ms) moodTimer = setTimeout(() => { b.dataset.mood = "idle"; }, ms);
 }
 
-/* little idle routines, picked at random so he never loops the same way */
-const IDLES = ["read", "read", "glasses", "look", "shine", "tassel", "wiggle"];
+/* little idle routines, picked at random so he never loops the same way.
+   "spill" is the big one: he hiccups, gold sprays everywhere, a coin bonks him, he pretends he meant it. */
+const IDLES = ["spill", "spill", "look", "jingle", "glasses", "wiggle", "smug"];
+const IDLE_MS = { spill: 3300, smug: 2700, wiggle: 1500, glasses: 2100 };
+let playTimer;
+function play(name) {
+  const b = $("buddy");
+  if (reduceMotion.matches) return;
+  b.dataset.idle = "";
+  void b.offsetWidth; // restart the animation if the same routine plays twice in a row
+  b.dataset.idle = name;
+  clearTimeout(playTimer);
+  playTimer = setTimeout(() => { if (b.dataset.idle === name) b.dataset.idle = ""; }, IDLE_MS[name] || 2700);
+}
 function idleLoop() {
   const b = $("buddy");
-  if (!document.hidden && b.dataset.mood === "idle" && !reduceMotion.matches) {
-    const next = IDLES[Math.floor(Math.random() * IDLES.length)];
-    b.dataset.idle = next;
-    setTimeout(() => { if (b.dataset.idle === next) b.dataset.idle = ""; }, 2700);
-  }
-  setTimeout(idleLoop, 4500 + Math.random() * 4500);
+  if (!document.hidden && b.dataset.mood === "idle" && !b.dataset.idle) play(IDLES[Math.floor(Math.random() * IDLES.length)]);
+  setTimeout(idleLoop, 5000 + Math.random() * 5000);
 }
 
 /* ================= the speech bubble ================= */
@@ -156,12 +148,14 @@ function say(html) {
   el.innerHTML = html;
   if (!reduceMotion.matches) { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
 }
-function smug() {
+function smug(face = true) {
   let i = Math.floor(Math.random() * SMUG.length);
   const last = store.get("smug", -1);
   if (i === last) i = (i + 1) % SMUG.length;
   store.set("smug", i);
   say(SMUG[i]);
+  const b = $("buddy");
+  if (face && b.dataset.mood === "idle" && !b.dataset.idle) mood("smug", 2600);
 }
 
 /* ================= helpers ================= */
@@ -248,7 +242,7 @@ async function refresh(manual) {
   if (state.refreshing) return;
   state.refreshing = true;
   $("refresh").classList.add("spinning");
-  mood("search");
+  if (manual || $("buddy").dataset.mood !== "smug") mood("search");
   if (manual) say("Fine, I'll go check TCGplayer for you… 🔍");
   renderStatus();
   try {
@@ -261,7 +255,7 @@ async function refresh(manual) {
     state.fetchedOk = true;
     if (changed) { renderControls(); renderList(true); }
     warmImages();
-    mood("happy", 1600);
+    if (manual || $("buddy").dataset.mood !== "smug") mood("happy", 1600);
     if (manual) say(changed ? "Fresh prices. Your wallet's already sweating ✨" : "Nothing new. Prices didn't move just because you stared at them.");
   } catch {
     state.fetchedOk = false;
@@ -719,7 +713,11 @@ $("nudge").addEventListener("click", (e) => { if (e.target.closest("[data-open-c
 $("collection").addEventListener("click", () => { if (state.data) openCollection(); });
 $("refresh").addEventListener("click", () => refresh(true));
 $("theme").addEventListener("click", () => { applyTheme(state.theme === "dark" ? "light" : "dark"); store.set("theme", state.theme); });
-$("buddy").addEventListener("click", () => { mood("happy", 1400); smug(); });
+$("buddy").addEventListener("click", () => {
+  const b = $("buddy");
+  if (b.dataset.mood !== "idle" && b.dataset.mood !== "smug") return smug(false);
+  mood("idle"); play("spill"); smug(false);
+});
 $("bubble").addEventListener("click", () => smug());
 
 const finder = document.querySelector(".finder");

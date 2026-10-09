@@ -1,6 +1,6 @@
 /* Offline support: app files and prices load from the phone first,
    then update in the background whenever there is a connection. */
-const VERSION = "v7";
+const VERSION = "v8";
 const SHELL = `shell-${VERSION}`;
 const DATA = "data";
 const IMG = "img";

@@ -1,6 +1,6 @@
-# Equire
+# bagl
 
-A home-screen app for hunting Expedition, Aquapolis and Skyridge cards at shows. For every card it shows TCGplayer's market price, the cheapest copy listed right now, and the most recent sale, by printing (Normal, Reverse, Holo) and condition (NM, LP, MP, HP, DMG). Everything is saved on the phone, so it keeps working with no signal.
+A home-screen app for hunting cards at shows: Expedition, Aquapolis, Skyridge, WotC Black Star Promos, and the Japanese Vending and VS series. For every card it shows TCGplayer's market price, the cheapest copy listed right now, and the most recent sale, for every printing (Normal, Reverse, Holo, 1st Edition) and condition (NM, LP, MP, HP, DMG). Its mascot, bagl, is a smug little money bag who spills his gold when he's bored. Everything is saved on the phone, so it keeps working with no signal.
 
 A GitHub Actions job pulls fresh TCGplayer data every 4 hours and republishes the app on GitHub Pages. Whenever the phone is online, the app picks up the newest data; when it isn't, it uses what it saved and says how old it is.
 
@@ -15,7 +15,7 @@ Live at **https://oozetresscaps-afk.github.io/price-check/**
 ## What's in it
 
 - **Search** by name or number (`33`, `33/165`, `h12`, `74a`).
-- **Set chips** at the top, **printing and condition** at the bottom. Each card shows market price, 🛒 the cheapest listing on TCGplayer, and 🏷️ the last sale for that exact printing and condition.
+- **Set chips** at the top, **condition** at the bottom. Every printing is listed, with reverse holos, holos and 1st Editions tinted so they stand out. Each card shows market price, 🛒 the cheapest listing on TCGplayer, and 🏷️ the last sale for that exact printing and condition.
 - **Tap a card** for every condition side by side, recent sales, and a **🏪 Table price** box. Type what the vendor is asking and it tells you whether that beats buying online (with shipping) and what percent of market it is.
 - **📚 Your collection**: import your Collectr CSV export and owned cards get a ✓ badge. The **🎯 Need** and **✅ Have** chips filter to what you're missing or already own, per printing. The collection stays on the phone; it is never uploaded.
 
@@ -39,6 +39,7 @@ app/                     the app (what GitHub Pages serves)
   img/                   card images, written by the refresh job
 scripts/update_prices.py the refresh job (Python, standard library only)
 .github/workflows/refresh.yml
+design/mascot/           mascot generator and earlier design takes (not part of the app)
 ```
 
 To add sets, add their TCGplayer set IDs to `SETS` in `scripts/update_prices.py`. To change how often it refreshes, edit the `cron` line in the workflow.
