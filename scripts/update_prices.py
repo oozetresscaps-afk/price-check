@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Refresh TCGplayer prices for Expedition, Aquapolis and Skyridge.
+"""Refresh TCGplayer data for Expedition, Aquapolis and Skyridge.
 
-Writes app/data/prices.json (market price per printing and condition, plus
-recent sales) and saves card thumbnails into app/img/ so the app works offline.
+Writes app/data/prices.json with, for every card:
+  p  market price per printing and condition (TCGplayer price guide)
+  l  cheapest live listing per printing and condition: [item price, shipping]
+  s  recent sales: [condition, printing, price, date]
+and saves card thumbnails into app/img/ so the app works offline.
 
 Standard library only, so it runs on a plain GitHub Actions runner.
 """
@@ -28,6 +31,7 @@ IMG_DIR = os.path.join(APP, "img")
 
 PRICE_URL = "https://infinite-api.tcgplayer.com/priceguide/set/{id}/cards/?rows=5000&productTypeID=1"
 SALES_URL = "https://mpapi.tcgplayer.com/v2/product/{id}/latestsales"
+LISTINGS_URL = "https://mp-search-api.tcgplayer.com/v1/product/{id}/listings"
 IMG_URL = "https://tcgplayer-cdn.tcgplayer.com/product/{id}_200w.jpg"
 
 HEADERS = {
@@ -48,8 +52,10 @@ CONDITIONS = [
 PRINTINGS = {"Normal": "N", "Reverse Holofoil": "R", "Holofoil": "H"}
 
 SALES_KEEP = 20          # recent sales stored per card
-SALES_DELAY = 0.4        # seconds between sales requests, to stay polite
+LISTINGS_SIZE = 50       # cheapest listings checked per card
+DELAY = 0.35             # seconds between requests, to stay polite
 SKIP_SALES = os.environ.get("SKIP_SALES") == "1"
+SKIP_LISTINGS = os.environ.get("SKIP_LISTINGS") == "1"
 SKIP_IMAGES = os.environ.get("SKIP_IMAGES") == "1"
 
 
@@ -83,8 +89,21 @@ def request(url, body=None, retries=3, raw=False):
             raise
 
 
+def describe(e):
+    """Short error text for the log and diagnostics, including the API's reply."""
+    text = str(e)
+    if isinstance(e, urllib.error.HTTPError):
+        try:
+            text += " " + e.read()[:300].decode("utf-8", "replace")
+        except Exception:
+            pass
+    return text[:400]
+
+
 def pick(d, *names):
     """Read a field regardless of capitalisation (productID / productId)."""
+    if not isinstance(d, dict):
+        return None
     lower = {k.lower(): v for k, v in d.items()}
     for n in names:
         if n.lower() in lower:
@@ -105,15 +124,15 @@ def printing_code(text):
 
 
 def clean_name(name):
-    # "Alakazam (33)" -> "Alakazam", "Ampharos (H1)" -> "Ampharos"
+    # "Alakazam (33)" -> "Alakazam", "Ampharos (H1)" -> "Ampharos", "Drowzee (74a)" -> "Drowzee"
     return re.sub(r"\s*\((?:H)?\d+[a-zA-Z]?\)\s*$", "", name or "").strip()
 
 
 def clean_number(num):
-    # "033/165" -> "33/165", "H01/H32" -> "H1/H32"
+    # "033/165" -> "33/165", "H01/H32" -> "H1/H32", "074a/147" -> "74a/147"
     def strip(part):
-        m = re.match(r"^([A-Za-z]*)0*(\d+)$", part.strip())
-        return f"{m.group(1)}{m.group(2)}" if m else part.strip()
+        m = re.match(r"^([A-Za-z]*)0*(\d+)([A-Za-z]?)$", part.strip())
+        return f"{m.group(1)}{m.group(2)}{m.group(3)}" if m else part.strip()
     return "/".join(strip(p) for p in (num or "").split("/"))
 
 
@@ -143,12 +162,14 @@ def fetch_set_prices(s):
             "rarity": pick(row, "rarity") or "",
             "p": {},
         })
+        low = money(pick(row, "lowPrice"))
+        if low is not None:
+            card["low"] = low
         if pcode and ccode:
             price = money(pick(row, "marketPrice"))
+            card["p"].setdefault(pcode, {})
             if price is not None:
-                card["p"].setdefault(pcode, {})[ccode] = price
-            else:
-                card["p"].setdefault(pcode, {})
+                card["p"][pcode][ccode] = price
     return list(cards.values())
 
 
@@ -171,6 +192,49 @@ def fetch_sales(pid):
     return out[:SALES_KEEP]
 
 
+def listing_rows(data):
+    """The listings API nests results: {"results": [{"results": [listing, ...]}]}."""
+    outer = pick(data, "results")
+    if isinstance(outer, list) and outer and isinstance(outer[0], dict) and "results" in {k.lower() for k in outer[0]}:
+        inner = pick(outer[0], "results")
+        return inner if isinstance(inner, list) else []
+    return outer if isinstance(outer, list) else []
+
+
+def fetch_listings(pid):
+    body = {
+        "filters": {
+            "term": {"sellerStatus": "Live", "channelId": 0, "language": ["English"]},
+            "range": {"quantity": {"gte": 1}},
+            "exclude": {"channelExclusion": 0},
+        },
+        "from": 0,
+        "size": LISTINGS_SIZE,
+        "sort": {"field": "price+shipping", "order": "asc"},
+        "context": {"shippingCountry": "US", "cart": {}},
+        "aggregations": ["listingType"],
+    }
+    data = request(LISTINGS_URL.format(id=pid), body=body)
+    best = {}
+    count = {}
+    for row in listing_rows(data):
+        pcode = printing_code(pick(row, "printing"))
+        ccode = condition_code(pick(row, "condition"))
+        price = money(pick(row, "price"))
+        if not (pcode and ccode and price is not None):
+            continue
+        ship = pick(row, "shippingPrice", "sellerShippingPrice", "rankedShippingPrice")
+        try:
+            ship = round(max(float(ship or 0), 0), 2)
+        except (TypeError, ValueError):
+            ship = 0.0
+        count[pcode] = count.get(pcode, 0) + 1
+        cur = best.setdefault(pcode, {}).get(ccode)
+        if cur is None or price + ship < cur[0] + cur[1]:
+            best[pcode][ccode] = [price, ship]
+    return best, count
+
+
 def save_image(pid):
     path = os.path.join(IMG_DIR, f"{pid}.jpg")
     if os.path.exists(path) and os.path.getsize(path) > 0:
@@ -179,7 +243,7 @@ def save_image(pid):
         payload = request(IMG_URL.format(id=pid), raw=True, retries=2)
     except Exception:
         return False
-    if not payload or not payload[:3] == b"\xff\xd8\xff":
+    if not payload or payload[:3] != b"\xff\xd8\xff":
         return False
     with open(path, "wb") as f:
         f.write(payload)
@@ -188,8 +252,7 @@ def save_image(pid):
 
 def main():
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    previous = {}
-    old = {}
+    previous, old = {}, {}
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE) as f:
             old = json.load(f)
@@ -203,7 +266,7 @@ def main():
         except Exception as e:
             price_failures += 1
             set_cards = [c for c in previous.values() if c.get("set") == s["id"]]
-            log(f"{s['name']}: price guide failed ({e}); kept {len(set_cards)} saved cards")
+            log(f"{s['name']}: price guide failed ({describe(e)}); kept {len(set_cards)} saved cards")
         cards.extend(set_cards)
         sets_out.append({**s, "count": len(set_cards)})
 
@@ -211,24 +274,41 @@ def main():
         log("Could not reach the TCGplayer price guide for any set. Nothing written.")
         sys.exit(1)
 
-    sales_ok = sales_failed = 0
+    diag = {"salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0,
+            "listingsEmpty": 0, "salesError": None, "listingsError": None}
     for i, card in enumerate(cards):
         prev = previous.get(card["id"], {})
         card["s"] = prev.get("s", [])
-        if SKIP_SALES:
-            continue
-        try:
-            card["s"] = fetch_sales(card["id"])
-            sales_ok += 1
-        except Exception as e:
-            sales_failed += 1
-            if sales_failed <= 3:
-                log(f"Last-sold lookup failed for {card['name']} ({card['id']}): {e}")
-        time.sleep(SALES_DELAY)
+        card["l"] = prev.get("l", {})
+        if not SKIP_SALES:
+            try:
+                card["s"] = fetch_sales(card["id"])
+                diag["salesOk"] += 1
+            except Exception as e:
+                diag["salesFailed"] += 1
+                if diag["salesFailed"] <= 3:
+                    diag["salesError"] = describe(e)
+                    log(f"Last sold failed for {card['name']} ({card['id']}): {diag['salesError']}")
+            time.sleep(DELAY)
+        if not SKIP_LISTINGS:
+            try:
+                best, count = fetch_listings(card["id"])
+                card["l"] = best
+                card["lc"] = count
+                diag["listingsOk"] += 1
+                if not best:
+                    diag["listingsEmpty"] += 1
+            except Exception as e:
+                diag["listingsFailed"] += 1
+                if diag["listingsFailed"] <= 3:
+                    diag["listingsError"] = describe(e)
+                    log(f"Listings failed for {card['name']} ({card['id']}): {diag['listingsError']}")
+            time.sleep(DELAY)
         if (i + 1) % 100 == 0:
-            log(f"Last sold: {i + 1}/{len(cards)} cards checked")
-    if not SKIP_SALES:
-        log(f"Last sold: {sales_ok} cards updated, {sales_failed} kept from the previous run")
+            log(f"{i + 1}/{len(cards)} cards checked")
+    log(f"Last sold: {diag['salesOk']} updated, {diag['salesFailed']} kept from before")
+    log(f"Lowest listed: {diag['listingsOk']} updated ({diag['listingsEmpty']} with no listings), "
+        f"{diag['listingsFailed']} kept from before")
 
     images = 0
     os.makedirs(IMG_DIR, exist_ok=True)
@@ -241,8 +321,10 @@ def main():
 
     out = {
         "updated": now if price_failures < len(SETS) else old.get("updated", now),
-        "salesUpdated": now if sales_ok else old.get("salesUpdated"),
+        "salesUpdated": now if diag["salesOk"] else old.get("salesUpdated"),
+        "listingsUpdated": now if diag["listingsOk"] else old.get("listingsUpdated"),
         "source": "TCGplayer",
+        "diag": diag,
         "sets": sets_out,
         "cards": cards,
     }
