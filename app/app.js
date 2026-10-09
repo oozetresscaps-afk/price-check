@@ -40,39 +40,48 @@ const state = {
 
 /* ================= the mascot ================= */
 
+let mascotCount = 0;
 function mascot() {
-  return `<svg class="mascot" viewBox="0 0 200 200" aria-hidden="true">
-  <g stroke="#2B1D4E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M58 96 C36 86 18 66 8 42 C32 46 54 60 70 78 Z" fill="#8FE0A6"/>
-    <path d="M56 86 C42 78 30 66 22 54 C36 58 50 66 62 78" fill="#FF9DB8" stroke="none"/>
-    <path d="M142 96 C164 86 182 66 192 42 C168 46 146 60 130 78 Z" fill="#8FE0A6"/>
-    <path d="M144 86 C158 78 170 66 178 54 C164 58 150 66 138 78" fill="#FF9DB8" stroke="none"/>
-    <ellipse cx="78" cy="168" rx="16" ry="8" fill="#6CC98A"/>
-    <ellipse cx="122" cy="168" rx="16" ry="8" fill="#6CC98A"/>
-    <path d="M100 56 C142 56 160 88 160 118 C160 150 134 168 100 168 C66 168 40 150 40 118 C40 88 58 56 100 56 Z" fill="#8FE0A6"/>
-    <path d="M92 58 C90 46 96 40 100 36 C100 46 104 50 110 46 C110 52 106 56 104 58" fill="#8FE0A6"/>
-    <ellipse cx="100" cy="146" rx="30" ry="16" fill="#C8F2D3" stroke="none"/>
-    <ellipse cx="58" cy="132" rx="9" ry="5" fill="#FF9DB8" stroke="none" opacity=".8"/>
-    <path d="M84 146 Q97 156 112 145" fill="none"/>
-    <path d="M103 150 L109 148 L107 156 Z" fill="#fff" stroke-width="2.5"/>
+  const id = ++mascotCount;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="mascot" aria-hidden="true">
+  <defs><clipPath id="lens-${id}"><circle cx="80" cy="77" r="13"/><circle cx="112" cy="77" r="13"/></clipPath></defs>
+  <g class="sq-scroll" stroke="#2B1D4E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <rect class="sq-parch" x="96" y="162" width="70" height="24" rx="2" fill="#F6E4B8"/>
+    <g class="sq-lines" stroke="#B79A63" stroke-width="2.5"><line x1="104" y1="170" x2="146" y2="170"/><line x1="104" y1="177" x2="156" y2="177"/></g>
+    <rect x="86" y="158" width="13" height="32" rx="6.5" fill="#EAD29A"/>
+    <rect class="sq-roll-r" x="162" y="158" width="13" height="32" rx="6.5" fill="#EAD29A"/>
   </g>
-  <g class="m-glass">
-    <line x1="122" y1="128" x2="152" y2="160" stroke="#2B1D4E" stroke-width="15" stroke-linecap="round"/>
-    <line x1="122" y1="128" x2="152" y2="160" stroke="#B9783F" stroke-width="8" stroke-linecap="round"/>
-    <circle cx="154" cy="152" r="9" fill="#8FE0A6" stroke="#2B1D4E" stroke-width="4"/>
-    <circle cx="96" cy="102" r="36" fill="#fff" stroke="#2B1D4E" stroke-width="4"/>
-    <g class="m-lid"><g class="m-look">
-      <circle cx="96" cy="102" r="19" fill="#5B3FA8"/>
-      <circle cx="96" cy="102" r="11" fill="#170E2C"/>
-      <circle cx="103" cy="94" r="6" fill="#fff"/>
-      <circle cx="89" cy="109" r="2.5" fill="#fff"/>
-    </g></g>
-    <circle cx="96" cy="102" r="31" fill="#BFE6FF" opacity=".22"/>
-    <path d="M74 92 A24 24 0 0 1 90 76" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"/>
-    <circle cx="96" cy="102" r="33" fill="none" stroke="#FFC93C" stroke-width="7"/>
-    <circle cx="96" cy="102" r="37.5" fill="none" stroke="#2B1D4E" stroke-width="3"/>
-    <circle cx="96" cy="102" r="28.5" fill="none" stroke="#2B1D4E" stroke-width="2"/>
+  <g class="sq-body">
+    <g fill="none" stroke-linecap="round">
+      <path d="M132.1 135.4 A52 52 0 1 1 148.0 98.0" stroke="#2B1D4E" stroke-width="30"/>
+      <line x1="44.0" y1="100" x2="148.0" y2="100" stroke="#2B1D4E" stroke-width="26"/>
+      <path d="M132.1 135.4 A52 52 0 1 1 148.0 98.0" stroke="#FFC93C" stroke-width="22"/>
+      <line x1="44.0" y1="100" x2="148.0" y2="100" stroke="#FFC93C" stroke-width="18"/>
+      <path d="M70 51 A52 52 0 0 1 120 49" stroke="#FFE08A" stroke-width="5"/>
+    </g>
+    <!-- belt with a buckle across the bar -->
+    <rect x="38.0" y="96" width="116.0" height="8" rx="2" fill="#7A4A2A" stroke="#2B1D4E" stroke-width="2.5"/>
+    <rect x="114" y="93" width="13" height="14" rx="2.5" fill="none" stroke="#2B1D4E" stroke-width="6.5"/>
+    <rect x="114" y="93" width="13" height="14" rx="2.5" fill="none" stroke="#FFE08A" stroke-width="3"/>
+    <!-- glasses -->
+    <g class="sq-glasses">
+      <g fill="#E8F4FF" fill-opacity=".55" stroke="#2B1D4E" stroke-width="3.6">
+        <circle cx="80" cy="77" r="13"/><circle cx="112" cy="77" r="13"/>
+      </g>
+      <path d="M93 76 Q96 71.5 99 76" fill="none" stroke="#2B1D4E" stroke-width="3.6" stroke-linecap="round"/>
+      <g clip-path="url(#lens-${id})"><rect class="sq-glint" x="62" y="53" width="6" height="50" fill="#fff" opacity=".9" transform="rotate(30 80 77)"/></g>
+    </g>
+    <!-- squire cap with feather -->
+    <g class="sq-cap" stroke="#2B1D4E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <g class="sq-feather">
+        <path d="M120 34 C132 16 148 6 164 5 C158 18 144 30 124 38 Z" fill="#fff"/>
+        <path d="M123 36 L155 12" fill="none" stroke-width="2"/>
+      </g>
+      <path d="M62 38 C58 14 82 2 100 4 C120 6 134 20 130 38 Z" fill="#C8324B"/>
+      <path d="M56 38 Q96 27 136 38 L134 47 Q96 37 58 47 Z" fill="#8E1F35"/>
+    </g>
   </g>
+  <g class="sq-z" fill="#6B5E8A" font-family="Baloo 2, sans-serif" font-weight="800"><text x="150" y="72" font-size="18">z</text><text x="163" y="56" font-size="13">z</text></g>
 </svg>`;
 }
 function mood(m) {
