@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 60
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url || steps.deploy-retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -42,7 +42,8 @@ jobs:
             echo "No price changes"
           else
             git commit -m "Refresh prices $(date -u +%Y-%m-%dT%H:%MZ)"
-            git pull --rebase origin main
+            # if another run saved data meanwhile, keep this run's newer data
+            git pull --rebase -X theirs origin main
             git push
           fi
 
@@ -53,4 +54,13 @@ jobs:
           path: app
 
       - id: deploy
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+
+      # GitHub sometimes can't find the just-uploaded artifact; wait and try once more
+      - if: steps.deploy.outcome == 'failure'
+        run: sleep 45
+
+      - id: deploy-retry
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v4
