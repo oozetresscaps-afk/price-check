@@ -29,7 +29,7 @@ SETS = [
 # Sets found by name in TCGplayer's set list each run (3 = Pokemon, 85 = Pokemon Japan).
 FIND = [
     {"cats": [3], "pattern": r"^(WoTC Promo|Wizards Black Star Promos?)$", "tab": "Promos", "abbr": "Promo"},
-    {"cats": [3, 85], "pattern": r"Vending Series", "tab": "Vending", "abbr": "Vend"},
+    {"cats": [3, 85], "pattern": r"(?i)vending|expansion sheet", "tab": "Vending", "abbr": "Vend"},
     {"cats": [85], "pattern": r"^(Pok[eé]mon |Pokemon Card )?VS$", "tab": "VS", "abbr": "VS"},
 ]
 TAB_ORDER = ["Expedition", "Aquapolis", "Skyridge", "Promos", "Vending", "VS"]
@@ -41,7 +41,10 @@ DATA_FILE = os.path.join(APP, "data", "prices.json")
 IMG_DIR = os.path.join(APP, "img")
 
 SETNAMES_URL = "https://mpapi.tcgplayer.com/v2/Catalog/SetNames?categoryId={cat}&active=true"
-PRICE_URL = "https://infinite-api.tcgplayer.com/priceguide/set/{id}/cards/?rows=5000&productTypeID=1"
+PRICE_URLS = [
+    "https://infinite-api.tcgplayer.com/priceguide/set/{id}/cards/?rows=5000&productTypeID=1",
+    "https://infinite-api.tcgplayer.com/priceguide/set/{id}/cards/?rows=5000",
+]
 SALES_URL = "https://mpapi.tcgplayer.com/v2/product/{id}/latestsales"
 LISTINGS_URL = "https://mp-search-api.tcgplayer.com/v1/product/{id}/listings"
 IMG_URL = "https://tcgplayer-cdn.tcgplayer.com/product/{id}_200w.jpg"
@@ -160,7 +163,7 @@ def money(v):
 
 def short_abbr(rule, name):
     if rule["tab"] == "Vending":
-        m = re.search(r"Series\s*(\d+)", name)
+        m = re.search(r"(?:Series|Sheet)\s*(\d+)", name, re.I)
         return f"Vend {m.group(1)}" if m else "Vend"
     return rule["abbr"]
 
@@ -178,6 +181,8 @@ def find_sets(previous_sets):
         except Exception as e:
             errors.append(f"category {cat}: {describe(e)}")
             log(f"Could not list sets for category {cat}: {describe(e)}")
+    candidates = [f"{name} ({sid}, cat {cat})" for cat, rows in names_by_cat.items() for sid, name in rows
+                  if re.search(r"(?i)vend|sheet|\bvs\b|wotc|wizards", name)]
     seen = {s["id"] for s in SETS}
     for rule in FIND:
         for cat in rule["cats"]:
@@ -192,12 +197,16 @@ def find_sets(previous_sets):
             if s.get("tab") in {r["tab"] for r in FIND} and s["id"] not in seen:
                 seen.add(s["id"])
                 found.append({k: s[k] for k in ("id", "name", "abbr", "tab", "cat") if k in s})
-    return found, errors
+    return found, errors, candidates[:60]
 
 
 def fetch_set_prices(s):
-    data = request(PRICE_URL.format(id=s["id"]))
-    rows = pick(data, "result") or []
+    rows = []
+    for url in PRICE_URLS:
+        data = request(url.format(id=s["id"]))
+        rows = pick(data, "result") or []
+        if rows:
+            break
     cards = {}
     for row in rows:
         pid = pick(row, "productID", "productId")
@@ -348,7 +357,7 @@ def main():
             old = json.load(f)
         previous = {c["id"]: upgrade_old(c) for c in old.get("cards", [])}
 
-    extra, set_errors = find_sets(old.get("sets", []))
+    extra, set_errors, candidates = find_sets(old.get("sets", []))
     all_sets = sorted(SETS + extra, key=lambda s: (TAB_ORDER.index(s["tab"]) if s["tab"] in TAB_ORDER else 99, s["name"]))
     cat_of = {s["id"]: s.get("cat", 3) for s in all_sets}
 
@@ -370,7 +379,8 @@ def main():
 
     diag = {"salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
             "salesError": None, "listingsError": None, "setLookupErrors": set_errors,
-            "setsFound": [f"{s['name']} ({s['id']})" for s in extra]}
+            "setsFound": [f"{s['name']} ({s['id']})" for s in extra], "setCandidates": candidates,
+            "emptySets": [s["name"] for s in sets_out if not s["count"]]}
     for i, card in enumerate(cards):
         lang_id, language = LANG.get(cat_of.get(card["set"], 3), LANG[3])
         prev = previous.get(card["id"], {})
