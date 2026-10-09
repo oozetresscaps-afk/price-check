@@ -1,4 +1,4 @@
-# Price Check
+# E-Value
 
 A home-screen app for Expedition, Aquapolis and Skyridge prices. It shows TCGplayer market price and last sold for every card, by printing (Normal, Reverse, Holo) and condition (NM, LP, MP, HP, DMG), and keeps everything on the phone so it works with no signal at a card show.
 
