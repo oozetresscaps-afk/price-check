@@ -184,6 +184,8 @@ function ago(iso) {
   if (hrs < 36) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
   return `${Math.round(hrs / 24)} days ago`;
 }
+// "Vending Machine cards Series 1 (Blue)" and Collectr's "Vending Series 1 (Blue)" are the same set
+const setKey = (name) => norm(name).replace(/\b(machine|cards|pokemon)\b/g, "").replace(/\s+/g, " ").trim();
 function numKey(num) {
   const n = String(num || "").split("/")[0].trim().toLowerCase();
   const m = /^([a-z]*?)0*(\d+)([a-z]?)$/.exec(n);
@@ -207,7 +209,7 @@ function prepare(data) {
     c.nk = numKey(c.num);
     const m = /^([a-z]*)(\d+)([a-z]?)/i.exec(c.nk);
     c.order = (setIdx.get(c.set) ?? 99) * 100000 + (m ? (m[1] ? 1000 : 0) + Number(m[2]) + (m[3] ? (m[3].charCodeAt(0) - 96) / 10 : 0) : 5000);
-    const sk = norm(c.setName);
+    const sk = setKey(c.setName);
     if (c.nk) data.byKey.set(`${sk}|${c.nk}`, c);
     if (!data.byKey.has(`${sk}|n:${c.key}`)) data.byKey.set(`${sk}|n:${c.key}`, c);
     const prints = new Set([...Object.keys(c.p), ...Object.keys(c.l), ...c.s.map((s) => s[1])]);
@@ -310,14 +312,19 @@ function importCollectr(text, fileName) {
   const col = (name) => head.findIndex((h) => h === name || h.startsWith(name));
   const iSet = col("set"), iNum = col("card number"), iVar = col("variance"), iCond = col("card condition"), iQty = col("quantity"), iName = col("product name");
   if (iSet < 0 || iNum < 0) throw new Error("That doesn't look like a Collectr export. It needs Set and Card Number columns.");
-  const sets = new Set(state.data.sets.map((s) => norm(s.name)));
+  const sets = new Set(state.data.sets.map((s) => setKey(s.name)));
   const items = {}; let matched = 0; const missed = [];
   for (const r of rows.slice(1)) {
-    const set = norm((r[iSet] || "").trim());
+    const set = setKey((r[iSet] || "").trim());
     if (!sets.has(set)) continue;
     const name = (r[iName] || "").trim();
-    const card = state.data.byKey.get(`${set}|${numKey(r[iNum])}`)
-      || state.data.byKey.get(`${set}|n:${norm(name.replace(/\s*\([^)]*\)\s*$/, ""))}`);
+    const bare = norm(name.replace(/\s*\([^)]*\)\s*$/, ""));
+    const loose = (k) => k.replace(/[^a-z0-9]+/g, "");
+    let card = state.data.byKey.get(`${set}|${numKey(r[iNum])}`) || state.data.byKey.get(`${set}|n:${bare}`);
+    if (!card) {
+      const near = state.data.cards.filter((c) => setKey(c.setName) === set && loose(c.key).startsWith(loose(bare)));
+      if (near.length === 1) card = near[0];
+    }
     let p = (r[iVar] || "Normal").trim();
     if (card && !card.prints.includes(p)) p = card.prints.length === 1 ? card.prints[0] : (p === "Normal" && card.prints.includes("Unlimited") ? "Unlimited" : null);
     const cond = COND_CODE[(r[iCond] || "").trim().toLowerCase()] || "NM";
@@ -526,7 +533,7 @@ function renderCard() {
       <div class="verdict" id="verdict" aria-live="polite"></div>
     </div>
     <section class="sales">
-      <h3>🏷️ Sales, last 2 months</h3>
+      <h3>🏷️ Recent sales</h3>
       ${sales.length ? `<ol>${sales.map((s) => `<li><span>${shortDate(s[3])}</span><span class="k">${s[0]}</span><span class="p">${fmt(s[2])}</span></li>`).join("")}</ol>`
         : `<p class="none">No sales of this version on TCGplayer lately.</p>`}
     </section>

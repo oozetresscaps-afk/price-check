@@ -66,11 +66,15 @@ CONDITIONS = [
 ]
 
 SALES_DAYS = 61          # keep every sale from roughly the last two months
-SALES_PAGE = 25          # the sales feed returns 25 at a time
-SALES_MAX_PAGES = 6      # look back at most 150 sales per card
+SALES_PAGE = 25          # asked for per request; the feed currently answers with 5
+SALES_MAX_PAGES = 12     # deepest look back on a full refresh
 SALES_KEEP = 60          # cap on stored sales per card (latest per printing/condition kept on top)
+DEEP_EVERY_DAYS = 14     # redo the full two-month look back this often
+COND_IDS = {"NM": 1, "LP": 2, "MP": 3, "HP": 4, "DMG": 5}   # TCGplayer condition ids
+TARGET_CONDS = ("NM", "LP", "MP")                           # look these up directly when missing
+TARGET_EVERY_DAYS = 3
 LISTINGS_SIZE = 50       # cheapest listings checked per card
-DELAY = 0.3              # seconds between requests, to stay polite
+DELAY = 0.2              # seconds between requests, to stay polite
 SKIP_SALES = os.environ.get("SKIP_SALES") == "1"
 SKIP_LISTINGS = os.environ.get("SKIP_LISTINGS") == "1"
 SKIP_IMAGES = os.environ.get("SKIP_IMAGES") == "1"
@@ -153,6 +157,11 @@ def clean_number(num):
     return "/".join(strip(p) for p in (num or "").split("/") if p.strip())
 
 
+def clean_rarity(r):
+    r = (r or "").strip()
+    return "" if r.lower() in ("none", "null") else r
+
+
 def money(v):
     try:
         v = float(v)
@@ -219,7 +228,7 @@ def fetch_set_prices(s):
             "set": s["id"],
             "name": clean_name(pick(row, "productName")),
             "num": clean_number(pick(row, "number")),
-            "rarity": pick(row, "rarity") or "",
+            "rarity": clean_rarity(pick(row, "rarity")),
             "p": {},
         })
         if ccode:
@@ -276,11 +285,12 @@ def fetch_set_from_search(s, debug):
                     if pick(r, "sealed") or str(pick(r, "productTypeName") or "Cards") not in ("Cards", "Singles"):
                         continue
                     attrs = pick(r, "customAttributes") or {}
+                    debug.setdefault("attrsSample", {k: attrs[k] for k in list(attrs)[:12]} if isinstance(attrs, dict) else str(attrs)[:200])
                     cards[pid] = {
                         "id": int(pid), "set": s["id"],
                         "name": clean_name(pick(r, "productName")),
                         "num": clean_number(pick(attrs, "number") or ""),
-                        "rarity": pick(r, "rarityName") or "",
+                        "rarity": clean_rarity(pick(r, "rarityName")),
                         "p": {}, "mkt": money(pick(r, "marketPrice")),
                     }
                 start += 50
@@ -295,45 +305,87 @@ def fetch_set_from_search(s, debug):
     return []
 
 
-def fetch_sales(pid, lang_id):
-    out = _fetch_sales(pid, [lang_id])
-    if not out:   # some Japanese cards sit in the English catalogue, or the other way round
-        out = _fetch_sales(pid, [7 if lang_id == 1 else 1])
-    return out
-
-
-def _fetch_sales(pid, langs):
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=SALES_DAYS)).strftime("%Y-%m-%d")
+def sales_page(pid, langs, offset, conditions=()):
+    body = {
+        "conditions": list(conditions), "languages": langs, "variants": [],
+        "listingType": "All", "offset": offset, "limit": SALES_PAGE,
+        "time": int(time.time() * 1000),
+    }
+    data = request(SALES_URL.format(id=pid), body=body)
     out = []
-    for page in range(SALES_MAX_PAGES):
-        body = {
-            "conditions": [], "languages": langs, "variants": [],
-            "listingType": "All", "offset": page * SALES_PAGE, "limit": SALES_PAGE,
-            "time": int(time.time() * 1000),
-        }
-        data = request(SALES_URL.format(id=pid), body=body)
-        rows = pick(data, "data") or []
-        dates = []
-        for sale in rows:
-            ccode = condition_code(pick(sale, "condition"))
-            pname = printing_name(pick(sale, "variant"))
-            price = money(pick(sale, "purchasePrice"))
-            date = (pick(sale, "orderDate") or "")[:10]
-            if date:
-                dates.append(date)
-            if ccode and price is not None and date:
-                out.append([ccode, pname, price, date])
-        if len(rows) < SALES_PAGE or not dates or min(dates) < cutoff:
+    for sale in pick(data, "data") or []:
+        ccode = condition_code(pick(sale, "condition"))
+        pname = printing_name(pick(sale, "variant"))
+        price = money(pick(sale, "purchasePrice"))
+        date = (pick(sale, "orderDate") or "")[:10]
+        if ccode and price is not None and date:
+            out.append([ccode, pname, price, date])
+    more = pick(data, "nextPage")
+    return out, len(pick(data, "data") or []), (more is None or bool(more))
+
+
+def fetch_sales(card, lang_id, stats):
+    """Recent sales, built up across runs.
+
+    A full look back of about two months happens on the first run and every
+    couple of weeks; in between, only sales newer than the ones already saved
+    are fetched. If a common condition still has no sale, the latest sale in
+    that condition is asked for directly, so the app can show something.
+    """
+    today = datetime.now(timezone.utc)
+    cutoff = (today - timedelta(days=SALES_DAYS)).strftime("%Y-%m-%d")
+    meta = card.get("sm") or {}
+    prev = [list(x) for x in card.get("s", [])]
+    deep = not prev or not meta.get("deep") or meta["deep"] < (today - timedelta(days=DEEP_EVERY_DAYS)).strftime("%Y-%m-%d")
+    known = set() if deep else {tuple(x) for x in prev}
+    langs = [lang_id]
+    found, offset = [], 0
+    for page in range(SALES_MAX_PAGES if deep else 4):
+        rows, raw, more = sales_page(card["id"], langs, offset)
+        if page == 0 and raw == 0 and not prev:
+            langs = [7 if lang_id == 1 else 1]   # card sits in the other language's catalogue
+            rows, raw, more = sales_page(card["id"], langs, offset)
+        stats["salesRequests"] += 1
+        new = [r for r in rows if tuple(r) not in known]
+        found.extend(new)
+        if raw == 0 or not more or len(new) < len(rows) or min(r[3] for r in rows) < cutoff:
             break
+        offset += raw
         time.sleep(DELAY)
-    out.sort(key=lambda r: r[3], reverse=True)
-    keep = [s for s in out if s[3] >= cutoff][:SALES_KEEP]
-    have = {(s[1], s[0]) for s in keep}
-    for s in out:   # never leave a printing/condition blank if an older sale exists
-        if (s[1], s[0]) not in have:
-            keep.append(s)
-            have.add((s[1], s[0]))
+    if deep:
+        meta["deep"] = today.strftime("%Y-%m-%d")
+        merged = found
+    else:
+        merged = found + prev
+    # dedupe while keeping order, newest first
+    merged.sort(key=lambda r: r[3], reverse=True)
+    have_conds = {r[0] for r in merged}
+    tried = meta.setdefault("t", {})
+    for code in TARGET_CONDS:
+        if code in have_conds:
+            continue
+        if tried.get(code, "") >= (today - timedelta(days=TARGET_EVERY_DAYS)).strftime("%Y-%m-%d"):
+            continue
+        tried[code] = today.strftime("%Y-%m-%d")
+        try:
+            rows, _, _ = sales_page(card["id"], langs, 0, conditions=[COND_IDS[code]])
+            stats["salesRequests"] += 1
+            hits = [r for r in rows if r[0] == code]   # ignore if the filter wasn't honoured
+            if hits:
+                stats["targetedHits"] += 1
+                merged.extend(hits[:1])
+        except Exception:
+            pass
+        time.sleep(DELAY)
+    merged.sort(key=lambda r: r[3], reverse=True)
+    keep = [r for r in merged if r[3] >= cutoff][:SALES_KEEP]
+    seen = {(r[1], r[0]) for r in keep}
+    for r in merged:   # never leave a printing/condition blank if an older sale exists
+        if (r[1], r[0]) not in seen:
+            keep.append(r)
+            seen.add((r[1], r[0]))
     keep.sort(key=lambda r: r[3], reverse=True)
+    card["sm"] = meta
     return keep
 
 
@@ -445,7 +497,7 @@ def main():
         log("Could not reach the TCGplayer price guide for any set. Nothing written.")
         sys.exit(1)
 
-    diag = {"salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
+    diag = {"salesRequests": 0, "targetedHits": 0, "salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
             "salesError": None, "listingsError": None, "setLookupErrors": set_errors,
             "setsFound": [f"{s['name']} ({s['id']})" for s in extra], "setCandidates": candidates,
             "emptySets": [s["name"] for s in sets_out if not s["count"]], "searchDebug": search_debug}
@@ -453,10 +505,11 @@ def main():
         lang_id, language = LANG.get(cat_of.get(card["set"], 3), LANG[3])
         prev = previous.get(card["id"], {})
         card["s"] = prev.get("s", [])
+        card["sm"] = prev.get("sm", {})
         card["l"] = prev.get("l", {})
         if not SKIP_SALES:
             try:
-                card["s"] = fetch_sales(card["id"], lang_id)
+                card["s"] = fetch_sales(card, lang_id, diag)
                 diag["salesOk"] += 1
             except Exception as e:
                 diag["salesFailed"] += 1
