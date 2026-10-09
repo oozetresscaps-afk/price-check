@@ -359,7 +359,9 @@ function setSeg(el, value, attr) {
   const btns = [...el.querySelectorAll(`[data-${attr}]`)];
   const i = btns.findIndex((b) => b.dataset[attr] === value);
   btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attr] === value)));
+  const prev = el.style.getPropertyValue("--i");
   el.style.setProperty("--i", Math.max(0, i));
+  if (prev !== "" && prev !== String(Math.max(0, i)) && !reduceMotion.matches) { el.classList.remove("boing"); void el.offsetWidth; el.classList.add("boing"); }
 }
 
 const TAB_LABEL = { Promos: "⭐ Black Star Promos", Vending: "🇯🇵 Vending", VS: "🇯🇵 VS" };
@@ -543,6 +545,14 @@ function renderCard() {
   renderVerdict(false);
 }
 
+const QUIPS = {
+  "Great deal!": ["Buy it before they check their phone.", "Act casual. Pay fast.", "Even I'm impressed. Barely."],
+  "Same as online": ["At least you skip the shipping wait.", "A wash. Haggle a little anyway."],
+  "Fair price": ["Fine. Not a steal, but fine.", "Fair. Try 90% and see if they blink."],
+  "Pricey": ["They saw you coming.", "Your wallet just flinched.", "Haggle, or walk away slowly."],
+  "Under market": ["Under market. I'll allow it.", "Not bad. Not bad at all."],
+  "Over market": ["Absolutely not. Well, maybe. No.", "Over market. Make a face and wait."],
+};
 function renderVerdict(pop) {
   const out = $("verdict"); if (!out) return;
   const { card: c, print: p, cond } = sheetState;
@@ -562,9 +572,14 @@ function renderVerdict(pop) {
     else if (m != null) { e = "😬"; title = "Over market"; sub = `${pct}. None listed online in ${cond} right now.`; }
     else { e = "🤷"; title = "Not enough data"; sub = `TCGplayer has no ${cond} market or listings for this version.`; }
   }
-  out.innerHTML = `<span class="emoji" aria-hidden="true">${e}</span><span>${title ? `<b>${title}</b>` : ""}${sub}</span>`;
+  const qs = QUIPS[title];
+  const quip = qs ? qs[(Number(c.id) + COND_ORDER.indexOf(cond)) % qs.length] : "";
+  out.innerHTML = `<span class="emoji" aria-hidden="true">${e}</span><span>${title ? `<b>${title}</b>` : ""}${sub}${quip ? `<i class="quip">${quip}</i>` : ""}</span>`;
   const off = $("askoff");
-  if (off) off.innerHTML = ask ? `<h3 class="hh ask-h">Offer them</h3>${tiles(ask, m)}` : "";
+  if (off) {
+    if (!ask) off.innerHTML = "";
+    else { if (!off.firstChild) off.innerHTML = `<h3 class="hh ask-h">Offer them</h3>`; paintTiles(off, ask, m); }
+  }
   if (pop && !reduceMotion.matches) { out.classList.remove("pop"); void out.offsetWidth; out.classList.add("pop"); }
 }
 
@@ -629,7 +644,29 @@ const HAGL_LINES = [
 ];
 const COND_ORDER = CONDS.map(([k]) => k);
 const cart = { items: [], lot: "", ...(store.get("cart", null) || {}) };
-const saveCart = () => store.set("cart", { items: cart.items, lot: cart.lot });
+function cartBadge(bump) {
+  const n = cart.items.length, el = $("hagl-n");
+  el.hidden = !n; el.textContent = n > 99 ? "99+" : n;
+  if (bump && !reduceMotion.matches) { const b = $("hagl"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); }
+}
+const saveCart = () => { store.set("cart", { items: cart.items, lot: cart.lot }); cartBadge(); };
+
+// a little coin hops from what you tapped into the cart
+function flyCoin(from, to, done) {
+  if (reduceMotion.matches || !from || !to) { done?.(); return; }
+  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
+  const x0 = a.left + a.width / 2, y0 = a.top + a.height / 2, x1 = b.left + b.width / 2, y1 = b.top + b.height / 2;
+  const coin = document.createElement("span");
+  coin.className = "flycoin"; coin.setAttribute("aria-hidden", "true");
+  coin.style.left = `${x0 - 13}px`; coin.style.top = `${y0 - 13}px`;
+  (sheet.open ? sheet : document.body).appendChild(coin);
+  const dx = x1 - x0, dy = y1 - y0, lift = Math.min(-60, dy / 2 - 70);
+  coin.animate([
+    { transform: "translate(0,0) scale(.6) rotate(0)", opacity: 0 },
+    { transform: `translate(${dx * .45}px, ${lift}px) scale(1.15) rotate(220deg)`, opacity: 1, offset: .45 },
+    { transform: `translate(${dx}px, ${dy}px) scale(.55) rotate(420deg)`, opacity: .9 },
+  ], { duration: 700, easing: "cubic-bezier(.3,.7,.4,1)" }).finished.then(() => { coin.remove(); done?.(); }, () => coin.remove());
+}
 const hagl = { tab: store.get("hagltab", "quick"), quick: "", q: "", line: "" };
 const money = (s) => { const v = parseFloat(String(s ?? "").replace(/[^0-9.]/g, "")); return Number.isFinite(v) && v > 0 ? v : null; };
 const pctOf = (v, of) => (of ? `${Math.round((v / of) * 100)}%` : "");
@@ -663,7 +700,7 @@ function openHagl(tab) {
   hagl.line = HAGL_LINES[Math.floor(Math.random() * HAGL_LINES.length)];
   renderHagl();
   showSheet();
-  if (hagl.tab === "quick") setTimeout(() => $("hq")?.focus({ preventScroll: true }), 350);
+  if (hagl.tab === "quick") setTimeout(() => $("hq")?.focus({ preventScroll: true }), 450);
 }
 
 function renderHagl() {
@@ -721,10 +758,23 @@ function tiles(base, mkt) {
   }).join("")}</div>`;
 }
 
+function paintTiles(el, base, mkt) {
+  const wrap = el.querySelector(":scope > .htiles");
+  if (!wrap) { el.insertAdjacentHTML("beforeend", tiles(base, mkt)); return; }
+  const fresh = document.createElement("div"); fresh.innerHTML = tiles(base, mkt);
+  [...wrap.children].forEach((t, k) => {
+    const n = fresh.firstElementChild.children[k], b = t.querySelector("b"), nb = n.querySelector("b");
+    if (b.textContent !== nb.textContent) { b.textContent = nb.textContent; if (!reduceMotion.matches) { b.classList.remove("tick"); void b.offsetWidth; b.classList.add("tick"); } }
+    t.querySelector("small").textContent = n.querySelector("small").textContent;
+  });
+}
+const QUICK_HINT = `<p class="hint">Type what they're asking and I'll do the math. You do the talking.</p>`;
 function renderQuick() {
   const out = $("hq-out"); if (!out) return;
   const v = money(hagl.quick);
-  out.innerHTML = v ? tiles(v) : `<p class="hint">Type what they're asking and I'll do the math. You do the talking.</p>`;
+  if (!v) { out.innerHTML = QUICK_HINT; return; }
+  out.querySelector(".hint")?.remove();
+  paintTiles(out, v);
 }
 
 /* --- cart: search --- */
@@ -828,9 +878,13 @@ function renderTotals() {
     }
     if (bits.length) verdict = `<p class="hverdict">${bits.join(", ")}${partial ? ` (for the ${withAsk.length} priced card${withAsk.length > 1 ? "s" : ""})` : ""}.</p>`;
   }
-  $("hoffer").innerHTML = `${verdict}
-    <h3 class="hh">Offer ${sticker != null ? (lot ? "on the lot price" : "on their stickers") : "on market"}</h3>
-    ${base ? tiles(base, mRef || null) : `<p class="fine">Add stickers or a lot price to work out offers.</p>`}`;
+  const ho = $("hoffer");
+  if (!ho.firstChild) ho.innerHTML = `<div id="hverd"></div><h3 class="hh" id="hoh"></h3><div id="htl"></div>`;
+  $("hverd").innerHTML = verdict;
+  $("hoh").textContent = `Offer ${sticker != null ? (lot ? "on the lot price" : "on their stickers") : "on market"}`;
+  const tl = $("htl");
+  if (base) { tl.querySelector(".fine")?.remove(); paintTiles(tl, base, mRef || null); }
+  else tl.innerHTML = `<p class="fine">Add stickers or a lot price to work out offers.</p>`;
 }
 
 function setCartCount() {
@@ -843,6 +897,7 @@ sheet.addEventListener("click", (e) => {
   if (add && sheetState.mode === "card") {
     addToCart(sheetState.card, sheetState.print, sheetState.cond, sheetState.ask);
     add.textContent = addCartLabel();
+    flyCoin(add, $("hagl"), () => cartBadge(true));
     if (!reduceMotion.matches) { add.classList.remove("pop"); void add.offsetWidth; add.classList.add("pop"); }
     say(`${cart.items.length} in the cart. Tap 🤝 hagl to see the damage.`);
     return;
@@ -862,8 +917,10 @@ sheet.addEventListener("click", (e) => {
     const c = state.data.byId.get(a.dataset.hadd);
     if (!c) return;
     addToCart(c, a.dataset.p, state.cond, "");
+    const tab = $("htabs")?.querySelector('[data-htab="cart"]');
+    flyCoin(a.querySelector(".plus") || a, tab, () => { setCartCount(); if (tab && !reduceMotion.matches) { tab.classList.remove("bump"); void tab.offsetWidth; tab.classList.add("bump"); } });
     hagl.q = ""; const inp = $("hs"); if (inp) inp.value = "";
-    renderSearch(); renderCart(); setCartCount();
+    renderSearch(); renderCart();
     return;
   }
   const rm = e.target.closest("[data-hrm]");
@@ -951,6 +1008,36 @@ sheet.addEventListener("input", (e) => {
   askTimer = setTimeout(() => renderVerdict(true), 250);
 });
 
+/* ================= on-screen keyboard ================= */
+// Keep sheets above the keyboard. Chrome resizes the page with the meta tag; this covers browsers that don't.
+let fullH = innerHeight;
+function onViewport() {
+  const vv = window.visualViewport, root = document.documentElement;
+  const h = vv ? vv.height : innerHeight;
+  fullH = Math.max(fullH, innerHeight);
+  const over = vv ? Math.max(0, innerHeight - vv.height - vv.offsetTop) : 0;
+  root.style.setProperty("--vvh", `${Math.round(h)}px`);
+  root.style.setProperty("--kb", `${Math.round(over)}px`);
+  const open = h < fullH * 0.75 && document.activeElement?.tagName === "INPUT";
+  const was = root.classList.contains("kb");
+  root.classList.toggle("kb", open);
+  if (open && !was) revealFocus();
+}
+// scroll the field (and what it controls) into the space above the keyboard
+function revealFocus() {
+  const el = document.activeElement;
+  if (!el || el.tagName !== "INPUT" || !sheet.contains(el)) return;
+  const target = el.id === "ask" ? el.closest(".ask") : el.id === "hq" ? el.closest(".hq") : el.id === "hs" ? el.closest(".hsearch") : el.closest(".hitem, .trow") || el;
+  setTimeout(() => target.scrollIntoView({ block: el.id === "hlot" ? "center" : "start", behavior: reduceMotion.matches ? "auto" : "smooth" }), 60);
+}
+window.visualViewport?.addEventListener("resize", onViewport);
+addEventListener("resize", onViewport);
+addEventListener("orientationchange", () => { fullH = 0; setTimeout(onViewport, 400); });
+document.addEventListener("focusin", () => setTimeout(onViewport, 50));
+document.addEventListener("focusout", () => setTimeout(onViewport, 50));
+sheet.addEventListener("focusin", () => { if (document.documentElement.classList.contains("kb")) revealFocus(); });
+onViewport();
+
 /* ================= events ================= */
 
 $("sets").addEventListener("click", (e) => {
@@ -967,10 +1054,22 @@ $("sets").addEventListener("click", (e) => {
   b.scrollIntoView({ inline: "nearest", block: "nearest", behavior: reduceMotion.matches ? "auto" : "smooth" });
   renderList(true);
 });
+const COND_LINES = {
+  NM: ["Near Mint only. Look at you, fancy.", "Mint or nothing. I respect the delusion."],
+  LP: ["Lightly Played. The sensible choice. Boring, but sensible.", "LP: basically NM if you don't look too hard."],
+  MP: ["Moderately Played. Pre-loved, like your wallet.", "MP. A card with a past. I like that."],
+  HP: ["Heavily Played? Someone's bargain hunting.", "HP. It's been through things. So have you."],
+  DMG: ["Damaged. Bold. I like it.", "Creased cardboard is still cardboard."],
+};
+let condTalk = 0;
 $("condition").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-cond]"); if (!b) return;
+  const b = e.target.closest("[data-cond]"); if (!b || b.dataset.cond === state.cond) return;
   state.cond = b.dataset.cond; store.set("cond", state.cond);
-  setSeg($("condition"), state.cond, "cond"); renderList(true);
+  setSeg($("condition"), state.cond, "cond"); renderList(false);
+  const list = $("list");
+  if (!reduceMotion.matches) { list.classList.remove("tick"); void list.offsetWidth; list.classList.add("tick"); }
+  if (++condTalk % 2 === 1) { const l = COND_LINES[state.cond]; say(l[Math.floor(Math.random() * l.length)]); }
+  if ($("buddy").dataset.mood === "idle") play("jingle");
 });
 $("sort").addEventListener("click", () => {
   state.sort = state.sort === "num" ? "price" : "num"; store.set("sort", state.sort);
@@ -990,7 +1089,11 @@ $("list").addEventListener("click", (e) => {
 $("nudge").addEventListener("click", (e) => { if (e.target.closest("[data-open-coll]")) openCollection(); });
 $("collection").addEventListener("click", () => { if (state.data) openCollection(); });
 $("refresh").addEventListener("click", () => refresh(true));
-$("theme").addEventListener("click", () => { applyTheme(state.theme === "dark" ? "light" : "dark"); store.set("theme", state.theme); });
+$("theme").addEventListener("click", () => {
+  applyTheme(state.theme === "dark" ? "light" : "dark"); store.set("theme", state.theme);
+  say(state.theme === "light" ? "Ow. My eyes. Who turned the lights on? 😎" : "Ahh. Much better. Money looks good in the dark.");
+  if ($("buddy").dataset.mood === "idle") play(state.theme === "light" ? "wiggle" : "smug");
+});
 $("buddy").addEventListener("click", () => {
   const b = $("buddy");
   if (b.dataset.mood !== "idle" && b.dataset.mood !== "smug") return smug(false);
@@ -1016,7 +1119,17 @@ document.addEventListener("visibilitychange", () => {
 
 /* ================= start ================= */
 
+const h1 = document.querySelector("h1");
+h1.innerHTML = [...h1.textContent].map((ch, i) => `<span style="--i:${i}">${ch}</span>`).join("");
+h1.setAttribute("aria-label", "bagl");
+h1.addEventListener("click", () => {
+  if (reduceMotion.matches) return;
+  h1.classList.remove("wave"); void h1.offsetWidth; h1.classList.add("wave");
+  if ($("buddy").dataset.mood === "idle") play("jingle");
+});
+
 (async function start() {
+  cartBadge();
   $("buddy").innerHTML = mascot();
   $("buddy").dataset.mood = "idle";
   if ("serviceWorker" in navigator) {
