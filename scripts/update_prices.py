@@ -176,27 +176,27 @@ def find_sets(previous_sets):
         try:
             data = request(SETNAMES_URL.format(cat=cat))
             rows = pick(data, "results") or (data if isinstance(data, list) else [])
-            names_by_cat[cat] = [(pick(r, "setNameId", "groupId", "id"), pick(r, "name") or "") for r in rows]
+            names_by_cat[cat] = [(pick(r, "setNameId", "groupId", "id"), pick(r, "name") or "", pick(r, "urlName", "cleanSetName") or "") for r in rows]
             log(f"Category {cat}: {len(names_by_cat[cat])} sets listed")
         except Exception as e:
             errors.append(f"category {cat}: {describe(e)}")
             log(f"Could not list sets for category {cat}: {describe(e)}")
-    candidates = [f"{name} ({sid}, cat {cat})" for cat, rows in names_by_cat.items() for sid, name in rows
+    candidates = [f"{name} ({sid}, cat {cat})" for cat, rows in names_by_cat.items() for sid, name, _ in rows
                   if re.search(r"(?i)vend|sheet|\bvs\b|wotc|wizards", name)]
     seen = {s["id"] for s in SETS}
     for rule in FIND:
         for cat in rule["cats"]:
-            for sid, name in names_by_cat.get(cat, []):
+            for sid, name, url in names_by_cat.get(cat, []):
                 if sid and sid not in seen and re.search(rule["pattern"], name):
                     seen.add(sid)
-                    found.append({"id": sid, "name": name, "abbr": short_abbr(rule, name), "tab": rule["tab"], "cat": cat})
+                    found.append({"id": sid, "name": name, "abbr": short_abbr(rule, name), "tab": rule["tab"], "cat": cat, "url": url})
                     log(f"Found {rule['tab']}: {name} ({sid}, category {cat})")
     # If the catalogue lookup failed, fall back to sets found on an earlier run.
     if errors:
         for s in previous_sets:
             if s.get("tab") in {r["tab"] for r in FIND} and s["id"] not in seen:
                 seen.add(s["id"])
-                found.append({k: s[k] for k in ("id", "name", "abbr", "tab", "cat") if k in s})
+                found.append({k: s[k] for k in ("id", "name", "abbr", "tab", "cat", "url") if k in s})
     return found, errors, candidates[:60]
 
 
@@ -228,6 +228,71 @@ def fetch_set_prices(s):
             if price is not None:
                 card["p"][pname][ccode] = price
     return list(cards.values())
+
+
+SEARCH_URL = "https://mp-search-api.tcgplayer.com/v1/search/request?q={q}&isList=false"
+PRODUCT_LINE = {3: "pokemon", 85: "pokemon-japan"}
+
+
+def slug(text):
+    return re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+
+
+def search_page(cat, q, set_slug, start):
+    term = {"productLineName": [PRODUCT_LINE.get(cat, "pokemon")]}
+    if set_slug:
+        term["setName"] = [set_slug]
+    body = {
+        "algorithm": "sales_dismax", "from": start, "size": 50,
+        "filters": {"term": term, "range": {}, "match": {}},
+        "listingSearch": {"context": {"cart": {}}, "filters": {"term": {"sellerStatus": "Live", "channelId": 0},
+                          "range": {"quantity": {"gte": 1}}, "exclude": {"channelExclusion": 0}}},
+        "context": {"cart": {}, "shippingCountry": "US", "userProfile": {}},
+        "settings": {"useFuzzySearch": False, "didYouMean": {}},
+        "sort": {},
+    }
+    data = request(SEARCH_URL.format(q=urllib.request.quote(q)), body=body)
+    outer = pick(data, "results") or []
+    block = outer[0] if outer and isinstance(outer[0], dict) else {}
+    return pick(block, "results") or [], pick(block, "totalResults") or 0
+
+
+def fetch_set_from_search(s, debug):
+    """List a set's cards through TCGplayer's search when the price guide has nothing."""
+    cat = s.get("cat", 3)
+    attempts = [("", s.get("url") or slug(s["name"])), ("", slug(s["name"])), (s["name"], None)]
+    for q, set_slug in attempts:
+        cards, start, total = {}, 0, None
+        try:
+            while start < 1000:
+                rows, total = search_page(cat, q, set_slug, start)
+                if not debug.get(s["name"]):
+                    debug[s["name"]] = f"q={q!r} set={set_slug!r} total={total} first={sorted(rows[0].keys())[:25] if rows else None}"
+                for r in rows:
+                    pid = pick(r, "productId", "productID")
+                    sid = pick(r, "setId", "groupId")
+                    if pid is None or (sid is not None and int(sid) != int(s["id"])):
+                        continue
+                    if pick(r, "sealed") or str(pick(r, "productTypeName") or "Cards") not in ("Cards", "Singles"):
+                        continue
+                    attrs = pick(r, "customAttributes") or {}
+                    cards[pid] = {
+                        "id": int(pid), "set": s["id"],
+                        "name": clean_name(pick(r, "productName")),
+                        "num": clean_number(pick(attrs, "number") or ""),
+                        "rarity": pick(r, "rarityName") or "",
+                        "p": {}, "mkt": money(pick(r, "marketPrice")),
+                    }
+                start += 50
+                if not rows or start >= (total or 0):
+                    break
+                time.sleep(DELAY)
+        except Exception as e:
+            debug[s["name"]] = f"q={q!r} set={set_slug!r} error={describe(e)}"
+            continue
+        if cards:
+            return list(cards.values())
+    return []
 
 
 def fetch_sales(pid, lang_id):
@@ -361,11 +426,14 @@ def main():
     all_sets = sorted(SETS + extra, key=lambda s: (TAB_ORDER.index(s["tab"]) if s["tab"] in TAB_ORDER else 99, s["name"]))
     cat_of = {s["id"]: s.get("cat", 3) for s in all_sets}
 
-    cards, sets_out, price_failures = [], [], 0
+    cards, sets_out, price_failures, search_debug = [], [], 0, {}
     for s in all_sets:
         try:
             set_cards = fetch_set_prices(s)
             log(f"{s['name']}: {len(set_cards)} cards from the price guide")
+            if not set_cards:
+                set_cards = fetch_set_from_search(s, search_debug)
+                log(f"{s['name']}: {len(set_cards)} cards from TCGplayer search ({search_debug.get(s['name'])})")
         except Exception as e:
             price_failures += 1
             set_cards = [c for c in previous.values() if c.get("set") == s["id"]]
@@ -380,7 +448,7 @@ def main():
     diag = {"salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
             "salesError": None, "listingsError": None, "setLookupErrors": set_errors,
             "setsFound": [f"{s['name']} ({s['id']})" for s in extra], "setCandidates": candidates,
-            "emptySets": [s["name"] for s in sets_out if not s["count"]]}
+            "emptySets": [s["name"] for s in sets_out if not s["count"]], "searchDebug": search_debug}
     for i, card in enumerate(cards):
         lang_id, language = LANG.get(cat_of.get(card["set"], 3), LANG[3])
         prev = previous.get(card["id"], {})
@@ -412,6 +480,16 @@ def main():
             time.sleep(DELAY)
         if (i + 1) % 100 == 0:
             log(f"{i + 1}/{len(cards)} cards checked")
+    for card in cards:
+        mkt = card.pop("mkt", None)
+        if mkt and not any(card["p"].values()):
+            seen = {}
+            for v in card.get("lc", {}) or {}:
+                seen[v] = seen.get(v, 0) + card["lc"][v]
+            for sale in card.get("s", []):
+                seen[sale[1]] = seen.get(sale[1], 0) + 1
+            main_print = max(seen, key=seen.get) if seen else "Normal"
+            card["p"] = {main_print: {"NM": mkt}}
     log(f"Sales: {diag['salesOk']} updated, {diag['salesFailed']} kept from before")
     log(f"Lowest listed: {diag['listingsOk']} updated ({diag['listingsEmpty']} with no listings), "
         f"{diag['listingsFailed']} kept from before")
