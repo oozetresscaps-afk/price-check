@@ -366,11 +366,11 @@ h1 { margin: 0; font: 800 34px/1 var(--fun); letter-spacing: -.01em; color: var(
   overflow: auto; overscroll-behavior: contain;
 }
 .sheet::backdrop { background: rgb(40 24 36 / .5); }
-.sheet[open] { animation: sheet-up .42s var(--spring); }
-.sheet[open]::backdrop { animation: fade .3s ease-out; }
-.sheet.closing { animation: sheet-down .22s ease-in forwards; }
+.sheet[open] { animation: sheet-up .22s cubic-bezier(.2, .9, .3, 1.05); }
+.sheet[open]::backdrop { animation: fade .16s ease-out; }
+.sheet.closing { animation: sheet-down .16s ease-in forwards; }
 .sheet.dragging { animation: none; transition: none; }
-@keyframes sheet-up { from { transform: translateY(70%); } }
+@keyframes sheet-up { from { transform: translateY(32%); opacity: .4; } }
 @keyframes sheet-down { to { transform: translateY(100%); } }
 @keyframes fade { from { opacity: 0; } }
 .sheet-inner { padding: 6px 16px calc(22px + env(safe-area-inset-bottom)); }
@@ -381,7 +381,7 @@ h1 { margin: 0; font: 800 34px/1 var(--fun); letter-spacing: -.01em; color: var(
   width: 40px; height: 40px; border: 0; border-radius: 20px; background: var(--chip); font-size: 20px; line-height: 1;
 }
 .card-head { display: grid; grid-template-columns: 108px 1fr; gap: 16px; align-items: start; }
-.card-img { position: relative; width: 108px; height: 150px; border-radius: 7px; overflow: hidden; transform: rotate(-3deg); box-shadow: 0 6px 0 var(--line); background: var(--chip); animation: tilt-in .6s var(--spring); }
+.card-img { position: relative; width: 108px; height: 150px; border-radius: 7px; overflow: hidden; transform: rotate(-3deg); box-shadow: 0 6px 0 var(--line); background: var(--chip); animation: tilt-in .3s cubic-bezier(.3, 1.3, .6, 1); }
 .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .card-img.foil::after {
   content: ""; position: absolute; inset: 0; mix-blend-mode: soft-light;
@@ -389,7 +389,7 @@ h1 { margin: 0; font: 800 34px/1 var(--fun); letter-spacing: -.01em; color: var(
   background-size: 250% 250%; animation: shine 3.5s ease-in-out infinite;
 }
 @keyframes shine { 0% { background-position: 100% 100%; } 50% { background-position: 0 0; } 100% { background-position: 100% 100%; } }
-@keyframes tilt-in { from { transform: rotate(-12deg) translateY(10px); opacity: 0; } }
+@keyframes tilt-in { from { transform: rotate(-9deg) translateY(6px); opacity: 0; } }
 .card-head h2 { margin: 2px 0 2px; font: 800 26px/1.1 var(--fun); }
 .card-head p { margin: 0; color: var(--ink-2); font-size: 15px; }
 .set-line { display: flex; align-items: center; gap: 8px; color: var(--ink) !important; }

@@ -990,7 +990,7 @@ sheet.addEventListener("click", (e) => {
   if (pb) {
     sheetState.print = pb.dataset.sprint;
     setSeg($("sprint"), sheetState.print, "sprint");
-    setTimeout(renderCard, reduceMotion.matches ? 0 : 160);
+    setTimeout(renderCard, reduceMotion.matches ? 0 : 90);
     return;
   }
   const cb = e.target.closest("[data-scond]");
