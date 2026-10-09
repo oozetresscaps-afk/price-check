@@ -673,16 +673,6 @@ h1.wave span { animation: letter-wave .55s ease-in-out both; animation-delay: ca
 }
 
 /* ---------- circus touches ---------- */
-.top { position: relative; padding-top: calc(24px + env(safe-area-inset-top)); }
-.top::before {
-  content: ""; position: absolute; left: 0; right: 0; top: env(safe-area-inset-top); height: 16px; opacity: .92;
-  background: repeating-linear-gradient(90deg, #D24552 0 18px, #F8EADA 18px 36px);
-  -webkit-mask: linear-gradient(#000 0 7px, transparent 7px), radial-gradient(circle at 9px 7px, #000 8.6px, transparent 9.2px) 0 0 / 18px 16px repeat-x;
-          mask: linear-gradient(#000 0 7px, transparent 7px), radial-gradient(circle at 9px 7px, #000 8.6px, transparent 9.2px) 0 0 / 18px 16px repeat-x;
-  animation: valance-in .6s var(--spring) both;
-}
-@keyframes valance-in { from { transform: translateY(-16px); } }
-.intro-on .top::before { animation-play-state: paused; }
 h1::after {
   content: ""; display: inline-block; width: 13px; height: 13px; margin: 0 0 18px 3px; background: var(--sun);
   clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
