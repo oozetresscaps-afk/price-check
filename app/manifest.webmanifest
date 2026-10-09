@@ -1,13 +1,13 @@
 {
-  "name": "E-Value",
-  "short_name": "E-Value",
-  "description": "TCGplayer market prices and last sold for Expedition, Aquapolis and Skyridge, saved for offline use.",
+  "name": "Equire",
+  "short_name": "Equire",
+  "description": "TCGplayer market, lowest listed and last sold for Expedition, Aquapolis and Skyridge, saved for offline use at card shows.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#17202B",
-  "theme_color": "#17202B",
+  "background_color": "#F3EEFF",
+  "theme_color": "#F3EEFF",
   "icons": [
     {
       "src": "icons/icon-192.png",

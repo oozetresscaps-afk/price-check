@@ -42,6 +42,7 @@ jobs:
             echo "No price changes"
           else
             git commit -m "Refresh prices $(date -u +%Y-%m-%dT%H:%MZ)"
+            git pull --rebase origin main
             git push
           fi
 

@@ -3,32 +3,41 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>E-Value</title>
-  <meta name="description" content="TCGplayer market prices and last sold for Expedition, Aquapolis and Skyridge, saved for offline use.">
-  <meta name="theme-color" content="#17202B">
-  <meta name="apple-mobile-web-app-title" content="E-Value">
+  <title>Equire</title>
+  <meta name="description" content="TCGplayer market, lowest listed and last sold for Expedition, Aquapolis and Skyridge, saved for offline use at card shows.">
+  <meta name="theme-color" content="#F3EEFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#160F2A" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-title" content="Equire">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="preload" href="fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/baloo-2-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="top">
-    <div class="strip" aria-hidden="true"></div>
-    <div class="titlebar">
-      <h1>E-Value</h1>
-      <button id="refresh" class="icon-btn" type="button" aria-label="Refresh prices">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+    <div class="buddy" id="buddy" data-mood="look" aria-hidden="true"></div>
+    <div class="top-main">
+      <div class="titlebar">
+        <h1>Equire</h1>
+        <div class="top-actions">
+          <button id="collection" class="icon-btn" type="button" aria-label="Your collection">
+            <span class="emoji" aria-hidden="true">📚</span>
+          </button>
+          <button id="refresh" class="icon-btn" type="button" aria-label="Refresh prices">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <p id="status" class="bubble" role="status">Loading saved prices…</p>
     </div>
-    <p id="status" class="status" role="status">Loading saved prices</p>
   </header>
+
   <div class="finder">
     <label class="search">
       <span class="visually-hidden">Search cards</span>
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="emoji" aria-hidden="true">🔍</span>
       <input id="q" type="search" placeholder="Name or number" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
     </label>
     <div class="sets" id="sets" role="group" aria-label="Set"></div>
@@ -38,14 +47,16 @@
     <p id="count" class="count"></p>
     <button id="sort" class="sort" type="button"></button>
   </div>
+  <div id="nudge"></div>
   <main id="list" class="list" aria-live="polite"></main>
 
   <nav class="dock" aria-label="Printing and condition">
-    <div class="seg seg-print" id="printing" role="group" aria-label="Printing"></div>
-    <div class="seg seg-cond" id="condition" role="group" aria-label="Condition"></div>
+    <div class="seg" id="printing" role="group" aria-label="Printing"></div>
+    <div class="seg" id="condition" role="group" aria-label="Condition"></div>
   </nav>
 
   <dialog id="sheet" class="sheet" aria-labelledby="sheet-title"></dialog>
+  <input id="csv" type="file" accept=".csv,text/csv,text/comma-separated-values,application/vnd.ms-excel" hidden>
 
   <script src="app.js"></script>
 </body>

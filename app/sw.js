@@ -1,16 +1,16 @@
 /* Offline support: app files and prices load from the phone first,
    then update in the background whenever there is a connection. */
-const VERSION = "v2";
+const VERSION = "v3";
 const SHELL = `shell-${VERSION}`;
 const DATA = "data";
 const IMG = "img";
 const SHELL_FILES = [
-  "./", "index.html", "styles.css", "app.js", "manifest.webmanifest", "dots.svg",
+  "./", "index.html", "styles.css", "app.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png",
   "fonts/atkinson-hyperlegible-latin-400-normal.woff2",
   "fonts/atkinson-hyperlegible-latin-700-normal.woff2",
-  "fonts/barlow-condensed-latin-600-normal.woff2",
-  "fonts/barlow-condensed-latin-700-normal.woff2",
+  "fonts/baloo-2-latin-700-normal.woff2",
+  "fonts/baloo-2-latin-800-normal.woff2",
 ];
 const DATA_KEY = new URL("data/prices.json", self.registration.scope).href;
 
