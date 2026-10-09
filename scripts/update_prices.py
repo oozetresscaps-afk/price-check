@@ -327,66 +327,55 @@ def sales_page(pid, langs, offset, conditions=()):
 def fetch_sales(card, lang_id, stats):
     """Recent sales, built up across runs.
 
-    A full look back of about two months happens on the first run and every
-    couple of weeks; in between, only sales newer than the ones already saved
-    are fetched. If a common condition still has no sale, the latest sale in
-    that condition is asked for directly, so the app can show something.
+    TCGplayer's sales feed only ever returns the latest 5 sales (paging is
+    ignored), so history is kept between runs, and for any version and
+    condition that still has no sale, the latest sales in that condition are
+    asked for directly. Sales from about the last two months are kept, plus
+    the most recent one for every version and condition seen.
     """
     today = datetime.now(timezone.utc)
     cutoff = (today - timedelta(days=SALES_DAYS)).strftime("%Y-%m-%d")
     meta = card.get("sm") or {}
     prev = [list(x) for x in card.get("s", [])]
-    deep = not prev or not meta.get("deep2") or meta["deep2"] < (today - timedelta(days=DEEP_EVERY_DAYS)).strftime("%Y-%m-%d")
-    known = set() if deep else {tuple(x) for x in prev}
     langs = [lang_id]
-    found, offset, last = [], 0, None
-    for page in range(SALES_MAX_PAGES if deep else 4):
-        rows, raw, _ = sales_page(card["id"], langs, offset)
-        if page == 0 and raw == 0 and not prev:
-            langs = [7 if lang_id == 1 else 1]   # card sits in the other language's catalogue
-            rows, raw, _ = sales_page(card["id"], langs, offset)
+    rows, raw, _ = sales_page(card["id"], langs, 0)
+    stats["salesRequests"] += 1
+    if raw == 0 and not prev:
+        langs = [7 if lang_id == 1 else 1]   # card sits in the other language's catalogue
+        rows, raw, _ = sales_page(card["id"], langs, 0)
         stats["salesRequests"] += 1
-        if raw == 0 or rows == last:   # nothing more, or the feed ignored the offset
-            break
-        last = rows
-        new = [r for r in rows if tuple(r) not in known]
-        found.extend(new)
-        if page:
-            stats["salesPagedDeeper"] += 1
-        if len(new) < len(rows) or (rows and min(r[3] for r in rows) < cutoff):
-            break
-        offset += raw
-        time.sleep(DELAY)
-    if deep:
-        meta["deep2"] = today.strftime("%Y-%m-%d")
-        meta.pop("deep", None)
-        merged = found
-    else:
-        merged = found + prev
-    # dedupe while keeping order, newest first
-    merged.sort(key=lambda r: r[3], reverse=True)
-    have_conds = {r[0] for r in merged}
-    tried = meta.setdefault("t", {})
-    for code in TARGET_CONDS:
-        if code in have_conds:
-            continue
-        if tried.get(code, "") >= (today - timedelta(days=TARGET_EVERY_DAYS)).strftime("%Y-%m-%d"):
+    known = {tuple(x) for x in prev}
+    merged = [r for r in rows if tuple(r) not in known] + prev
+
+    # Which version + condition pairs actually trade but have no sale yet?
+    prints = set(card.get("p", {})) | set(card.get("l", {})) | {r[1] for r in merged} or {"Normal"}
+    have = {(r[1], r[0]) for r in merged}
+    def trades(p, code):
+        return card.get("p", {}).get(p, {}).get(code) is not None or code in card.get("l", {}).get(p, {})
+    missing = {code for p in prints for code in COND_IDS if (p, code) not in have and (trades(p, code) or code == "NM")}
+    tried = meta.setdefault("t2", {})
+    recent = (today - timedelta(days=TARGET_EVERY_DAYS)).strftime("%Y-%m-%d")
+    for code in [c for c in COND_IDS if c in missing]:
+        if tried.get(code, "") >= recent:
             continue
         tried[code] = today.strftime("%Y-%m-%d")
+        time.sleep(DELAY)
         try:
-            rows, _, _ = sales_page(card["id"], langs, 0, conditions=[COND_IDS[code]])
+            hits, _, _ = sales_page(card["id"], langs, 0, conditions=[COND_IDS[code]])
             stats["salesRequests"] += 1
-            hits = [r for r in rows if r[0] == code]   # ignore if the filter wasn't honoured
+            hits = [r for r in hits if r[0] == code and tuple(r) not in known]   # ignore if the filter wasn't honoured
             if hits:
                 stats["targetedHits"] += 1
-                merged.extend(hits[:1])
+                merged.extend(hits)
+                known.update(tuple(r) for r in hits)
         except Exception:
             pass
-        time.sleep(DELAY)
+    meta.pop("t", None); meta.pop("deep", None); meta.pop("deep2", None)
+
     merged.sort(key=lambda r: r[3], reverse=True)
     keep = [r for r in merged if r[3] >= cutoff][:SALES_KEEP]
     seen = {(r[1], r[0]) for r in keep}
-    for r in merged:   # never leave a printing/condition blank if an older sale exists
+    for r in merged:   # never leave a version/condition blank if an older sale exists
         if (r[1], r[0]) not in seen:
             keep.append(r)
             seen.add((r[1], r[0]))
