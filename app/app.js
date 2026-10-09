@@ -44,50 +44,119 @@ let mascotCount = 0;
 function mascot() {
   const id = ++mascotCount;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="mascot" aria-hidden="true">
-  <defs><clipPath id="lens-${id}"><circle cx="80" cy="77" r="13"/><circle cx="112" cy="77" r="13"/></clipPath></defs>
-  <g class="sq-scroll" stroke="#2B1D4E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-    <rect class="sq-parch" x="96" y="162" width="70" height="24" rx="2" fill="#F6E4B8"/>
-    <g class="sq-lines" stroke="#B79A63" stroke-width="2.5"><line x1="104" y1="170" x2="146" y2="170"/><line x1="104" y1="177" x2="156" y2="177"/></g>
-    <rect x="86" y="158" width="13" height="32" rx="6.5" fill="#EAD29A"/>
-    <rect class="sq-roll-r" x="162" y="158" width="13" height="32" rx="6.5" fill="#EAD29A"/>
+<defs><clipPath id="cg-${id}"><path d="M129.5 52.8 C135.6 53.1 134.7 53.4 136.6 54.2 C138.5 54.9 140.1 55.8 140.9 57.4 C141.8 59.1 141.4 55.5 141.7 64.2 C141.9 73.0 142.3 94.6 142.4 110.0 C142.6 125.4 143.1 148.0 142.6 156.7 C142.2 165.4 140.7 160.6 139.6 162.2 C138.6 163.8 138.0 165.4 136.3 166.4 C134.6 167.4 135.5 167.8 129.4 168.0 C123.4 168.1 109.8 167.1 100.0 167.3 C90.2 167.4 76.8 168.9 70.8 168.7 C64.8 168.5 65.8 167.1 64.1 166.0 C62.3 164.9 61.2 163.7 60.3 162.1 C59.4 160.6 59.1 165.3 58.7 156.6 C58.3 147.9 58.2 125.4 58.0 110.0 C57.9 94.6 57.6 72.9 57.8 64.2 C58.1 55.4 58.5 59.1 59.5 57.4 C60.5 55.7 62.0 55.2 63.6 54.2 C65.3 53.1 63.1 51.5 69.2 51.2 C75.2 50.9 89.9 52.0 100.0 52.2 C110.1 52.5 123.4 52.4 129.5 52.8 Z"/></clipPath></defs>
+<g transform="translate(-6 0) scale(1.04) rotate(-5 100 150)">
+<g class="cg-hop">
+  <g class="cg-feet"><path d="M91.7 176.0 C91.6 178.0 89.9 180.4 87.9 181.6 C86.0 182.8 82.2 183.6 79.8 183.2 C77.4 182.8 74.4 180.8 73.4 179.1 C72.3 177.4 72.4 174.6 73.5 172.9 C74.5 171.2 77.3 169.3 79.8 168.8 C82.3 168.3 86.6 168.6 88.5 169.8 C90.5 171.0 91.8 174.0 91.7 176.0 Z" fill="#F6B8C8" stroke="#3B2B3A" stroke-width="5"/><path d="M128.4 176.0 C128.4 177.9 126.5 180.9 124.4 182.1 C122.3 183.2 118.4 183.5 115.8 183.1 C113.3 182.6 110.1 181.0 109.0 179.3 C107.8 177.6 108.1 174.5 109.2 172.8 C110.4 171.1 113.4 169.4 115.9 169.0 C118.3 168.6 121.9 169.2 123.9 170.4 C126.0 171.6 128.3 174.1 128.4 176.0 Z" fill="#F6B8C8" stroke="#3B2B3A" stroke-width="5"/></g>
+  <g class="cg-body">
+    <path d="M129.5 52.8 C135.6 53.1 134.7 53.4 136.6 54.2 C138.5 54.9 140.1 55.8 140.9 57.4 C141.8 59.1 141.4 55.5 141.7 64.2 C141.9 73.0 142.3 94.6 142.4 110.0 C142.6 125.4 143.1 148.0 142.6 156.7 C142.2 165.4 140.7 160.6 139.6 162.2 C138.6 163.8 138.0 165.4 136.3 166.4 C134.6 167.4 135.5 167.8 129.4 168.0 C123.4 168.1 109.8 167.1 100.0 167.3 C90.2 167.4 76.8 168.9 70.8 168.7 C64.8 168.5 65.8 167.1 64.1 166.0 C62.3 164.9 61.2 163.7 60.3 162.1 C59.4 160.6 59.1 165.3 58.7 156.6 C58.3 147.9 58.2 125.4 58.0 110.0 C57.9 94.6 57.6 72.9 57.8 64.2 C58.1 55.4 58.5 59.1 59.5 57.4 C60.5 55.7 62.0 55.2 63.6 54.2 C65.3 53.1 63.1 51.5 69.2 51.2 C75.2 50.9 89.9 52.0 100.0 52.2 C110.1 52.5 123.4 52.4 129.5 52.8 Z" fill="#F6B8C8" stroke="#3B2B3A" stroke-width="6" stroke-linejoin="round"/>
+    <g clip-path="url(#cg-${id})"><path class="cg-shine" d="M124 48 l12 0 l-34 124 l-12 0 Z" fill="#fff" opacity=".45"/></g>
+    <path d="M124.7 86.0 C129.4 86.1 127.0 86.2 128.0 86.6 C129.0 87.0 130.3 87.8 130.8 88.6 C131.3 89.5 130.8 88.6 130.9 91.6 C131.0 94.7 131.2 102.0 131.2 107.0 C131.1 112.0 130.8 118.9 130.7 121.8 C130.6 124.8 130.9 123.8 130.5 124.8 C130.0 125.8 129.1 127.2 128.1 127.7 C127.1 128.1 129.2 127.5 124.5 127.5 C119.8 127.5 108.2 127.6 100.0 127.7 C91.8 127.8 80.0 128.3 75.3 128.1 C70.6 128.0 72.7 127.5 71.7 127.0 C70.7 126.5 70.0 125.7 69.4 125.0 C68.9 124.2 68.4 125.2 68.5 122.2 C68.5 119.2 69.3 112.0 69.5 107.0 C69.7 102.0 69.4 95.4 69.5 92.3 C69.7 89.2 70.0 89.2 70.4 88.4 C70.7 87.6 70.9 87.8 71.7 87.4 C72.6 86.9 70.6 86.0 75.3 85.9 C80.0 85.8 91.8 86.5 100.0 86.5 C108.2 86.6 120.1 86.0 124.7 86.0 Z" fill="#FFF4F6" stroke="#3B2B3A" stroke-width="4.5" stroke-linejoin="round"/>
+    <g class="cg-sparkle"><path d="M100 95 Q102.16 104.84 112 107 Q102.16 109.16 100 119 Q97.84 109.16 88 107 Q97.84 104.84 100 95 Z" fill="#F4C95D" stroke="#3B2B3A" stroke-width="3.5" stroke-linejoin="round"/></g>
+    <g class="cg-sparkle2"><path d="M118 92 Q118.9 96.1 123 97 Q118.9 97.9 118 102 Q117.1 97.9 113 97 Q117.1 96.1 118 92 Z" fill="#fff" stroke="#3B2B3A" stroke-width="3.5" stroke-linejoin="round"/></g>
+    <path d="M72 140 h52" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round" opacity=".45"/><path d="M72 148 h40" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round" opacity=".45"/><path d="M72 156 h46" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round" opacity=".45"/>
+    <g class="cg-eyes"><g class="cg-look" fill="#3B2B3A">
+      <ellipse cx="88.0" cy="69" rx="3.4" ry="4"/><ellipse cx="114.0" cy="69" rx="3.4" ry="4"/>
+    </g></g>
+    <g class="cg-shut" fill="none" stroke="#3B2B3A" stroke-width="3" stroke-linecap="round">
+      <path d="M83.0 70 q4 3 8 0"/><path d="M109.0 70 q4 3 8 0"/>
+    </g>
+    <g class="cg-glasses" fill="none" stroke="#3B2B3A" stroke-width="5" stroke-linecap="round">
+      <path d="M97.2 68.0 C97.1 70.5 96.1 73.8 94.4 75.4 C92.7 77.0 89.4 77.8 87.0 77.7 C84.6 77.6 81.9 76.4 80.2 74.8 C78.6 73.1 77.1 70.2 77.1 68.0 C77.1 65.8 78.6 62.9 80.3 61.3 C81.9 59.6 84.6 58.3 87.0 58.2 C89.4 58.0 92.8 58.8 94.5 60.5 C96.2 62.1 97.2 65.5 97.2 68.0 Z"/><path d="M122.3 70.9 C121.7 73.0 119.4 75.2 117.3 76.2 C115.3 77.2 112.4 77.6 110.2 76.9 C108.1 76.3 105.8 74.5 104.6 72.4 C103.4 70.4 102.4 67.1 103.1 64.9 C103.7 62.7 106.3 60.4 108.4 59.3 C110.6 58.3 113.7 58.0 115.9 58.7 C118.0 59.4 120.3 61.6 121.3 63.6 C122.4 65.6 123.0 68.8 122.3 70.9 Z"/><path d="M96.0 67 Q100 62 104.0 67"/>
+    </g>
+    <g class="cg-hatwrap"><g transform="rotate(-8 98 44)" stroke="#3B2B3A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M118.5 46.0 C118.5 48.1 115.5 50.9 112.1 52.3 C108.7 53.8 102.7 54.9 98.0 54.9 C93.3 54.8 87.4 53.7 84.2 52.2 C80.9 50.7 78.5 48.1 78.4 46.0 C78.4 43.9 80.8 41.3 84.1 39.7 C87.4 38.2 93.4 36.9 98.0 36.9 C102.6 36.9 108.5 38.2 111.9 39.7 C115.3 41.3 118.4 43.9 118.5 46.0 Z" fill="#B8A6E8"/><path d="M63.1 34.0 L97.5 25.0 L131.2 34.1 L98.5 43.8 Z" fill="#B8A6E8"/>
+      <g class="cg-tassel"><path d="M98 34 Q118 34 122 50" fill="none" stroke-width="3.5"/>
+      <path d="M118 48 l4 12 l4 -12 Z" fill="#F4C95D" stroke-width="3.5"/></g>
+      <circle cx="98" cy="34" r="3.5" fill="#F4C95D" stroke-width="3"/>
+    </g></g>
   </g>
-  <g class="sq-body">
-    <g fill="none" stroke-linecap="round">
-      <path d="M132.1 135.4 A52 52 0 1 1 148.0 98.0" stroke="#2B1D4E" stroke-width="30"/>
-      <line x1="44.0" y1="100" x2="148.0" y2="100" stroke="#2B1D4E" stroke-width="26"/>
-      <path d="M132.1 135.4 A52 52 0 1 1 148.0 98.0" stroke="#FFC93C" stroke-width="22"/>
-      <line x1="44.0" y1="100" x2="148.0" y2="100" stroke="#FFC93C" stroke-width="18"/>
-      <path d="M70 51 A52 52 0 0 1 120 49" stroke="#FFE08A" stroke-width="5"/>
-    </g>
-    <!-- belt with a buckle across the bar -->
-    <rect x="38.0" y="96" width="116.0" height="8" rx="2" fill="#7A4A2A" stroke="#2B1D4E" stroke-width="2.5"/>
-    <rect x="114" y="93" width="13" height="14" rx="2.5" fill="none" stroke="#2B1D4E" stroke-width="6.5"/>
-    <rect x="114" y="93" width="13" height="14" rx="2.5" fill="none" stroke="#FFE08A" stroke-width="3"/>
-    <!-- glasses -->
-    <g class="sq-glasses">
-      <g fill="#E8F4FF" fill-opacity=".55" stroke="#2B1D4E" stroke-width="3.6">
-        <circle cx="80" cy="77" r="13"/><circle cx="112" cy="77" r="13"/>
-      </g>
-      <path d="M93 76 Q96 71.5 99 76" fill="none" stroke="#2B1D4E" stroke-width="3.6" stroke-linecap="round"/>
-      <g clip-path="url(#lens-${id})"><rect class="sq-glint" x="62" y="53" width="6" height="50" fill="#fff" opacity=".9" transform="rotate(30 80 77)"/></g>
-    </g>
-    <!-- squire cap with feather -->
-    <g class="sq-cap" stroke="#2B1D4E" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
-      <g class="sq-feather">
-        <path d="M120 34 C132 16 148 6 164 5 C158 18 144 30 124 38 Z" fill="#fff"/>
-        <path d="M123 36 L155 12" fill="none" stroke-width="2"/>
-      </g>
-      <path d="M62 38 C58 14 82 2 100 4 C120 6 134 20 130 38 Z" fill="#C8324B"/>
-      <path d="M56 38 Q96 27 136 38 L134 47 Q96 37 58 47 Z" fill="#8E1F35"/>
-    </g>
+  <g class="cg-book" stroke="#3B2B3A" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M70 140 L100 146 L130 140 L130 164 L100 169 L70 164 Z" fill="#9CC7E8"/><path d="M73 138 Q86 135 100 143 L100 165 Q86 158 73 160 Z" fill="#FFFBF2"/><path d="M127 138 Q114 135 100 143 L100 165 Q114 158 127 160 Z" fill="#FFFBF2"/><path d="M78 145 q8 -2 17 1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M78 150 q8 -2 17 1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M78 155 q8 -2 17 1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M105 146.5 q8 -3.5 17 -1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M105 151.5 q8 -3.5 17 -1.5" fill="none" stroke-width="2.4" opacity=".5"/><path d="M105 156.5 q8 -3.5 17 -1.5" fill="none" stroke-width="2.4" opacity=".5"/>
+    <path class="cg-page" d="M127 138 Q114 135 100 143 L100 165 Q114 158 127 160 Z" fill="#FFFBF2"/>
+    <path d="M77.0 154.0 C77.0 155.8 75.3 158.4 73.7 159.5 C72.1 160.6 69.3 161.0 67.4 160.6 C65.5 160.2 63.1 158.6 62.3 157.0 C61.5 155.4 61.8 152.8 62.7 151.2 C63.5 149.5 65.5 147.7 67.3 147.2 C69.2 146.8 71.9 147.6 73.5 148.7 C75.1 149.8 77.0 152.2 77.0 154.0 Z" fill="#F6B8C8" stroke-width="5"/><path d="M138.9 154.0 C139.0 155.8 137.5 158.6 135.9 159.7 C134.3 160.9 131.2 161.3 129.3 160.8 C127.5 160.3 125.5 158.5 124.7 156.8 C123.9 155.2 123.7 152.6 124.5 151.1 C125.3 149.5 127.6 147.8 129.4 147.4 C131.2 147.0 133.9 147.6 135.5 148.7 C137.1 149.8 138.8 152.2 138.9 154.0 Z" fill="#F6B8C8" stroke-width="5"/>
   </g>
-  <g class="sq-z" fill="#6B5E8A" font-family="Baloo 2, sans-serif" font-weight="800"><text x="150" y="72" font-size="18">z</text><text x="163" y="56" font-size="13">z</text></g>
+</g>
+<g class="cg-z" fill="#3B2B3A" opacity=".7" font-family="Baloo 2, sans-serif" font-weight="800"><text x="150" y="58" font-size="20">z</text><text x="164" y="40" font-size="14">z</text></g>
+</g>
 </svg>`;
 }
-function mood(m) {
+let moodTimer;
+function mood(m, ms) {
   const b = $("buddy");
-  if (b.dataset.mood === m) return;
   b.dataset.mood = m;
+  clearTimeout(moodTimer);
+  if (ms) moodTimer = setTimeout(() => { b.dataset.mood = "idle"; }, ms);
+}
+
+/* little idle routines, picked at random so he never loops the same way */
+const IDLES = ["read", "read", "glasses", "look", "shine", "tassel", "wiggle"];
+function idleLoop() {
+  const b = $("buddy");
+  if (!document.hidden && b.dataset.mood === "idle" && !reduceMotion.matches) {
+    const next = IDLES[Math.floor(Math.random() * IDLES.length)];
+    b.dataset.idle = next;
+    setTimeout(() => { if (b.dataset.idle === next) b.dataset.idle = ""; }, 2700);
+  }
+  setTimeout(idleLoop, 4500 + Math.random() * 4500);
+}
+
+/* ================= the speech bubble ================= */
+
+const FACTS = [
+  "The e-Reader plugged into a Game Boy Advance and read the dot-code strips printed on cards like these.",
+  "The e-Reader first came out in Japan in 2001, then reached North America in 2002.",
+  "Expedition came out in September 2002, right around when the e-Reader hit North America.",
+  "Expedition's holo rares also show up as regular rares with different numbers. Alakazam is #1 as a holo and #33 as a regular rare.",
+  "Most cards in these three sets also come as a reverse holo, so there's a whole second set to hunt.",
+  "Aquapolis and Skyridge number their holos separately, from H1 to H32.",
+  "Aquapolis has a few cards in two versions, numbered a and b, like Drowzee 74a and 74b.",
+  "Aquapolis came out in January 2003, between Expedition and Skyridge.",
+  "Skyridge, from May 2003, was the last English Pokémon set made by Wizards of the Coast.",
+  "Crystal Charizard is numbered 146/144 in Skyridge. A secret rare past the end of the set!",
+  "Tip: tap any card and type the table price. I'll tell you if it's cheaper online.",
+  "Tip: tap me any time for another fact.",
+];
+
+function liveFacts() {
+  const d = state.data; if (!d) return [];
+  const out = [];
+  const top = (p) => d.cards.reduce((best, c) => { const m = market(c, p, "NM"); return m != null && (!best || m > best[1]) ? [c, m] : best; }, null);
+  const n = top("N"), r = top("R");
+  if (n) out.push(`@The priciest regular card right now is ${esc(n[0].name)} (${n[0].abbr} ${esc(n[0].num)}) at ${fmt(n[1])} in NM.`);
+  if (r) out.push(`@The priciest reverse holo right now is ${esc(r[0].name)} (${r[0].abbr} ${esc(r[0].num)}) at ${fmt(r[1])} in NM.`);
+  const since = Date.now() - 3 * 86400000;
+  const sold = d.cards.filter((c) => c.s.some((x) => new Date(x[3] + "T12:00:00").getTime() >= since)).length;
+  if (sold) out.push(`@${sold} of these cards sold on TCGplayer in the last 3 days.`);
+  const set = d.sets[Math.floor(Math.random() * d.sets.length)];
+  const cheap = d.cards.filter((c) => c.set === set.id && market(c, "N", "NM") != null)
+    .sort((a, b) => market(a, "N", "NM") - market(b, "N", "NM"))[0];
+  if (cheap) out.push(`@The cheapest ${esc(set.name)} card in NM right now is ${esc(cheap.name)} at ${fmt(market(cheap, "N", "NM"))}.`);
+  if (state.coll) {
+    const need = d.cards.filter((c) => hasPrinting(c, "N") && !ownedQty(c, "N")).length;
+    out.push(`@You have ${state.coll.cards} of the ${d.cards.length} cards I keep an eye on. ${need} regular cards left to find!`);
+  }
+  return out;
+}
+
+let factQueue = [];
+let sayUntil = 0;
+function say(html, hold = 0) {
+  const el = $("bubble");
+  el.innerHTML = html;
+  sayUntil = Date.now() + hold;
+  if (!reduceMotion.matches) { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+}
+function nextFact(force) {
+  if (!force && Date.now() < sayUntil) return;
+  if (!factQueue.length) {
+    factQueue = [...FACTS, ...liveFacts()];
+    for (let i = factQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [factQueue[i], factQueue[j]] = [factQueue[j], factQueue[i]]; }
+  }
+  let f = factQueue.pop(), label = "Did you know?";
+  if (f.startsWith("Tip: ")) { label = "Tip"; f = f.slice(5); }
+  else if (f.startsWith("@")) { label = "Right now"; f = f.slice(1); }
+  say(`<b>${label}</b> ${f}`);
 }
 
 /* ================= helpers ================= */
@@ -162,10 +231,12 @@ async function loadSaved() {
   } catch { state.data = null; }
 }
 
-async function refresh() {
+async function refresh(manual) {
   if (state.refreshing) return;
   state.refreshing = true;
   $("refresh").classList.add("spinning");
+  mood("search");
+  if (manual) say("Checking TCGplayer for fresh prices… 🔍", 4000);
   renderStatus();
   try {
     const r = await fetch(`${DATA_URL}?fresh=${Date.now()}`, { cache: "no-store" });
@@ -175,15 +246,20 @@ async function refresh() {
       || fresh.salesUpdated !== state.data.salesUpdated || fresh.listingsUpdated !== state.data.listingsUpdated;
     state.data = fresh;
     state.fetchedOk = true;
-    if (changed) { renderControls(); renderList(true); }
+    if (changed) { renderControls(); renderList(true); factQueue = []; }
     warmImages();
+    mood("happy", 1600);
+    if (manual || changed) say(changed ? "Fresh prices are in! ✨" : "Prices are already up to date 👍", 5000);
   } catch {
     state.fetchedOk = false;
+    if (state.data) { mood("sleepy", 7000); say("No signal? No problem. I saved everything 📦", 7000); }
+    else { mood("sleepy"); say("I need internet once to grab prices 📶", 60000); }
   } finally {
     state.refreshing = false;
     state.tried = true;
     $("refresh").classList.remove("spinning");
-    renderStatus(true);
+    if ($("buddy").dataset.mood === "search") mood("idle");
+    renderStatus();
   }
 }
 
@@ -244,25 +320,16 @@ function importCollectr(text, fileName) {
 
 /* ================= rendering: header ================= */
 
-let lastStatus = "";
-function renderStatus(pop) {
+function renderStatus() {
   const el = $("status"); const d = state.data;
-  let html; let m = "look";
-  if (state.refreshing) { html = d ? "Sniffing out fresh prices… 🔍" : "Grabbing prices from TCGplayer… 🔍"; m = "search"; }
-  else if (!d) { html = navigator.onLine ? "Hmm, I couldn't get prices. Tap ↻ to try again." : "I need internet once to grab prices 📶"; m = "sleepy"; }
-  else if (!navigator.onLine || (state.tried && !state.fetchedOk)) {
-    html = `<b>No signal? No problem.</b> Using prices from ${ago(d.updated)} 📦`; m = "sleepy";
-  } else {
-    html = `<b>Fresh TCGplayer prices</b> from ${ago(d.updated)} ✨`;
-  }
+  let t;
+  if (state.refreshing) t = "🔄 Checking TCGplayer for fresh prices…";
+  else if (!d) t = navigator.onLine ? "No prices saved yet. Tap ↻ to try again." : "📶 Needs internet once to grab prices";
+  else if (!navigator.onLine || (state.tried && !state.fetchedOk)) t = `📦 Offline, showing prices from ${ago(d.updated)}`;
+  else t = `✨ Prices from ${ago(d.updated)}`;
   const p = state.imgProgress;
-  if (d && p && p.done < p.total) html += `<br>Saving card pics for offline: ${p.done}/${p.total}`;
-  else if (d && p && p.done >= p.total && p.total) html += `<br>Everything's saved for offline 👍`;
-  mood(m);
-  if (html !== lastStatus) {
-    el.innerHTML = html; lastStatus = html;
-    if (pop) { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
-  }
+  if (d && p && p.total) t += p.done < p.total ? `, saving pics ${p.done}/${p.total}` : ", saved for offline";
+  if (el.textContent !== t) el.textContent = t;
 }
 
 function buildSeg(el, items, current, attr) {
@@ -493,7 +560,7 @@ function renderCollection(msg) {
   sheet.innerHTML = `<div class="sheet-inner">
     <div class="grabzone"><button class="close" type="button" data-close aria-label="Close">✕</button><div class="grab" aria-hidden="true"></div></div>
     <div class="coll">
-      <div class="buddy-big" data-mood="${msg ? "happy" : "look"}">${mascot()}</div>
+      <div class="buddy-big" data-mood="${msg ? "happy" : "idle"}">${mascot()}</div>
       ${msg ? `<p class="verdict pop" style="justify-content:center"><b>${esc(msg)}</b></p>` : ""}
       ${body}
       <p class="fine">Your collection stays on this phone. It isn't uploaded anywhere.</p>
@@ -508,6 +575,7 @@ $("csv").addEventListener("change", async (e) => {
     importCollectr(await f.text(), f.name);
     renderControls(); renderList(true);
     renderCollection(`Found ${state.coll.cards} of your cards! 🎉`);
+    factQueue = []; mood("happy", 2000); say(`I found ${state.coll.cards} of your cards! Tap 🎯 Need to see what's missing.`, 9000);
   } catch (err) {
     renderCollection();
     sheet.querySelector(".coll").insertAdjacentHTML("afterbegin", `<p class="tag need">⚠️ ${esc(err.message)}</p>`);
@@ -613,15 +681,17 @@ $("sort").addEventListener("click", () => {
 let qTimer;
 $("q").addEventListener("input", (e) => {
   clearTimeout(qTimer);
-  mood("search");
-  qTimer = setTimeout(() => { state.q = e.target.value; renderList(false); if (!state.refreshing) renderStatus(); }, 90);
+  if (!state.refreshing) mood("search", 1200);
+  qTimer = setTimeout(() => { state.q = e.target.value; renderList(false); }, 90);
 });
 $("list").addEventListener("click", (e) => {
   const b = e.target.closest("[data-id]"); if (b) openCard(b.dataset.id);
 });
 $("nudge").addEventListener("click", (e) => { if (e.target.closest("[data-open-coll]")) openCollection(); });
 $("collection").addEventListener("click", () => { if (state.data) openCollection(); });
-$("refresh").addEventListener("click", refresh);
+$("refresh").addEventListener("click", () => refresh(true));
+$("buddy").addEventListener("click", () => { mood("happy", 1400); nextFact(true); });
+$("bubble").addEventListener("click", () => nextFact(true));
 
 const finder = document.querySelector(".finder");
 let ticking = false;
@@ -630,8 +700,8 @@ addEventListener("scroll", () => {
   requestAnimationFrame(() => { finder.classList.toggle("stuck", finder.getBoundingClientRect().top <= 0 && scrollY > 40); ticking = false; });
 }, { passive: true });
 
-addEventListener("online", () => { renderStatus(true); refresh(); });
-addEventListener("offline", () => renderStatus(true));
+addEventListener("online", () => { renderStatus(); refresh(); });
+addEventListener("offline", () => { renderStatus(); mood("sleepy", 6000); say("Uh oh, no signal. Don't worry, I saved everything 📦", 6000); });
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && navigator.onLine && state.data &&
       Date.now() - new Date(state.data.updated).getTime() > 30 * 60000) refresh();
@@ -646,11 +716,15 @@ document.addEventListener("visibilitychange", () => {
     navigator.serviceWorker.ready.then(() => setTimeout(warmImages, 600));
     navigator.serviceWorker.addEventListener("controllerchange", () => setTimeout(warmImages, 600));
   }
+  $("buddy").dataset.mood = "idle";
   renderControls();
   await loadSaved();
   renderControls();
   renderList(true);
   renderStatus();
+  say(state.data ? "Hi! I'm Equire. Tap a card to see what it's worth 📖" : "Hi! I'm Equire. Let me grab some prices…", 5000);
+  setTimeout(idleLoop, 3000);
+  setInterval(() => { if (!document.hidden) nextFact(false); }, 14000);
   if (navigator.onLine) await refresh();
-  else renderStatus(true);
+  else { renderStatus(); if (state.data) { mood("sleepy", 6000); say("No signal? No problem. I saved everything 📦", 7000); } }
 })();

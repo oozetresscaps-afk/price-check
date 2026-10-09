@@ -4,23 +4,23 @@
 @font-face { font-family: "Baloo 2"; src: url("fonts/baloo-2-latin-800-normal.woff2") format("woff2"); font-weight: 800; font-display: swap; }
 
 :root {
-  --bg: #F3EEFF;
+  --bg: #FFF7F2;
   --surface: #FFFFFF;
-  --ink: #2B1D4E;
-  --ink-2: #6B5E8A;
-  --line: #E1D7F6;
-  --chip: #EAE1FB;
-  --mint: #8FE0A6;
-  --mint-ink: #1C7445;
-  --mint-wash: #E4F8EA;
-  --sun: #FFC93C;
-  --sun-wash: #FFF3CC;
-  --berry: #FF6F9C;
-  --berry-ink: #C2185B;
-  --ex: #3D7BE0;
-  --aq: #12A6A0;
-  --sk: #E39B1C;
-  --focus: #7B5CE0;
+  --ink: #3B2B3A;
+  --ink-2: #7A6577;
+  --line: #F0DCE0;
+  --chip: #FBE9EC;
+  --mint: #BFE5C9;
+  --mint-ink: #2E7A4C;
+  --mint-wash: #EAF7EE;
+  --sun: #F4C95D;
+  --sun-wash: #FFF4D2;
+  --berry: #F6B8C8;
+  --berry-ink: #C2416A;
+  --ex: #6FA8DC;
+  --aq: #4FBFB2;
+  --sk: #EDB13F;
+  --focus: #B8A6E8;
   --spring: cubic-bezier(.34, 1.56, .64, 1);
   --text: "Atkinson", system-ui, sans-serif;
   --fun: "Baloo 2", "Atkinson", system-ui, sans-serif;
@@ -29,20 +29,20 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #160F2A;
-    --surface: #211838;
-    --ink: #F2EDFF;
-    --ink-2: #AA9ECC;
-    --line: #362A5C;
-    --chip: #2C2149;
-    --mint-ink: #8FE0A6;
-    --mint-wash: #1E3328;
-    --sun-wash: #3A2F14;
-    --berry-ink: #FF8FB2;
-    --ex: #78A6F2;
-    --aq: #4ED0C8;
-    --sk: #F2B84A;
-    --focus: #B9A4FF;
+    --bg: #21181F;
+    --surface: #2C2129;
+    --ink: #FBEFF2;
+    --ink-2: #C4AEBE;
+    --line: #45343F;
+    --chip: #3A2C36;
+    --mint-ink: #BFE5C9;
+    --mint-wash: #273A2E;
+    --sun-wash: #3D3320;
+    --berry-ink: #F6B8C8;
+    --ex: #8DBDE8;
+    --aq: #6FD3C6;
+    --sk: #F2C46A;
+    --focus: #CDBEF5;
     color-scheme: dark;
   }
 }
@@ -62,52 +62,73 @@ button { cursor: pointer; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; line-height: 1; }
 
-/* ---------- Mascot: a squire e with glasses ---------- */
+/* ---------- Mascot: the little card scholar ---------- */
 .mascot { display: block; width: 100%; height: auto; overflow: visible; }
-.mascot .sq-body { transform-box: view-box; transform-origin: 96px 160px; animation: read 7s ease-in-out infinite; }
-.mascot .sq-glasses { animation: push-up 7s ease-in-out infinite; }
-.mascot .sq-glint { animation: glint 7s ease-in-out infinite; }
-.mascot .sq-feather { transform-box: fill-box; transform-origin: 0% 100%; animation: sway 2.8s ease-in-out infinite; }
-.mascot .sq-parch { transform-box: fill-box; transform-origin: left center; animation: unroll 7s ease-in-out infinite; }
-.mascot .sq-lines { animation: lines 7s ease-in-out infinite; }
-.mascot .sq-roll-r { animation: roll 7s ease-in-out infinite; }
-.mascot .sq-z { display: none; }
-@keyframes read {
-  0%, 12% { transform: rotate(0deg); }
-  22%, 58% { transform: rotate(7deg); }
-  62% { transform: rotate(5deg); }
-  66%, 70% { transform: rotate(8deg); }
-  80%, 100% { transform: rotate(0deg); }
+.mascot * { transform-box: fill-box; }
+.mascot .cg-hop { transform-origin: 50% 100%; }
+.mascot .cg-body { transform-origin: 50% 100%; animation: breathe 3.6s ease-in-out infinite; }
+.mascot .cg-eyes { transform-origin: 50% 50%; animation: blink 4.8s infinite; }
+.mascot .cg-tassel { transform-origin: 0% 0%; animation: tassel 3.2s ease-in-out infinite; }
+.mascot .cg-sparkle { transform-origin: 50% 50%; animation: twinkle 3s ease-in-out infinite; }
+.mascot .cg-sparkle2 { transform-origin: 50% 50%; animation: twinkle 3s ease-in-out 1.5s infinite; }
+.mascot .cg-shine { transform: translateX(-95px); }
+.mascot .cg-page { transform-origin: 0% 50%; opacity: 0; }
+.mascot .cg-shut, .mascot .cg-z { display: none; }
+@keyframes breathe { 50% { transform: scale(1.012, .99); } }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes tassel { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(10deg); } }
+@keyframes twinkle { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(.82) rotate(20deg); } }
+
+/* idle routines, switched on by data-idle */
+[data-idle="read"] .mascot .cg-page { animation: flip 1.2s ease-in-out 2; }
+[data-idle="read"] .mascot .cg-look { animation: read-eyes 1.2s ease-in-out 2; }
+[data-idle="glasses"] .mascot .cg-glasses { animation: push-up 2.4s ease-in-out; }
+[data-idle="glasses"] .mascot .cg-look { animation: squint 2.4s ease-in-out; }
+[data-idle="look"] .mascot .cg-look { animation: look 2.6s ease-in-out; }
+[data-idle="shine"] .mascot .cg-shine { animation: shine 1.4s ease-in-out; }
+[data-idle="shine"] .mascot .cg-sparkle { animation: twinkle .5s ease-in-out 3; }
+[data-idle="tassel"] .mascot .cg-tassel { animation: tassel-big .6s ease-in-out 4; }
+[data-idle="tassel"] .mascot .cg-hop { animation: bob .6s ease-in-out 2; }
+[data-idle="wiggle"] .mascot .cg-hop { animation: wiggle 1.4s ease-in-out; }
+@keyframes flip {
+  0% { opacity: 1; transform: scaleX(1); }
+  50% { opacity: 1; transform: scaleX(0) skewY(-6deg); }
+  95% { opacity: 1; transform: scaleX(-1); }
+  100% { opacity: 0; transform: scaleX(-1); }
 }
-@keyframes push-up { 0%, 58% { transform: translateY(0); } 64%, 70% { transform: translateY(4px); } 74%, 100% { transform: translateY(0); } }
-@keyframes glint { 0%, 26% { transform: translateX(0); } 40%, 100% { transform: translateX(60px); } }
-@keyframes sway { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-9deg); } }
-@keyframes unroll { 0%, 10% { transform: scaleX(.55); } 24%, 76% { transform: scaleX(1); } 90%, 100% { transform: scaleX(.55); } }
-@keyframes roll { 0%, 10% { transform: translateX(-31px); } 24%, 76% { transform: translateX(0); } 90%, 100% { transform: translateX(-31px); } }
-@keyframes lines { 0%, 14% { opacity: 0; } 26%, 74% { opacity: 1; } 86%, 100% { opacity: 0; } }
-[data-mood="search"] .mascot .sq-body { animation: hunt 1.4s ease-in-out infinite; }
-[data-mood="search"] .mascot .sq-glint { animation: glint-fast 1.4s linear infinite; }
-@keyframes hunt { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(8deg); } }
-@keyframes glint-fast { from { transform: translateX(0); } to { transform: translateX(60px); } }
-[data-mood="happy"] .mascot .sq-body { animation: hop .7s var(--spring) 3; }
-@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-14px) rotate(-6deg); } }
-[data-mood="sleepy"] .mascot .sq-body { animation: doze 4s ease-in-out infinite; }
-[data-mood="sleepy"] .mascot .sq-glasses { animation: none; transform: translateY(9px); }
-[data-mood="sleepy"] .mascot .sq-z { display: block; animation: zz 2.6s ease-in-out infinite; }
-@keyframes doze { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(-6deg) translateY(2px); } }
+@keyframes read-eyes { 0%, 100% { transform: translate(3px, 3px); } 50% { transform: translate(-3px, 4px); } }
+@keyframes push-up {
+  0%, 15% { transform: translateY(0); }
+  35%, 60% { transform: translateY(6px); }
+  70% { transform: translateY(-3px); }
+  80%, 100% { transform: translateY(0); }
+}
+@keyframes squint { 30%, 60% { transform: translateY(2px) scaleY(.7); } }
+@keyframes look { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-4px, -1px); } 60% { transform: translate(4px, -2px); } }
+@keyframes shine { from { transform: translateX(-95px); } to { transform: translateX(70px); } }
+@keyframes tassel-big { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(18deg); } }
+@keyframes bob { 50% { transform: translateY(-4px); } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-7deg); } 45% { transform: rotate(6deg); } 70% { transform: rotate(-3deg); } }
+
+/* moods */
+[data-mood="search"] .mascot .cg-look { animation: dart .9s ease-in-out infinite; }
+[data-mood="search"] .mascot .cg-page { animation: flip .7s ease-in-out infinite; }
+[data-mood="happy"] .mascot .cg-hop { animation: hop .65s var(--spring) 2; }
+[data-mood="happy"] .mascot .cg-sparkle, [data-mood="happy"] .mascot .cg-sparkle2 { animation: twinkle .4s ease-in-out 4; }
+[data-mood="sleepy"] .mascot .cg-eyes { display: none; }
+[data-mood="sleepy"] .mascot .cg-shut { display: block; }
+[data-mood="sleepy"] .mascot .cg-glasses { transform: translateY(6px); }
+[data-mood="sleepy"] .mascot .cg-body { animation: doze 3.4s ease-in-out infinite; }
+[data-mood="sleepy"] .mascot .cg-z { display: block; animation: zz 2.4s ease-in-out infinite; }
+@keyframes dart { 0%, 100% { transform: translate(-4px, 0); } 50% { transform: translate(4px, -1px); } }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-14px) rotate(-5deg); } }
+@keyframes doze { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(-5deg) translateY(2px); } }
 @keyframes zz { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
 
 /* ---------- Header ---------- */
-.top {
-  display: grid; grid-template-columns: 76px 1fr; gap: 10px; align-items: end;
-  padding: calc(10px + env(safe-area-inset-top)) 16px 4px 10px;
-}
-.buddy { width: 76px; margin-bottom: -4px; }
+.top { padding: calc(10px + env(safe-area-inset-top)) 16px 2px; }
 .titlebar { display: flex; align-items: center; justify-content: space-between; }
-h1 {
-  margin: 0; font: 800 34px/1 var(--fun); letter-spacing: -.01em;
-  color: var(--ink); transform: translateY(4px);
-}
+h1 { margin: 0; font: 800 34px/1 var(--fun); letter-spacing: -.01em; color: var(--ink); }
 .top-actions { display: flex; gap: 4px; margin-right: -6px; }
 .icon-btn {
   width: 44px; height: 44px; display: grid; place-items: center;
@@ -117,20 +138,25 @@ h1 {
 .icon-btn:active { transform: scale(.88); background: var(--chip); }
 .icon-btn.spinning svg { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.status { margin: 2px 0 0; font-size: 14px; color: var(--ink-2); min-height: 20px; }
+.buddy-row { display: grid; grid-template-columns: 88px 1fr; gap: 12px; align-items: center; margin-top: 6px; }
+.buddy { width: 88px; padding: 0; border: 0; background: transparent; border-radius: 20px; }
+.buddy:active { transform: scale(.95); }
 .bubble {
-  position: relative; margin: 8px 0 0; padding: 9px 12px;
-  background: var(--surface); border: 2px solid var(--line); border-radius: 14px;
-  font-size: 14.5px; line-height: 1.3; color: var(--ink-2); min-height: 40px;
+  position: relative; margin: 0; padding: 10px 13px;
+  background: var(--surface); border: 2.5px solid var(--ink); border-radius: 18px 18px 18px 6px;
+  font-size: 14.5px; line-height: 1.35; color: var(--ink); min-height: 48px; cursor: pointer;
+  box-shadow: 0 3px 0 var(--line);
 }
 .bubble::before {
-  content: ""; position: absolute; left: -9px; bottom: 12px;
+  content: ""; position: absolute; left: -10px; top: 50%; margin-top: -6px;
   width: 14px; height: 14px; background: var(--surface);
-  border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);
+  border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink);
   transform: rotate(45deg); border-bottom-left-radius: 3px;
 }
-.bubble b { color: var(--ink); }
-.bubble.pop { animation: bubble-pop .35s var(--spring); }
-@keyframes bubble-pop { from { transform: scale(.94); opacity: .4; } }
+.bubble b { display: block; font: 800 15px/1.2 var(--fun); color: var(--berry-ink); margin-bottom: 1px; }
+.bubble.pop { animation: bubble-pop .4s var(--spring); }
+@keyframes bubble-pop { from { transform: scale(.92) translateY(4px); opacity: .2; } }
 
 /* ---------- Search + sets ---------- */
 .finder {
@@ -186,7 +212,7 @@ h1 {
 .row {
   display: grid; grid-template-columns: 50px 1fr auto; column-gap: 12px; row-gap: 6px; align-items: center;
   width: 100%; padding: 10px 12px 10px 10px; text-align: left; position: relative;
-  border: 2px solid var(--line); border-radius: 16px; background: var(--surface);
+  border: 2px solid var(--line); border-radius: 18px; background: var(--surface);
   box-shadow: 0 3px 0 var(--line);
   transition: transform .18s var(--spring), box-shadow .18s;
   content-visibility: auto; contain-intrinsic-size: auto 100px;
@@ -199,6 +225,7 @@ h1 {
   content: ""; position: absolute; left: -4px; top: 8px; bottom: 8px; width: 4px; border-radius: 2px; background: var(--c);
 }
 .owned {
+  color: #24402E;
   position: absolute; right: -7px; top: -7px; min-width: 24px; height: 24px; padding: 0 5px;
   display: grid; place-items: center; border-radius: 12px; border: 2px solid var(--surface);
   background: var(--mint); color: #12301E; font: 800 12px/1 var(--fun);
@@ -265,7 +292,7 @@ h1 {
   border: 0; border-radius: 26px 26px 0 0; background: var(--surface); color: var(--ink);
   overflow: auto; overscroll-behavior: contain;
 }
-.sheet::backdrop { background: rgb(22 15 42 / .55); }
+.sheet::backdrop { background: rgb(40 24 36 / .5); }
 .sheet[open] { animation: sheet-up .42s var(--spring); }
 .sheet[open]::backdrop { animation: fade .3s ease-out; }
 .sheet.closing { animation: sheet-down .22s ease-in forwards; }
