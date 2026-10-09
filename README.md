@@ -1,6 +1,6 @@
-# bagl
+# showy
 
-A home-screen app for hunting cards at shows: Expedition, Aquapolis, Skyridge, WotC Black Star Promos, and the Japanese Vending and VS series. For every card it shows TCGplayer's market price, the cheapest copy listed right now, and the most recent sale, for every printing (Normal, Reverse, Holo, 1st Edition) and condition (NM, LP, MP, HP, DMG). Its mascot, bagl, is a smug little money bag who spills his gold when he's bored. Everything is saved on the phone, so it keeps working with no signal.
+A home-screen app for hunting cards at shows: Expedition, Aquapolis, Skyridge, WotC Black Star Promos, and the Japanese Vending and VS series. For every card it shows TCGplayer's market price, the cheapest copy listed right now, and the most recent sale, for every printing (Normal, Reverse, Holo, 1st Edition) and condition (NM, LP, MP, HP, DMG). Its mascot, bagl, is a smug little money bag who spills his gold when he's bored and changes outfit for every condition. Everything is saved on the phone, so it keeps working with no signal.
 
 A GitHub Actions job pulls fresh TCGplayer data every 4 hours and republishes the app on GitHub Pages. Whenever the phone is online, the app picks up the newest data; when it isn't, it uses what it saved and says how old it is.
 

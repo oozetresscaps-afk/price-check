@@ -1,6 +1,6 @@
 {
-  "name": "bagl",
-  "short_name": "bagl",
+  "name": "showy",
+  "short_name": "showy",
   "description": "TCGplayer market, lowest listed and last sold for e-Reader era, WotC promo and Japanese vending and VS cards, saved for offline use at card shows.",
   "start_url": "./",
   "scope": "./",

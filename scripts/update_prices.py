@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh TCGplayer data for the sets bagl tracks.
+"""Refresh TCGplayer data for the sets showy tracks.
 
 Writes app/data/prices.json with, for every card:
   p  market price per printing and condition (TCGplayer price guide)

@@ -24,11 +24,11 @@ def spiral(r=7.2, turns=3.2, n=60):
 
 
 def outfit_nm():
-    hat = ('<g transform="rotate(-8 100 42)">'
+    hat = ('<g class="o-hat"><g transform="translate(11 3) rotate(23 100 42)">'
            '<ellipse cx="100" cy="42" rx="27" ry="6" fill="#2E2430"/>'
            '<path d="M85 42 L87 15 Q100 11 113 15 L115 42 Z" fill="#2E2430"/>'
            f'<path d="M85.6 33.5 L114.4 33.5 L114.9 40 L85.1 40 Z" fill="{CORAL}"/>'
-           '<path d="M90 18 Q92 28 91 32" stroke="#fff" stroke-width="2.2" opacity=".2" fill="none" stroke-linecap="round"/></g>')
+           '<path d="M90 18 Q92 28 91 32" stroke="#fff" stroke-width="2.2" opacity=".2" fill="none" stroke-linecap="round"/></g></g>')
     bow = ('<path d="M100 87 L86.5 80 Q84.5 87 86.5 94 Z M100 87 L113.5 80 Q115.5 87 113.5 94 Z" fill="#8B6FB8"/>'
            '<circle cx="100" cy="87" r="3.8" fill="#6E5596"/>')
     sparks = "".join(at(x, y, f'<path d="{STAR}" fill="{GOLD}" transform="scale({s})"/>', f"o-spark k{i}")
@@ -37,20 +37,22 @@ def outfit_nm():
 
 
 def outfit_lp():
-    beanie = ('<path d="M75 46 Q73 17 100 15 Q127 17 125 46 Z" fill="#7FA6C9"/>'
+    beanie = ('<g class="o-hat"><g transform="translate(-9 3) rotate(-24 100 46)">'
+              '<path d="M75 46 Q73 17 100 15 Q127 17 125 46 Z" fill="#7FA6C9"/>'
               '<path d="M87 21 Q85 33 86.5 44 M100 16 V44 M113 21 Q115 33 113.5 44" stroke="#6489AE" stroke-width="2.2" fill="none" opacity=".75"/>'
               '<rect x="72" y="39" width="56" height="11" rx="5.5" fill="#6489AE"/>'
               '<path d="M78 44.5 h44" stroke="#557A9E" stroke-width="1.6" stroke-dasharray="2 3" opacity=".8"/>'
-              f'<circle cx="100" cy="13" r="7" fill="{CREAM}"/><circle cx="98" cy="11" r="2.2" fill="#fff" opacity=".7"/>')
+              f'<circle cx="100" cy="13" r="7" fill="{CREAM}"/><circle cx="98" cy="11" r="2.2" fill="#fff" opacity=".7"/></g></g>')
     notes = "".join(at(110, 134, f'<g transform="scale({s})">{NOTE}</g>', f"o-note n{i}") for i, s in enumerate([1, .8, .9]))
     mouth = '<ellipse class="of" cx="104" cy="139" rx="2.3" ry="2.7" fill="#E8794F"/>'
     return f'<g class="o o-lp">{beanie}{notes}{mouth}</g>'
 
 
 def outfit_mp():
-    hat = ('<path d="M67 46 Q69 39 80 38 L83 22 Q100 15 117 22 L120 38 Q131 39 133 46 Q100 54 67 46 Z" fill="#C9A86A"/>'
+    hat = ('<g class="o-hat"><g transform="translate(8 2) rotate(19 100 46)">'
+           '<path d="M67 46 Q69 39 80 38 L83 22 Q100 15 117 22 L120 38 Q131 39 133 46 Q100 54 67 46 Z" fill="#C9A86A"/>'
            '<path d="M81.6 31 Q100 26.5 118.4 31 L119.3 37.5 Q100 33 80.7 37.5 Z" fill="#8E6A4F"/>'
-           '<path d="M70 45 Q100 51 130 45" stroke="#A98A4E" stroke-width="1.6" fill="none" opacity=".8"/>')
+           '<path d="M70 45 Q100 51 130 45" stroke="#A98A4E" stroke-width="1.6" fill="none" opacity=".8"/></g></g>')
     mag = ('<g class="o-mag">'
            f'<path d="M128.5 131.5 L146 144" stroke="#8E6A4F" stroke-width="5.5" stroke-linecap="round"/>'
            '<circle cx="118" cy="121" r="14.5" fill="#EAF4FA" opacity=".94"/>'
@@ -177,6 +179,24 @@ CSS = r"""/* ---------- bagl's outfits: one per condition ---------- */
   75% { transform: translate(0, -7px) scale(.65); } 87.5% { transform: translate(21px, -5px) scale(.75); } 100% { transform: translate(30px, 0) scale(1); }
 }
 
+/* hats barely hanging on: they teeter, slip, and catch */
+.mascot .o-nm .o-hat { transform-origin: 114px 47px; animation: o-teeter 3.4s ease-in-out infinite; }
+.mascot .o-lp .o-hat { transform-origin: 86px 49px; animation: o-teeter-l 3s ease-in-out infinite; }
+.mascot .o-mp .o-hat { transform-origin: 112px 48px; animation: o-teeter 3.8s ease-in-out -1.2s infinite; }
+@keyframes o-teeter {
+  0%, 100% { transform: rotate(0); } 22% { transform: rotate(-3deg); } 46% { transform: rotate(2deg); } 68% { transform: rotate(-1deg); }
+  80% { transform: rotate(6deg) translateY(1.5px); } 86% { transform: rotate(-2.5deg); } 92% { transform: rotate(1deg); }
+}
+@keyframes o-teeter-l {
+  0%, 100% { transform: rotate(0); } 22% { transform: rotate(3deg); } 46% { transform: rotate(-2deg); } 68% { transform: rotate(1deg); }
+  80% { transform: rotate(-6deg) translateY(1.5px); } 86% { transform: rotate(2.5deg); } 92% { transform: rotate(-1deg); }
+}
+[data-idle="spill"] .mascot .o-hat { animation: o-hat-hop 3.2s ease-in-out; }
+@keyframes o-hat-hop {
+  0%, 24% { transform: none; } 31% { transform: translateY(-15px) rotate(-10deg); } 40% { transform: translateY(-19px) rotate(9deg); }
+  51% { transform: translateY(0) rotate(3deg); } 56% { transform: translateY(2px) rotate(10deg); } 64% { transform: rotate(-3deg); } 72%, 100% { transform: none; }
+}
+
 /* outfit change: a puff of smoke */
 .mascot .bl-poof { opacity: 0; transform-origin: 100px 124px; pointer-events: none; }
 .poof > .mascot .bl-poof { animation: bl-poof .62s ease-out; }
@@ -192,24 +212,44 @@ CSS += face_rule("MP", [".bl-ms"], [".o .of"])
 CSS += face_rule("HP", [".bl-es", ".bl-ms"], [".o .of"])
 CSS += face_rule("DMG", [".bl-es", ".bl-ms", ".bl-b1"], [".o .of"])
 
-INTRO_CSS = r"""/* ---------- boot intro ---------- */
+INTRO_CSS = r"""/* ---------- boot intro: a fan of cards, a burst of coins, the name ---------- */
 .intro {
-  position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; justify-items: center; gap: 2px;
-  background: var(--bg); cursor: pointer;
+  position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; justify-items: center; gap: 10px;
+  background: var(--bg); cursor: pointer; animation: intro-gone .3s 3.5s forwards;
 }
+@keyframes intro-gone { to { opacity: 0; visibility: hidden; } }
+.no-intro .intro { display: none; }
 .intro.out { animation: intro-out .32s ease-in forwards; }
 @keyframes intro-out { to { opacity: 0; transform: scale(1.05); } }
-.intro-stage { position: relative; width: 168px; }
-.intro-bag { width: 168px; animation: intro-drop .72s linear both; }
-@keyframes intro-drop {
-  0% { transform: translateY(-75vh) rotate(-16deg); animation-timing-function: cubic-bezier(.5, 0, .9, .5); }
-  48% { transform: translateY(0) rotate(2deg) scale(1.12, .84); animation-timing-function: cubic-bezier(.2, .8, .4, 1); }
-  68% { transform: translateY(-16px) rotate(-1deg) scale(.95, 1.06); animation-timing-function: ease-in; }
-  84% { transform: translateY(0) scale(1.03, .97); }
-  100% { transform: none; }
+.intro-stage { position: relative; width: 220px; height: 150px; }
+.icard {
+  position: absolute; left: 50%; top: 50%; width: 76px; height: 106px; margin: -53px 0 0 -38px; overflow: hidden;
+  border-radius: 11px; background: var(--c); box-shadow: 0 7px 0 rgb(0 0 0 / .2), inset 0 0 0 4px rgb(255 255 255 / .25);
+  animation: icard-fan .62s cubic-bezier(.3, 1.45, .55, 1) both; animation-delay: var(--d);
 }
+.icard::before { content: ""; position: absolute; left: 9px; right: 9px; top: 10px; height: 46px; border-radius: 7px; background: rgb(255 255 255 / .5); }
+.icard::after {
+  content: ""; position: absolute; left: 11px; width: 40px; bottom: 26px; height: 5px; border-radius: 3px;
+  background: rgb(255 255 255 / .55); box-shadow: 0 11px 0 -.5px rgb(255 255 255 / .4);
+}
+@keyframes icard-fan {
+  0% { opacity: 0; transform: translateY(70px) scale(.35) rotate(0); }
+  35% { opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) rotate(var(--r)); }
+}
+.ishine {
+  position: absolute; inset: -20px auto -20px -40px; width: 26px; z-index: 1;
+  background: rgb(255 255 255 / .7); transform: rotate(18deg); animation: ishine .55s ease-in-out .78s both;
+}
+@keyframes ishine { from { left: -40px; } to { left: 110px; } }
+.istar {
+  position: absolute; left: calc(50% + 30px); top: 4px; width: 22px; height: 22px; z-index: 2;
+  background: #F2C454; clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  animation: istar .9s ease-in-out .7s both;
+}
+@keyframes istar { 0% { transform: scale(0) rotate(0); } 40% { transform: scale(1.25) rotate(60deg); } 100% { transform: scale(.9) rotate(90deg); } }
 .icoin {
-  position: absolute; left: 50%; top: 18%; width: 18px; height: 18px; margin: -9px; border-radius: 50%; opacity: 0;
+  position: absolute; left: 50%; top: 42%; width: 18px; height: 18px; margin: -9px; border-radius: 50%; opacity: 0;
   background: radial-gradient(circle at 35% 35%, #FFF3C4 0 14%, #EDBE5A 16% 60%, #D29E3A 62%);
   box-shadow: inset 0 0 0 1.5px #D29E3A; animation: icoin .9s cubic-bezier(.2, .6, .4, 1) .42s both;
 }
@@ -217,10 +257,10 @@ INTRO_CSS = r"""/* ---------- boot intro ---------- */
   0% { opacity: 0; transform: translate(0, 0) scale(.4); }
   12% { opacity: 1; }
   45% { transform: translate(calc(var(--x) * .55), var(--y)) scale(1) rotate(200deg); }
-  100% { opacity: 0; transform: translate(var(--x), 110px) scale(.8) rotate(420deg); }
+  100% { opacity: 0; transform: translate(var(--x), 120px) scale(.8) rotate(420deg); }
 }
-.intro-word { font: 800 56px/1 var(--fun); color: var(--ink); letter-spacing: -.01em; }
-.intro-word span { display: inline-block; animation: intro-letter .5s var(--spring) both; animation-delay: calc(.5s + var(--i) * 75ms); }
+.intro-word { font: 800 60px/1 var(--fun); color: var(--ink); letter-spacing: -.01em; }
+.intro-word span { display: inline-block; animation: intro-letter .5s var(--spring) both; animation-delay: calc(.45s + var(--i) * 70ms); }
 @keyframes intro-letter { from { opacity: 0; transform: translateY(18px) scale(.4) rotate(-14deg); } }
 .intro-on h1 span { animation-play-state: paused; }
 """
