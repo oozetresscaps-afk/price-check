@@ -1,6 +1,6 @@
 # showy
 
-A home-screen app for hunting cards at shows: Expedition, Aquapolis, Skyridge, WotC Black Star Promos, and the Japanese Vending and VS series. For every card it shows TCGplayer's market price, the cheapest copy listed right now, and the most recent sale, for every printing (Normal, Reverse, Holo, 1st Edition) and condition (NM, LP, MP, HP, DMG). Its mascot, bagl, is a smug little money bag who spills his gold when he's bored and changes outfit for every condition. Everything is saved on the phone, so it keeps working with no signal.
+A home-screen app for hunting cards at shows: Expedition, Aquapolis, Skyridge, WotC Black Star Promos, and the Japanese Vending and VS series. For every card it shows TCGplayer's market price, the cheapest copy listed right now, and the most recent sale, for every printing (Normal, Reverse, Holo, 1st Edition) and condition (NM, LP, MP, HP, DMG). Its mascot is a smug, slightly tsundere chibi showgirl magician who does a different trick for every condition. Everything is saved on the phone, so it keeps working with no signal.
 
 A GitHub Actions job pulls fresh TCGplayer data every 4 hours and republishes the app on GitHub Pages. Whenever the phone is online, the app picks up the newest data; when it isn't, it uses what it saved and says how old it is.
 
@@ -40,7 +40,8 @@ app/                     the app (what GitHub Pages serves)
   img/                   card images, written by the refresh job
 scripts/update_prices.py the refresh job (Python, standard library only)
 .github/workflows/refresh.yml
-design/mascot/           mascot generator and earlier design takes (not part of the app)
+design/showgirl/         the showgirl mascot generator (not part of the app)
+design/mascot/           bagl, the earlier money-bag mascot, kept for reference
 ```
 
 To add sets, add their TCGplayer set IDs to `SETS` in `scripts/update_prices.py`. To change how often it refreshes, edit the `cron` line in the workflow.
