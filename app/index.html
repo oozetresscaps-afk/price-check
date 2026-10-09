@@ -6,7 +6,7 @@
   <title>bagl</title>
   <meta name="description" content="TCGplayer market, lowest listed and last sold for e-Reader era, WotC promo and Japanese vending and VS cards, saved for offline use at card shows.">
   <meta name="theme-color" content="#1E1720">
-  <script>try{var t=JSON.parse(localStorage.getItem("eq:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>(function(){var r=document.documentElement;try{var t=JSON.parse(localStorage.getItem("eq:theme"));if(t)r.dataset.theme=t;var c=JSON.parse(localStorage.getItem("eq:cond"));r.dataset.cond=c||"NM"}catch(e){r.dataset.cond="NM"}r.classList.add(matchMedia("(prefers-reduced-motion: reduce)").matches?"no-intro":"intro-on")})()</script>
   <meta name="apple-mobile-web-app-title" content="bagl">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
@@ -16,6 +16,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div id="intro" class="intro" aria-hidden="true">
+    <div class="intro-stage"><div class="intro-bag" data-mood="idle"></div></div>
+    <div class="intro-word"><span style="--i:0">b</span><span style="--i:1">a</span><span style="--i:2">g</span><span style="--i:3">l</span></div>
+  </div>
   <header class="top">
     <div class="titlebar">
       <h1>bagl</h1>

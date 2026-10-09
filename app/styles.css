@@ -620,3 +620,110 @@ h1.wave span { animation: letter-wave .55s ease-in-out both; animation-delay: ca
 .row:active .thumb { transform: rotate(-3deg) scale(1.04); }
 .thumb { transition: transform .25s var(--spring); }
 .hagl-n[hidden] { display: none; }
+
+/* ---------- bagl's outfits: one per condition ---------- */
+.mascot .o, .mascot .o .of { display: none; }
+[data-cond="NM"] .mascot .o-nm, [data-cond="LP"] .mascot .o-lp, [data-cond="MP"] .mascot .o-mp,
+[data-cond="HP"] .mascot .o-hp, [data-cond="DMG"] .mascot .o-dmg { display: inline; }
+.mascot .bl-pose { transform-origin: 100px 190px; }
+.mascot .o-spark, .mascot .o-note, .mascot .o-spin, .mascot .o-orb, .mascot .o-drip, .mascot .o-bigeye { transform-box: fill-box; transform-origin: center; }
+[data-cond="NM"] .mascot .bl-ends { display: none; }
+[data-cond="MP"] .mascot .bl-ar { display: none; }
+[data-cond="HP"] .mascot .bl-brows { display: none; }
+
+/* NM: top hat and bow tie, chin up, sparkling */
+[data-cond="NM"] .mascot .bl-pose { animation: o-proud 3.2s ease-in-out infinite; }
+@keyframes o-proud { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(-2.5deg) translateY(-2px) scale(1.01, 1.02); } }
+.mascot .o-spark { animation: o-twinkle 2.4s ease-in-out infinite; }
+.mascot .o-spark.k1 { animation-delay: -.6s; } .mascot .o-spark.k2 { animation-delay: -1.2s; } .mascot .o-spark.k3 { animation-delay: -1.8s; }
+@keyframes o-twinkle { 0%, 100% { transform: scale(0) rotate(0); opacity: 0; } 30% { transform: scale(1.1) rotate(45deg); opacity: 1; } 60% { transform: scale(.2) rotate(90deg); opacity: 0; } }
+
+/* LP: beanie, eyes shut, whistling a tune */
+[data-cond="LP"] .mascot .bl-pose { animation: o-chill 2.4s ease-in-out infinite; }
+@keyframes o-chill { 0%, 100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg) translateY(-1.5px); } }
+.mascot .o-note { opacity: 0; animation: o-note 2.7s ease-out infinite; }
+.mascot .o-note.n1 { animation-delay: -.9s; } .mascot .o-note.n2 { animation-delay: -1.8s; }
+@keyframes o-note { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 15% { opacity: 1; } 50% { transform: translate(14px, -22px) rotate(12deg) scale(1); } 100% { opacity: 0; transform: translate(30px, -48px) rotate(-10deg) scale(.9); } }
+
+/* MP: bucket hat, inspecting with a magnifying glass */
+[data-cond="MP"] .mascot .bl-pose { animation: o-lean 2.8s ease-in-out infinite; }
+@keyframes o-lean { 0%, 100% { transform: rotate(2deg); } 50% { transform: rotate(4deg) translateY(-1px); } }
+.mascot .o-mag { transform-origin: 147px 145px; animation: o-scan 2.8s ease-in-out infinite; }
+@keyframes o-scan { 0%, 100% { transform: rotate(0) translate(0, 0); } 30% { transform: rotate(-4deg) translate(-3px, -1px); } 70% { transform: rotate(3deg) translate(2px, 1px); } }
+.mascot .o-bigeye { animation: o-peer 2.8s ease-in-out infinite; }
+@keyframes o-peer { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(-3px, 0); } 70% { transform: translate(3px, -1px); } 88% { transform: translate(3px, -1px) scaleY(.15); } }
+
+/* HP: bandaged, leaning on a cane, sighing */
+[data-cond="HP"] .mascot .bl-pose { animation: o-slouch 3.6s ease-in-out infinite; }
+@keyframes o-slouch { 0%, 100% { transform: rotate(-4deg) scale(1.02, .97); } 50% { transform: rotate(-5deg) scale(1, 1); } }
+.mascot .o-sigh { transform-origin: 82px 142px; opacity: 0; animation: o-sigh 3.6s ease-out infinite; }
+@keyframes o-sigh { 0%, 40% { opacity: 0; transform: translate(0, 0) scale(.5); } 50% { opacity: 1; } 100% { opacity: 0; transform: translate(-16px, -8px) scale(1.3); } }
+
+/* DMG: taped up, a hole leaking coins, seeing stars */
+[data-cond="DMG"] .mascot .bl-pose { animation: o-wobble 1.9s ease-in-out infinite; }
+@keyframes o-wobble { 0%, 100% { transform: rotate(-5deg); } 25% { transform: rotate(4deg) translateY(-1px); } 50% { transform: rotate(-3deg); } 75% { transform: rotate(6deg) translateY(-1px); } }
+.mascot .o-spin { animation: o-spin 1.3s linear infinite; }
+@keyframes o-spin { to { transform: rotate(360deg); } }
+.mascot .o-drip { opacity: 0; animation: o-drip 2.2s ease-in infinite; }
+@keyframes o-drip { 0% { opacity: 0; transform: translate(0, 0) scale(.6); } 15% { opacity: 1; transform: translate(-1px, 2px) scale(1); } 60% { opacity: 1; transform: translate(-6px, 18px) rotate(120deg); } 75%, 100% { opacity: 0; transform: translate(-9px, 18px) rotate(160deg); } }
+.mascot .o-orb { animation: o-orbit 1.8s linear infinite; }
+.mascot .o-orb.b1 { animation-delay: -.6s; } .mascot .o-orb.b2 { animation-delay: -1.2s; }
+@keyframes o-orbit {
+  0% { transform: translate(30px, 0) scale(1); } 12.5% { transform: translate(21px, 5px) scale(1.1); }
+  25% { transform: translate(0, 7px) scale(1.15); } 37.5% { transform: translate(-21px, 5px) scale(1.1); }
+  50% { transform: translate(-30px, 0) scale(.9); } 62.5% { transform: translate(-21px, -5px) scale(.75); }
+  75% { transform: translate(0, -7px) scale(.65); } 87.5% { transform: translate(21px, -5px) scale(.75); } 100% { transform: translate(30px, 0) scale(1); }
+}
+
+/* outfit change: a puff of smoke */
+.mascot .bl-poof { opacity: 0; transform-origin: 100px 124px; pointer-events: none; }
+.poof > .mascot .bl-poof { animation: bl-poof .62s ease-out; }
+@keyframes bl-poof { 0% { opacity: 0; transform: scale(.25); } 28% { opacity: 1; transform: scale(1); } 55% { opacity: 1; transform: scale(1.06); } 100% { opacity: 0; transform: scale(1.3); } }
+.poof > .mascot .bl-sway { animation: bl-poof-hop .62s var(--spring); }
+@keyframes bl-poof-hop { 30% { transform: translateY(-8px) scale(.94, 1.06); } 60% { transform: scale(1.04, .96); } }
+[data-cond="NM"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-es, [data-cond="NM"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-ms, [data-cond="NM"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-b1 { display: none; }
+[data-cond="NM"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-ex, [data-cond="NM"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-mx, [data-cond="NM"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-b2 { display: inline; opacity: 1; }
+[data-cond="LP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-es, [data-cond="LP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-ms, [data-cond="LP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-b1 { display: none; }
+[data-cond="LP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-sleep, [data-cond="LP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .o .of { display: inline; opacity: 1; }
+[data-cond="LP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-eyes { animation: none; }
+[data-cond="MP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-ms { display: none; }
+[data-cond="MP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .o .of { display: inline; opacity: 1; }
+[data-cond="HP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-es, [data-cond="HP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-ms { display: none; }
+[data-cond="HP"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .o .of { display: inline; opacity: 1; }
+[data-cond="DMG"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-es, [data-cond="DMG"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-ms, [data-cond="DMG"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .bl-b1 { display: none; }
+[data-cond="DMG"] [data-mood="idle"]:not([data-idle="spill"]) > .mascot .o .of { display: inline; opacity: 1; }
+
+/* ---------- boot intro ---------- */
+.intro {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; justify-items: center; gap: 2px;
+  background: var(--bg); cursor: pointer;
+}
+.intro { animation: intro-gone .3s 3.5s forwards; }
+@keyframes intro-gone { to { opacity: 0; visibility: hidden; } }
+.no-intro .intro { display: none; }
+.intro.out { animation: intro-out .32s ease-in forwards; }
+@keyframes intro-out { to { opacity: 0; transform: scale(1.05); } }
+.intro-stage { position: relative; width: 196px; }
+.intro-bag { width: 196px; animation: intro-drop .72s linear both; }
+@keyframes intro-drop {
+  0% { transform: translateY(-75vh) rotate(-16deg); animation-timing-function: cubic-bezier(.5, 0, .9, .5); }
+  48% { transform: translateY(0) rotate(2deg) scale(1.12, .84); animation-timing-function: cubic-bezier(.2, .8, .4, 1); }
+  68% { transform: translateY(-16px) rotate(-1deg) scale(.95, 1.06); animation-timing-function: ease-in; }
+  84% { transform: translateY(0) scale(1.03, .97); }
+  100% { transform: none; }
+}
+.icoin {
+  position: absolute; left: 50%; top: 18%; width: 18px; height: 18px; margin: -9px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle at 35% 35%, #FFF3C4 0 14%, #EDBE5A 16% 60%, #D29E3A 62%);
+  box-shadow: inset 0 0 0 1.5px #D29E3A; animation: icoin .9s cubic-bezier(.2, .6, .4, 1) .42s both;
+}
+@keyframes icoin {
+  0% { opacity: 0; transform: translate(0, 0) scale(.4); }
+  12% { opacity: 1; }
+  45% { transform: translate(calc(var(--x) * .55), var(--y)) scale(1) rotate(200deg); }
+  100% { opacity: 0; transform: translate(var(--x), 110px) scale(.8) rotate(420deg); }
+}
+.intro-word { font: 800 56px/1 var(--fun); color: var(--ink); letter-spacing: -.01em; }
+.intro-word span { display: inline-block; animation: intro-letter .5s var(--spring) both; animation-delay: calc(.5s + var(--i) * 75ms); }
+@keyframes intro-letter { from { opacity: 0; transform: translateY(18px) scale(.4) rotate(-14deg); } }
+.intro-on h1 span { animation-play-state: paused; }
