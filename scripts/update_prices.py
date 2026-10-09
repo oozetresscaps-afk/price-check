@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Refresh TCGplayer data for Expedition, Aquapolis and Skyridge.
+"""Refresh TCGplayer data for the sets Equire tracks.
 
 Writes app/data/prices.json with, for every card:
   p  market price per printing and condition (TCGplayer price guide)
   l  cheapest live listing per printing and condition: [item price, shipping]
-  s  recent sales: [condition, printing, price, date]
+  s  sales from about the last two months, plus the latest sale for every
+     printing and condition seen: [condition, printing, price, date]
 and saves card thumbnails into app/img/ so the app works offline.
 
-Standard library only, so it runs on a plain GitHub Actions runner.
+Printings are stored by TCGplayer's own names ("Normal", "Reverse Holofoil",
+"Holofoil", "1st Edition", ...). Standard library only.
 """
 import json
 import os
@@ -16,19 +18,29 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
+# Fixed sets (TCGplayer set IDs).
 SETS = [
-    {"id": 1375, "name": "Expedition", "abbr": "EX"},
-    {"id": 1397, "name": "Aquapolis", "abbr": "AQ"},
-    {"id": 1372, "name": "Skyridge", "abbr": "SK"},
+    {"id": 1375, "name": "Expedition", "abbr": "EX", "tab": "Expedition", "cat": 3},
+    {"id": 1397, "name": "Aquapolis", "abbr": "AQ", "tab": "Aquapolis", "cat": 3},
+    {"id": 1372, "name": "Skyridge", "abbr": "SK", "tab": "Skyridge", "cat": 3},
 ]
+# Sets found by name in TCGplayer's set list each run (3 = Pokemon, 85 = Pokemon Japan).
+FIND = [
+    {"cats": [3], "pattern": r"^(WoTC Promo|Wizards Black Star Promos?)$", "tab": "Promos", "abbr": "Promo"},
+    {"cats": [3, 85], "pattern": r"Vending Series", "tab": "Vending", "abbr": "Vend"},
+    {"cats": [85], "pattern": r"^(Pok[eé]mon |Pokemon Card )?VS$", "tab": "VS", "abbr": "VS"},
+]
+TAB_ORDER = ["Expedition", "Aquapolis", "Skyridge", "Promos", "Vending", "VS"]
+LANG = {3: (1, "English"), 85: (7, "Japanese")}
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP = os.path.join(ROOT, "app")
 DATA_FILE = os.path.join(APP, "data", "prices.json")
 IMG_DIR = os.path.join(APP, "img")
 
+SETNAMES_URL = "https://mpapi.tcgplayer.com/v2/Catalog/SetNames?categoryId={cat}&active=true"
 PRICE_URL = "https://infinite-api.tcgplayer.com/priceguide/set/{id}/cards/?rows=5000&productTypeID=1"
 SALES_URL = "https://mpapi.tcgplayer.com/v2/product/{id}/latestsales"
 LISTINGS_URL = "https://mp-search-api.tcgplayer.com/v1/product/{id}/listings"
@@ -49,11 +61,13 @@ CONDITIONS = [
     ("Heavily Played", "HP"),
     ("Damaged", "DMG"),
 ]
-PRINTINGS = {"Normal": "N", "Reverse Holofoil": "R", "Holofoil": "H"}
 
-SALES_KEEP = 20          # recent sales stored per card
+SALES_DAYS = 61          # keep every sale from roughly the last two months
+SALES_PAGE = 25          # the sales feed returns 25 at a time
+SALES_MAX_PAGES = 6      # look back at most 150 sales per card
+SALES_KEEP = 60          # cap on stored sales per card (latest per printing/condition kept on top)
 LISTINGS_SIZE = 50       # cheapest listings checked per card
-DELAY = 0.35             # seconds between requests, to stay polite
+DELAY = 0.3              # seconds between requests, to stay polite
 SKIP_SALES = os.environ.get("SKIP_SALES") == "1"
 SKIP_LISTINGS = os.environ.get("SKIP_LISTINGS") == "1"
 SKIP_IMAGES = os.environ.get("SKIP_IMAGES") == "1"
@@ -90,7 +104,6 @@ def request(url, body=None, retries=3, raw=False):
 
 
 def describe(e):
-    """Short error text for the log and diagnostics, including the API's reply."""
     text = str(e)
     if isinstance(e, urllib.error.HTTPError):
         try:
@@ -119,8 +132,9 @@ def condition_code(text):
     return None
 
 
-def printing_code(text):
-    return PRINTINGS.get((text or "").strip())
+def printing_name(text):
+    text = (text or "").strip()
+    return text or "Normal"
 
 
 def clean_name(name):
@@ -133,7 +147,7 @@ def clean_number(num):
     def strip(part):
         m = re.match(r"^([A-Za-z]*)0*(\d+)([A-Za-z]?)$", part.strip())
         return f"{m.group(1)}{m.group(2)}{m.group(3)}" if m else part.strip()
-    return "/".join(strip(p) for p in (num or "").split("/"))
+    return "/".join(strip(p) for p in (num or "").split("/") if p.strip())
 
 
 def money(v):
@@ -144,6 +158,43 @@ def money(v):
     return round(v, 2) if v > 0 else None
 
 
+def short_abbr(rule, name):
+    if rule["tab"] == "Vending":
+        m = re.search(r"Series\s*(\d+)", name)
+        return f"Vend {m.group(1)}" if m else "Vend"
+    return rule["abbr"]
+
+
+def find_sets(previous_sets):
+    """Look up the extra sets by name in TCGplayer's catalogue."""
+    found, errors = [], []
+    names_by_cat = {}
+    for cat in sorted({c for rule in FIND for c in rule["cats"]}):
+        try:
+            data = request(SETNAMES_URL.format(cat=cat))
+            rows = pick(data, "results") or (data if isinstance(data, list) else [])
+            names_by_cat[cat] = [(pick(r, "setNameId", "groupId", "id"), pick(r, "name") or "") for r in rows]
+            log(f"Category {cat}: {len(names_by_cat[cat])} sets listed")
+        except Exception as e:
+            errors.append(f"category {cat}: {describe(e)}")
+            log(f"Could not list sets for category {cat}: {describe(e)}")
+    seen = {s["id"] for s in SETS}
+    for rule in FIND:
+        for cat in rule["cats"]:
+            for sid, name in names_by_cat.get(cat, []):
+                if sid and sid not in seen and re.search(rule["pattern"], name):
+                    seen.add(sid)
+                    found.append({"id": sid, "name": name, "abbr": short_abbr(rule, name), "tab": rule["tab"], "cat": cat})
+                    log(f"Found {rule['tab']}: {name} ({sid}, category {cat})")
+    # If the catalogue lookup failed, fall back to sets found on an earlier run.
+    if errors:
+        for s in previous_sets:
+            if s.get("tab") in {r["tab"] for r in FIND} and s["id"] not in seen:
+                seen.add(s["id"])
+                found.append({k: s[k] for k in ("id", "name", "abbr", "tab", "cat") if k in s})
+    return found, errors
+
+
 def fetch_set_prices(s):
     data = request(PRICE_URL.format(id=s["id"]))
     rows = pick(data, "result") or []
@@ -152,7 +203,7 @@ def fetch_set_prices(s):
         pid = pick(row, "productID", "productId")
         if pid is None:
             continue
-        pcode = printing_code(pick(row, "printing"))
+        pname = printing_name(pick(row, "printing"))
         ccode = condition_code(pick(row, "condition"))
         card = cards.setdefault(pid, {
             "id": pid,
@@ -162,34 +213,54 @@ def fetch_set_prices(s):
             "rarity": pick(row, "rarity") or "",
             "p": {},
         })
-        low = money(pick(row, "lowPrice"))
-        if low is not None:
-            card["low"] = low
-        if pcode and ccode:
+        if ccode:
             price = money(pick(row, "marketPrice"))
-            card["p"].setdefault(pcode, {})
+            card["p"].setdefault(pname, {})
             if price is not None:
-                card["p"][pcode][ccode] = price
+                card["p"][pname][ccode] = price
     return list(cards.values())
 
 
-def fetch_sales(pid):
-    body = {
-        "conditions": [], "languages": [1], "variants": [],
-        "listingType": "All", "offset": 0, "limit": 25,
-        "time": int(time.time() * 1000),
-    }
-    data = request(SALES_URL.format(id=pid), body=body)
+def fetch_sales(pid, lang_id):
+    out = _fetch_sales(pid, [lang_id])
+    if not out:   # some Japanese cards sit in the English catalogue, or the other way round
+        out = _fetch_sales(pid, [7 if lang_id == 1 else 1])
+    return out
+
+
+def _fetch_sales(pid, langs):
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=SALES_DAYS)).strftime("%Y-%m-%d")
     out = []
-    for sale in pick(data, "data") or []:
-        ccode = condition_code(pick(sale, "condition"))
-        pcode = printing_code(pick(sale, "variant"))
-        price = money(pick(sale, "purchasePrice"))
-        date = (pick(sale, "orderDate") or "")[:10]
-        if ccode and pcode and price is not None and date:
-            out.append([ccode, pcode, price, date])
+    for page in range(SALES_MAX_PAGES):
+        body = {
+            "conditions": [], "languages": langs, "variants": [],
+            "listingType": "All", "offset": page * SALES_PAGE, "limit": SALES_PAGE,
+            "time": int(time.time() * 1000),
+        }
+        data = request(SALES_URL.format(id=pid), body=body)
+        rows = pick(data, "data") or []
+        dates = []
+        for sale in rows:
+            ccode = condition_code(pick(sale, "condition"))
+            pname = printing_name(pick(sale, "variant"))
+            price = money(pick(sale, "purchasePrice"))
+            date = (pick(sale, "orderDate") or "")[:10]
+            if date:
+                dates.append(date)
+            if ccode and price is not None and date:
+                out.append([ccode, pname, price, date])
+        if len(rows) < SALES_PAGE or not dates or min(dates) < cutoff:
+            break
+        time.sleep(DELAY)
     out.sort(key=lambda r: r[3], reverse=True)
-    return out[:SALES_KEEP]
+    keep = [s for s in out if s[3] >= cutoff][:SALES_KEEP]
+    have = {(s[1], s[0]) for s in keep}
+    for s in out:   # never leave a printing/condition blank if an older sale exists
+        if (s[1], s[0]) not in have:
+            keep.append(s)
+            have.add((s[1], s[0]))
+    keep.sort(key=lambda r: r[3], reverse=True)
+    return keep
 
 
 def listing_rows(data):
@@ -201,10 +272,20 @@ def listing_rows(data):
     return outer if isinstance(outer, list) else []
 
 
-def fetch_listings(pid):
+def fetch_listings(pid, language):
+    best, count = _fetch_listings(pid, language)
+    if not best:   # retry without a language filter for cards listed under the other language
+        best, count = _fetch_listings(pid, None)
+    return best, count
+
+
+def _fetch_listings(pid, language):
+    term = {"sellerStatus": "Live", "channelId": 0}
+    if language:
+        term["language"] = [language]
     body = {
         "filters": {
-            "term": {"sellerStatus": "Live", "channelId": 0, "language": ["English"]},
+            "term": term,
             "range": {"quantity": {"gte": 1}},
             "exclude": {"channelExclusion": 0},
         },
@@ -215,23 +296,22 @@ def fetch_listings(pid):
         "aggregations": ["listingType"],
     }
     data = request(LISTINGS_URL.format(id=pid), body=body)
-    best = {}
-    count = {}
+    best, count = {}, {}
     for row in listing_rows(data):
-        pcode = printing_code(pick(row, "printing"))
+        pname = printing_name(pick(row, "printing"))
         ccode = condition_code(pick(row, "condition"))
         price = money(pick(row, "price"))
-        if not (pcode and ccode and price is not None):
+        if not (ccode and price is not None):
             continue
         ship = pick(row, "shippingPrice", "sellerShippingPrice", "rankedShippingPrice")
         try:
             ship = round(max(float(ship or 0), 0), 2)
         except (TypeError, ValueError):
             ship = 0.0
-        count[pcode] = count.get(pcode, 0) + 1
-        cur = best.setdefault(pcode, {}).get(ccode)
+        count[pname] = count.get(pname, 0) + 1
+        cur = best.setdefault(pname, {}).get(ccode)
         if cur is None or price + ship < cur[0] + cur[1]:
-            best[pcode][ccode] = [price, ship]
+            best[pname][ccode] = [price, ship]
     return best, count
 
 
@@ -250,16 +330,30 @@ def save_image(pid):
     return True
 
 
+def upgrade_old(card):
+    """Data from before printing names were stored used N/R/H codes."""
+    names = {"N": "Normal", "R": "Reverse Holofoil", "H": "Holofoil"}
+    for key in ("p", "l", "lc"):
+        if isinstance(card.get(key), dict):
+            card[key] = {names.get(k, k): v for k, v in card[key].items()}
+    card["s"] = [[s[0], names.get(s[1], s[1]), s[2], s[3]] for s in card.get("s", [])]
+    return card
+
+
 def main():
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     previous, old = {}, {}
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE) as f:
             old = json.load(f)
-        previous = {c["id"]: c for c in old.get("cards", [])}
+        previous = {c["id"]: upgrade_old(c) for c in old.get("cards", [])}
+
+    extra, set_errors = find_sets(old.get("sets", []))
+    all_sets = sorted(SETS + extra, key=lambda s: (TAB_ORDER.index(s["tab"]) if s["tab"] in TAB_ORDER else 99, s["name"]))
+    cat_of = {s["id"]: s.get("cat", 3) for s in all_sets}
 
     cards, sets_out, price_failures = [], [], 0
-    for s in SETS:
+    for s in all_sets:
         try:
             set_cards = fetch_set_prices(s)
             log(f"{s['name']}: {len(set_cards)} cards from the price guide")
@@ -270,19 +364,21 @@ def main():
         cards.extend(set_cards)
         sets_out.append({**s, "count": len(set_cards)})
 
-    if price_failures == len(SETS) and not previous:
+    if price_failures == len(all_sets) and not previous:
         log("Could not reach the TCGplayer price guide for any set. Nothing written.")
         sys.exit(1)
 
-    diag = {"salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0,
-            "listingsEmpty": 0, "salesError": None, "listingsError": None}
+    diag = {"salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
+            "salesError": None, "listingsError": None, "setLookupErrors": set_errors,
+            "setsFound": [f"{s['name']} ({s['id']})" for s in extra]}
     for i, card in enumerate(cards):
+        lang_id, language = LANG.get(cat_of.get(card["set"], 3), LANG[3])
         prev = previous.get(card["id"], {})
         card["s"] = prev.get("s", [])
         card["l"] = prev.get("l", {})
         if not SKIP_SALES:
             try:
-                card["s"] = fetch_sales(card["id"])
+                card["s"] = fetch_sales(card["id"], lang_id)
                 diag["salesOk"] += 1
             except Exception as e:
                 diag["salesFailed"] += 1
@@ -292,7 +388,7 @@ def main():
             time.sleep(DELAY)
         if not SKIP_LISTINGS:
             try:
-                best, count = fetch_listings(card["id"])
+                best, count = fetch_listings(card["id"], language)
                 card["l"] = best
                 card["lc"] = count
                 diag["listingsOk"] += 1
@@ -306,7 +402,7 @@ def main():
             time.sleep(DELAY)
         if (i + 1) % 100 == 0:
             log(f"{i + 1}/{len(cards)} cards checked")
-    log(f"Last sold: {diag['salesOk']} updated, {diag['salesFailed']} kept from before")
+    log(f"Sales: {diag['salesOk']} updated, {diag['salesFailed']} kept from before")
     log(f"Lowest listed: {diag['listingsOk']} updated ({diag['listingsEmpty']} with no listings), "
         f"{diag['listingsFailed']} kept from before")
 
@@ -320,7 +416,8 @@ def main():
     log(f"Images: {images}/{len(cards)} saved")
 
     out = {
-        "updated": now if price_failures < len(SETS) else old.get("updated", now),
+        "version": 2,
+        "updated": now if price_failures < len(all_sets) else old.get("updated", now),
         "salesUpdated": now if diag["salesOk"] else old.get("salesUpdated"),
         "listingsUpdated": now if diag["listingsOk"] else old.get("listingsUpdated"),
         "source": "TCGplayer",

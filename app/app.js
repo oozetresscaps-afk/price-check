@@ -8,12 +8,40 @@ const CONDS = [
   ["HP", "Heavily Played"], ["DMG", "Damaged"],
 ];
 const COND_CODE = Object.fromEntries(CONDS.map(([k, v]) => [v.toLowerCase(), k]));
-const PRINTS = [["N", "Normal"], ["R", "✨ Reverse"], ["H", "🌟 Holo"]];
-const PRINT_CODE = { "normal": "N", "reverse holofoil": "R", "holofoil": "H" };
-const PRINT_NOUN = { N: ["normal card", "normal cards"], R: ["reverse holo", "reverse holos"], H: ["holo", "holos"] };
-const PRINT_NAME = { N: "Normal", R: "Reverse holo", H: "Holo" };
-const SET_COLOR = { EX: "var(--ex)", AQ: "var(--aq)", SK: "var(--sk)" };
-const SORTS = { num: "🔢 Number", price: "💰 Price" };
+const CODE_NAMES = { N: "Normal", R: "Reverse Holofoil", H: "Holofoil" };
+const PRINT_ORDER = ["Normal", "Unlimited", "1st Edition", "Holofoil", "Unlimited Holofoil", "1st Edition Holofoil", "Reverse Holofoil"];
+const PRINT_STYLE = {
+  "Normal": { tag: "", short: "Normal", cls: "pr-normal" },
+  "Unlimited": { tag: "", short: "Unlimited", cls: "pr-normal" },
+  "Reverse Holofoil": { tag: "✨ Reverse holo", short: "✨ Reverse", cls: "pr-rev" },
+  "Holofoil": { tag: "🌟 Holo", short: "🌟 Holo", cls: "pr-holo" },
+  "Unlimited Holofoil": { tag: "🌟 Holo", short: "🌟 Holo", cls: "pr-holo" },
+  "1st Edition": { tag: "1st Edition", short: "1st Ed.", cls: "pr-first" },
+  "1st Edition Holofoil": { tag: "🌟 1st Edition holo", short: "🌟 1st Ed.", cls: "pr-firstholo" },
+};
+const pstyle = (p) => PRINT_STYLE[p] || { tag: p, short: p, cls: "pr-other" };
+const pOrder = (p) => { const i = PRINT_ORDER.indexOf(p); return i < 0 ? 50 : i; };
+const SORTS = { num: "Sort: Number", price: "Sort: Price" };
+const SMUG = [
+  "Ready to spend way too much money on cardboard?",
+  "How's the ol' bank account looking there, pal?",
+  "Oh good, you're back. The cardboard missed you.",
+  "It's not spending, it's \"investing.\" Sure it is.",
+  "Let me guess. You're \"just looking.\" Uh huh.",
+  "Your wallet called. It sounded scared.",
+  "Bold of you to open me with that bank balance.",
+  "Go ahead, pretend you're going to haggle. It's cute.",
+  "Every card is a \"deal\" if you squint hard enough.",
+  "You don't need another reverse holo. Anyway, here are the prices.",
+  "Back for more? That binder isn't going to fill itself.",
+  "Play it cool. The dealer can smell desperation.",
+  "Ah yes, cardboard. Your favorite financial decision.",
+  "Rent can wait. That Skyridge card can't. Right?",
+  "Is this a grail, or is it just Saturday?",
+  "Remember: if you don't look at the receipt, it didn't happen.",
+  "Sure, \"one more pack\" and then you're done. I believe you.",
+  "Another day, another card you'll call a steal.",
+];
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 const $ = (id) => document.getElementById(id);
@@ -25,18 +53,38 @@ const store = {
 
 const state = {
   data: null,
-  setId: store.get("set", "all"),
-  print: store.get("print", "N"),
+  tab: store.get("tab", "all"),
   cond: store.get("cond", "NM"),
   sort: store.get("sort", "num"),
+  theme: store.get("theme", "dark"),
   own: "all",
   q: "",
-  coll: store.get("coll", null),
+  coll: migrateColl(store.get("coll", null)),
   fetchedOk: false,
   tried: false,
   refreshing: false,
   imgProgress: null,
 };
+
+function migrateColl(c) {
+  if (!c?.items) return c;
+  for (const id of Object.keys(c.items)) c.items[id] = c.items[id].map(([p, cond, q]) => [CODE_NAMES[p] || p, cond, q]);
+  return c;
+}
+
+/* ================= theme ================= */
+
+function applyTheme(t) {
+  state.theme = t;
+  document.documentElement.dataset.theme = t;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", t === "dark" ? "#1E1720" : "#FFF7F2");
+  const b = $("theme");
+  if (b) {
+    b.innerHTML = `<span class="emoji" aria-hidden="true">${t === "dark" ? "☀️" : "🌙"}</span>`;
+    b.setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  }
+}
+applyTheme(state.theme);
 
 /* ================= the mascot ================= */
 
@@ -103,60 +151,17 @@ function idleLoop() {
 
 /* ================= the speech bubble ================= */
 
-const FACTS = [
-  "The e-Reader plugged into a Game Boy Advance and read the dot-code strips printed on cards like these.",
-  "The e-Reader first came out in Japan in 2001, then reached North America in 2002.",
-  "Expedition came out in September 2002, right around when the e-Reader hit North America.",
-  "Expedition's holo rares also show up as regular rares with different numbers. Alakazam is #1 as a holo and #33 as a regular rare.",
-  "Most cards in these three sets also come as a reverse holo, so there's a whole second set to hunt.",
-  "Aquapolis and Skyridge number their holos separately, from H1 to H32.",
-  "Aquapolis has a few cards in two versions, numbered a and b, like Drowzee 74a and 74b.",
-  "Aquapolis came out in January 2003, between Expedition and Skyridge.",
-  "Skyridge, from May 2003, was the last English Pokémon set made by Wizards of the Coast.",
-  "Crystal Charizard is numbered 146/144 in Skyridge. A secret rare past the end of the set!",
-  "Tip: tap any card and type the table price. I'll tell you if it's cheaper online.",
-  "Tip: tap me any time for another fact.",
-];
-
-function liveFacts() {
-  const d = state.data; if (!d) return [];
-  const out = [];
-  const top = (p) => d.cards.reduce((best, c) => { const m = market(c, p, "NM"); return m != null && (!best || m > best[1]) ? [c, m] : best; }, null);
-  const n = top("N"), r = top("R");
-  if (n) out.push(`@The priciest regular card right now is ${esc(n[0].name)} (${n[0].abbr} ${esc(n[0].num)}) at ${fmt(n[1])} in NM.`);
-  if (r) out.push(`@The priciest reverse holo right now is ${esc(r[0].name)} (${r[0].abbr} ${esc(r[0].num)}) at ${fmt(r[1])} in NM.`);
-  const since = Date.now() - 3 * 86400000;
-  const sold = d.cards.filter((c) => c.s.some((x) => new Date(x[3] + "T12:00:00").getTime() >= since)).length;
-  if (sold) out.push(`@${sold} of these cards sold on TCGplayer in the last 3 days.`);
-  const set = d.sets[Math.floor(Math.random() * d.sets.length)];
-  const cheap = d.cards.filter((c) => c.set === set.id && market(c, "N", "NM") != null)
-    .sort((a, b) => market(a, "N", "NM") - market(b, "N", "NM"))[0];
-  if (cheap) out.push(`@The cheapest ${esc(set.name)} card in NM right now is ${esc(cheap.name)} at ${fmt(market(cheap, "N", "NM"))}.`);
-  if (state.coll) {
-    const need = d.cards.filter((c) => hasPrinting(c, "N") && !ownedQty(c, "N")).length;
-    out.push(`@You have ${state.coll.cards} of the ${d.cards.length} cards I keep an eye on. ${need} regular cards left to find!`);
-  }
-  return out;
-}
-
-let factQueue = [];
-let sayUntil = 0;
-function say(html, hold = 0) {
+function say(html) {
   const el = $("bubble");
   el.innerHTML = html;
-  sayUntil = Date.now() + hold;
   if (!reduceMotion.matches) { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
 }
-function nextFact(force) {
-  if (!force && Date.now() < sayUntil) return;
-  if (!factQueue.length) {
-    factQueue = [...FACTS, ...liveFacts()];
-    for (let i = factQueue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [factQueue[i], factQueue[j]] = [factQueue[j], factQueue[i]]; }
-  }
-  let f = factQueue.pop(), label = "Did you know?";
-  if (f.startsWith("Tip: ")) { label = "Tip"; f = f.slice(5); }
-  else if (f.startsWith("@")) { label = "Right now"; f = f.slice(1); }
-  say(`<b>${label}</b> ${f}`);
+function smug() {
+  let i = Math.floor(Math.random() * SMUG.length);
+  const last = store.get("smug", -1);
+  if (i === last) i = (i + 1) % SMUG.length;
+  store.set("smug", i);
+  say(SMUG[i]);
 }
 
 /* ================= helpers ================= */
@@ -181,34 +186,43 @@ function ago(iso) {
 }
 function numKey(num) {
   const n = String(num || "").split("/")[0].trim().toLowerCase();
-  const m = /^(h?)0*(\d+)([a-z]?)$/.exec(n);
+  const m = /^([a-z]*?)0*(\d+)([a-z]?)$/.exec(n);
   return m ? m[1] + m[2] + m[3] : n;
 }
-function plural(p, n) { return PRINT_NOUN[p][n === 1 ? 0 : 1]; }
 
 /* ================= data ================= */
 
 function prepare(data) {
   const setIdx = new Map(data.sets.map((s, i) => [s.id, i]));
-  const abbr = new Map(data.sets.map((s) => [s.id, s.abbr]));
-  const setName = new Map(data.sets.map((s) => [s.id, s.name.toLowerCase()]));
+  const setOf = new Map(data.sets.map((s) => [s.id, s]));
+  for (const s of data.sets) s.tab = s.tab || s.name;
   data.byKey = new Map();
+  data.rows = [];
   for (const c of data.cards) {
-    c.abbr = abbr.get(c.set) || "";
+    for (const k of ["p", "l"]) c[k] = Object.fromEntries(Object.entries(c[k] || {}).map(([p, v]) => [CODE_NAMES[p] || p, v]));
+    c.s = (c.s || []).map((s) => [s[0], CODE_NAMES[s[1]] || s[1], s[2], s[3]]);
+    const set = setOf.get(c.set) || {};
+    c.abbr = set.abbr || ""; c.tab = set.tab || ""; c.setName = set.name || "";
     c.key = norm(c.name);
     c.nk = numKey(c.num);
-    const m = /^(h?)(\d+)([a-z]?)/i.exec(c.nk);
-    c.order = (setIdx.get(c.set) ?? 9) * 100000 + (m ? (m[1] ? 1000 : 0) + Number(m[2]) + (m[3] ? (m[3].charCodeAt(0) - 96) / 10 : 0) : 9999);
-    c.s = c.s || []; c.p = c.p || {}; c.l = c.l || {};
-    data.byKey.set(`${setName.get(c.set)}|${c.nk}`, c);
+    const m = /^([a-z]*)(\d+)([a-z]?)/i.exec(c.nk);
+    c.order = (setIdx.get(c.set) ?? 99) * 100000 + (m ? (m[1] ? 1000 : 0) + Number(m[2]) + (m[3] ? (m[3].charCodeAt(0) - 96) / 10 : 0) : 5000);
+    const sk = norm(c.setName);
+    if (c.nk) data.byKey.set(`${sk}|${c.nk}`, c);
+    if (!data.byKey.has(`${sk}|n:${c.key}`)) data.byKey.set(`${sk}|n:${c.key}`, c);
+    const prints = new Set([...Object.keys(c.p), ...Object.keys(c.l), ...c.s.map((s) => s[1])]);
+    if (!prints.size) prints.add("Normal");
+    c.prints = [...prints].sort((a, b) => pOrder(a) - pOrder(b));
+    for (const p of c.prints) data.rows.push({ c, p });
   }
-  data.cards.sort((a, b) => a.order - b.order);
+  data.rows.sort((a, b) => a.c.order - b.c.order || a.c.key.localeCompare(b.c.key) || pOrder(a.p) - pOrder(b.p));
+  data.tabs = [...new Set(data.sets.filter((s) => s.count !== 0).map((s) => s.tab))];
   return data;
 }
 
-const hasPrinting = (c, p) => p in c.p || p in c.l || c.s.some((s) => s[1] === p);
 const market = (c, p, cond) => c.p[p]?.[cond] ?? null;
 const lastSale = (c, p, cond) => c.s.find((s) => s[1] === p && s[0] === cond) || null;
+const anySale = (c, p) => c.s.find((s) => s[1] === p) || null;
 const lowest = (c, p, cond) => c.l[p]?.[cond] || null;
 function lowestAny(c, p) {
   let best = null;
@@ -217,10 +231,7 @@ function lowestAny(c, p) {
   }
   return best;
 }
-function owned(c, p) {
-  const items = state.coll?.items?.[c.id] || [];
-  return items.filter((it) => !p || it[0] === p);
-}
+const owned = (c, p) => (state.coll?.items?.[c.id] || []).filter((it) => !p || it[0] === p);
 const ownedQty = (c, p) => owned(c, p).reduce((n, it) => n + it[2], 0);
 
 async function loadSaved() {
@@ -236,7 +247,7 @@ async function refresh(manual) {
   state.refreshing = true;
   $("refresh").classList.add("spinning");
   mood("search");
-  if (manual) say("Checking TCGplayer for fresh prices… 🔍", 4000);
+  if (manual) say("Fine, I'll go check TCGplayer for you… 🔍");
   renderStatus();
   try {
     const r = await fetch(`${DATA_URL}?fresh=${Date.now()}`, { cache: "no-store" });
@@ -246,14 +257,14 @@ async function refresh(manual) {
       || fresh.salesUpdated !== state.data.salesUpdated || fresh.listingsUpdated !== state.data.listingsUpdated;
     state.data = fresh;
     state.fetchedOk = true;
-    if (changed) { renderControls(); renderList(true); factQueue = []; }
+    if (changed) { renderControls(); renderList(true); }
     warmImages();
     mood("happy", 1600);
-    if (manual || changed) say(changed ? "Fresh prices are in! ✨" : "Prices are already up to date 👍", 5000);
+    if (manual) say(changed ? "Fresh prices. Your wallet's already sweating ✨" : "Nothing new. Prices didn't move just because you stared at them.");
   } catch {
     state.fetchedOk = false;
-    if (state.data) { mood("sleepy", 7000); say("No signal? No problem. I saved everything 📦", 7000); }
-    else { mood("sleepy"); say("I need internet once to grab prices 📶", 60000); }
+    if (state.data) { mood("sleepy", 7000); if (manual) say("No signal. Good thing I saved everything 📦"); }
+    else { mood("sleepy"); say("I need internet once to grab prices. Then you can go broke offline 📶"); }
   } finally {
     state.refreshing = false;
     state.tried = true;
@@ -299,16 +310,19 @@ function importCollectr(text, fileName) {
   const col = (name) => head.findIndex((h) => h === name || h.startsWith(name));
   const iSet = col("set"), iNum = col("card number"), iVar = col("variance"), iCond = col("card condition"), iQty = col("quantity"), iName = col("product name");
   if (iSet < 0 || iNum < 0) throw new Error("That doesn't look like a Collectr export. It needs Set and Card Number columns.");
-  const sets = new Set(state.data.sets.map((s) => s.name.toLowerCase()));
+  const sets = new Set(state.data.sets.map((s) => norm(s.name)));
   const items = {}; let matched = 0; const missed = [];
   for (const r of rows.slice(1)) {
-    const set = (r[iSet] || "").trim().toLowerCase();
+    const set = norm((r[iSet] || "").trim());
     if (!sets.has(set)) continue;
-    const card = state.data.byKey.get(`${set}|${numKey(r[iNum])}`);
-    const p = PRINT_CODE[(r[iVar] || "Normal").trim().toLowerCase()];
+    const name = (r[iName] || "").trim();
+    const card = state.data.byKey.get(`${set}|${numKey(r[iNum])}`)
+      || state.data.byKey.get(`${set}|n:${norm(name.replace(/\s*\([^)]*\)\s*$/, ""))}`);
+    let p = (r[iVar] || "Normal").trim();
+    if (card && !card.prints.includes(p)) p = card.prints.length === 1 ? card.prints[0] : (p === "Normal" && card.prints.includes("Unlimited") ? "Unlimited" : null);
     const cond = COND_CODE[(r[iCond] || "").trim().toLowerCase()] || "NM";
     const qty = Math.max(1, parseInt(r[iQty], 10) || 1);
-    if (!card || !p) { missed.push(`${r[iName] || "?"} (${r[iSet]} ${r[iNum]})`); continue; }
+    if (!card || !p) { missed.push(`${name || "?"} (${r[iSet]} ${r[iNum]})`); continue; }
     const list = items[card.id] || (items[card.id] = []);
     const same = list.find((it) => it[0] === p && it[1] === cond);
     if (same) same[2] += qty; else list.push([p, cond, qty]);
@@ -318,7 +332,7 @@ function importCollectr(text, fileName) {
   store.set("coll", state.coll);
 }
 
-/* ================= rendering: header ================= */
+/* ================= rendering: header + controls ================= */
 
 function renderStatus() {
   const el = $("status"); const d = state.data;
@@ -334,7 +348,7 @@ function renderStatus() {
 
 function buildSeg(el, items, current, attr) {
   el.innerHTML = `<span class="pill" aria-hidden="true"></span>` + items.map(([k, label, aria]) =>
-    `<button type="button" data-${attr}="${k}" aria-pressed="${k === current}"${aria ? ` aria-label="${aria}"` : ""}>${label}</button>`).join("");
+    `<button type="button" data-${attr}="${esc(k)}" aria-pressed="${k === current}"${aria ? ` aria-label="${esc(aria)}"` : ""}>${label}</button>`).join("");
   el.style.setProperty("--n", items.length);
   setSeg(el, current, attr);
 }
@@ -345,17 +359,18 @@ function setSeg(el, value, attr) {
   el.style.setProperty("--i", Math.max(0, i));
 }
 
+const TAB_LABEL = { Promos: "⭐ Black Star Promos", Vending: "🇯🇵 Vending", VS: "🇯🇵 VS" };
 function renderControls() {
-  const sets = [{ id: "all", name: "All sets" }, ...(state.data?.sets || [])];
-  let chips = sets.map((s) =>
-    `<button class="set-chip" type="button" data-set="${s.id}" aria-pressed="${String(s.id) === String(state.setId)}"` +
-    (s.abbr ? ` style="--c:${SET_COLOR[s.abbr]}"` : "") + `>${s.abbr ? "<i></i>" : ""}${esc(s.name)}</button>`).join("");
+  const tabs = ["all", ...(state.data?.tabs || [])];
+  if (!tabs.includes(state.tab)) state.tab = "all";
+  let chips = tabs.map((t) =>
+    `<button class="set-chip" type="button" data-tab="${esc(t)}" aria-pressed="${t === state.tab}">${t === "all" ? "All" : esc(TAB_LABEL[t] || t)}</button>`).join("");
   if (state.coll) {
-    chips += `<button class="set-chip" type="button" data-own="need" aria-pressed="${state.own === "need"}">🎯 Need</button>`
+    chips += `<span class="chip-gap" aria-hidden="true"></span>`
+      + `<button class="set-chip" type="button" data-own="need" aria-pressed="${state.own === "need"}">🎯 Need</button>`
       + `<button class="set-chip" type="button" data-own="have" aria-pressed="${state.own === "have"}">✅ Have</button>`;
   }
   $("sets").innerHTML = chips;
-  buildSeg($("printing"), PRINTS, state.print, "print");
   buildSeg($("condition"), CONDS.map(([k, l]) => [k, k, l]), state.cond, "cond");
   $("sort").textContent = SORTS[state.sort];
   renderNudge();
@@ -370,48 +385,64 @@ function renderNudge() {
 
 /* ================= rendering: list ================= */
 
+function parseQuery(raw) {
+  const words = norm(raw.trim()).replace(/^#/, "").split(/\s+/).filter(Boolean);
+  let print = null; const rest = [];
+  for (const w of words) {
+    if (/^rev(erse)?(holo)?s?$/.test(w)) print = "rev";
+    else if (/^holos?$/.test(w) && print !== "rev") print = "holo";
+    else if (/^1st$/.test(w)) print = "first";
+    else if (/^(normal|non-?holo)$/.test(w)) print = "normal";
+    else rest.push(w);
+  }
+  return { print, q: rest.join(" ") };
+}
+function printMatches(p, want) {
+  if (!want) return true;
+  if (want === "rev") return p === "Reverse Holofoil";
+  if (want === "holo") return /Holofoil/.test(p) && p !== "Reverse Holofoil";
+  if (want === "first") return p.startsWith("1st");
+  return p === "Normal" || p === "Unlimited";
+}
+
 function filtered() {
   const d = state.data; if (!d) return [];
-  const q = norm(state.q.trim()).replace(/^#/, "");
-  const isNum = /^h?\d+[a-z]?(\/h?\d*)?$/.test(q);
-  let list = d.cards.filter((c) =>
-    (state.setId === "all" || String(c.set) === String(state.setId)) && hasPrinting(c, state.print));
-  if (state.own !== "all" && state.coll) {
-    list = list.filter((c) => (ownedQty(c, state.print) > 0) === (state.own === "have"));
-  }
+  const { print, q } = parseQuery(state.q);
+  const isNum = /^[a-z]*\d+[a-z]?(\/[a-z]*\d*)?$/.test(q);
+  let list = d.rows.filter(({ c, p }) =>
+    (state.tab === "all" || c.tab === state.tab) && printMatches(p, print));
+  if (state.own !== "all" && state.coll) list = list.filter(({ c, p }) => (ownedQty(c, p) > 0) === (state.own === "have"));
   if (q) {
-    list = list.filter((c) => isNum
+    list = list.filter(({ c }) => isNum
       ? (q.includes("/") ? c.num.toLowerCase().startsWith(q) : c.nk === q || c.nk.replace(/[a-z]$/, "") === q)
       : c.key.includes(q));
   }
-  if (state.sort === "price") {
-    list = [...list].sort((a, b) => (market(b, state.print, state.cond) ?? -1) - (market(a, state.print, state.cond) ?? -1));
-  }
+  if (state.sort === "price") list = [...list].sort((a, b) => (market(b.c, b.p, state.cond) ?? -1) - (market(a.c, a.p, state.cond) ?? -1));
   return list;
 }
 
-function rowHTML(c) {
-  const p = state.print, cond = state.cond;
+function rowHTML({ c, p }) {
+  const cond = state.cond, st = pstyle(p);
   const m = market(c, p, cond);
   const lo = lowest(c, p, cond);
-  const any = lo ? null : lowestAny(c, p);
+  const loAny = lo ? null : lowestAny(c, p);
   const s = lastSale(c, p, cond);
+  const sAny = s ? null : anySale(c, p);
   const qty = ownedQty(c, p);
   const img = c.img
     ? `<img class="thumb" src="img/${c.id}.jpg" alt="" loading="lazy" decoding="async" width="50" height="70">`
     : `<span class="thumb"></span>`;
-  const low = lo ? `🛒 <b>${fmt(lo[0])}</b> low`
-    : any ? `🛒 <b>${fmt(any[0])}</b> ${any[2]}` : `🛒 none listed`;
-  const sold = s ? `🏷️ <b>${fmt(s[2])}</b> ${shortDate(s[3])}` : `🏷️ no ${cond} sale`;
-  const cheap = lo && m && lo[0] + lo[1] < m * 0.85;
-  return `<button class="row${qty ? " have" : ""}" type="button" data-id="${c.id}" style="--c:${SET_COLOR[c.abbr]}">
-    <span class="thumbwrap">${img}${qty ? `<span class="owned" aria-label="You have ${qty}">${qty > 1 ? "×" + qty : "✓"}</span>` : ""}</span>
-    <span class="who"><span class="name">${esc(c.name)}</span><span class="meta">${c.abbr} ${esc(c.num)}, ${esc(c.rarity)}</span></span>
+  const low = lo ? `🛒 <b>${fmt(lo[0])}</b> low` : loAny ? `🛒 <b>${fmt(loAny[0])}</b> ${loAny[2]}` : `🛒 none listed`;
+  const sold = s ? `🏷️ <b>${fmt(s[2])}</b> ${shortDate(s[3])}` : sAny ? `🏷️ <b>${fmt(sAny[2])}</b> ${sAny[0]}, ${shortDate(sAny[3])}` : `🏷️ no sales yet`;
+  return `<button class="row ${st.cls}${qty ? " have" : ""}" type="button" data-id="${c.id}" data-p="${esc(p)}">
+    <span class="thumbwrap">${img}${st.cls !== "pr-normal" ? `<span class="thumb-foil" aria-hidden="true"></span>` : ""}${qty ? `<span class="owned" aria-label="You have ${qty}">${qty > 1 ? "×" + qty : "✓"}</span>` : ""}</span>
+    <span class="who"><span class="name">${esc(c.name)}</span><span class="meta">${esc([c.abbr, c.num].filter(Boolean).join(" "))}${c.rarity ? ", " + esc(c.rarity) : ""}</span>${st.tag ? `<span class="ptag">${st.tag}</span>` : ""}</span>
     <span class="val"><span class="price${m == null ? " none" : ""}">${fmt(m)}</span><small>market</small></span>
-    <span class="stats"><span class="stat${cheap ? " deal" : ""}">${low}</span><span class="stat">${sold}</span></span>
+    <span class="stats"><span class="stat">${low}</span><span class="stat">${sold}</span></span>
   </button>`;
 }
 
+let renderToken = 0;
 function renderList(animate) {
   const list = $("list");
   if (!state.data) {
@@ -420,32 +451,31 @@ function renderList(animate) {
     return;
   }
   const rows = filtered();
-  const noun = plural(state.print, rows.length);
   const suffix = state.own === "need" ? " you still need" : state.own === "have" ? " you have" : "";
-  $("count").textContent = `${rows.length} ${noun}${suffix}, ${state.cond} prices`;
+  $("count").textContent = `${rows.length.toLocaleString()} cards${suffix}, ${state.cond} prices`;
   if (!rows.length) {
-    const msg = state.own === "need" && !state.q ? ["You've got them all!", "Nothing left to hunt in this set and printing 🎉"]
-      : [`No ${PRINT_NOUN[state.print][1]} match`, "Try another printing or set, or check the spelling."];
+    const msg = state.own === "need" && !state.q ? ["You've got them all!", "Nothing left to hunt here. Your wallet thanks you 🎉"]
+      : ["Nothing matches", "Try another set, or check the spelling."];
     list.innerHTML = `<div class="empty"><div class="buddy-big" data-mood="search">${mascot()}</div><strong>${msg[0]}</strong>${msg[1]}</div>`;
     return;
   }
   list.classList.remove("enter");
-  list.innerHTML = rows.map(rowHTML).join("");
+  // draw the first screenful right away and the rest just after, so big lists stay snappy
+  const token = ++renderToken;
+  list.innerHTML = rows.slice(0, 40).map(rowHTML).join("");
+  if (rows.length > 40) setTimeout(() => { if (token === renderToken) list.insertAdjacentHTML("beforeend", rows.slice(40).map(rowHTML).join("")); }, 30);
   if (animate && !reduceMotion.matches) { void list.offsetWidth; list.classList.add("enter"); }
 }
 
 /* ================= card sheet ================= */
 
 const sheet = $("sheet");
-const sheetState = { mode: null, card: null, print: "N", cond: "NM", ask: "" };
+const sheetState = { mode: null, card: null, print: "Normal", cond: "NM", ask: "" };
 
-function openCard(id) {
+function openCard(id, p) {
   const c = state.data.cards.find((x) => String(x.id) === String(id));
   if (!c) return;
-  Object.assign(sheetState, {
-    mode: "card", card: c, cond: state.cond, ask: "",
-    print: hasPrinting(c, state.print) ? state.print : PRINTS.find(([k]) => hasPrinting(c, k))?.[0] || "N",
-  });
+  Object.assign(sheetState, { mode: "card", card: c, cond: state.cond, ask: "", print: c.prints.includes(p) ? p : c.prints[0] });
   renderCard();
   showSheet();
 }
@@ -453,19 +483,15 @@ function openCard(id) {
 function ownedTag(c, p) {
   if (!state.coll) return "";
   const mine = owned(c, p);
-  const others = owned(c).filter((it) => it[0] !== p);
-  const otherText = others.length ? ` You have the ${[...new Set(others.map((it) => PRINT_NAME[it[0]].toLowerCase()))].join(" and ")}.` : "";
-  if (mine.length) {
-    const list = mine.map(([, cond, q]) => `${q} ${cond}`).join(", ");
-    return `<span class="tag have">✅ You have ${list}</span>`;
-  }
-  return `<span class="tag need">🎯 You need this ${PRINT_NAME[p].toLowerCase()}.${otherText}</span>`;
+  if (mine.length) return `<span class="tag have">✅ You have ${mine.map(([, cond, q]) => `${q} ${cond}`).join(", ")}</span>`;
+  const others = [...new Set(owned(c).map((it) => pstyle(it[0]).short.replace(/^\S+ /, "")))];
+  return `<span class="tag need">🎯 You need this one.${others.length ? ` You have the ${others.join(" and ").toLowerCase()}.` : ""}</span>`;
 }
 
 function renderCard() {
   const { card: c, print: p, cond } = sheetState;
-  const set = state.data.sets.find((s) => s.id === c.set);
-  const sales = c.s.filter((s) => s[1] === p).slice(0, 10);
+  const st = pstyle(p);
+  const sales = c.s.filter((s) => s[1] === p).slice(0, 15);
   const rows = CONDS.map(([k, label]) => {
     const m = market(c, p, k), lo = lowest(c, p, k), s = lastSale(c, p, k);
     return `<button class="crow" type="button" data-scond="${k}" aria-pressed="${k === cond}" aria-label="${label}">
@@ -479,15 +505,16 @@ function renderCard() {
   sheet.innerHTML = `<div class="sheet-inner">
     <div class="grabzone"><button class="close" type="button" data-close aria-label="Close">✕</button><div class="grab" aria-hidden="true"></div></div>
     <div class="card-head">
-      <div class="card-img${p !== "N" ? " foil" : ""}">${c.img ? `<img src="img/${c.id}.jpg" alt="${esc(c.name)} card">` : ""}</div>
+      <div class="card-img${st.cls !== "pr-normal" ? " foil" : ""}">${c.img ? `<img src="img/${c.id}.jpg" alt="${esc(c.name)} card">` : ""}</div>
       <div>
         <h2 id="sheet-title">${esc(c.name)}</h2>
-        <p class="set-line" style="--c:${SET_COLOR[c.abbr]}"><i></i>${esc(set?.name)} ${esc(c.num)}</p>
+        <p class="set-line">${esc(c.setName)} ${esc(c.num)}</p>
         <p>${esc(c.rarity)}</p>
+        ${st.tag ? `<span class="ptag big ${st.cls}">${st.tag}</span>` : ""}
         ${ownedTag(c, p)}
       </div>
     </div>
-    <div class="seg" id="sprint" role="group" aria-label="Printing"></div>
+    ${c.prints.length > 1 ? `<div class="seg" id="sprint" role="group" aria-label="Version"></div>` : ""}
     <div class="ctable">
       <div class="chead" aria-hidden="true"><span>Cond.</span><span>Market</span><span>🛒 Lowest</span><span>🏷️ Sold</span></div>
       ${rows}
@@ -499,16 +526,15 @@ function renderCard() {
       <div class="verdict" id="verdict" aria-live="polite"></div>
     </div>
     <section class="sales">
-      <h3>🏷️ Recent ${PRINT_NAME[p].toLowerCase()} sales</h3>
+      <h3>🏷️ Sales, last 2 months</h3>
       ${sales.length ? `<ol>${sales.map((s) => `<li><span>${shortDate(s[3])}</span><span class="k">${s[0]}</span><span class="p">${fmt(s[2])}</span></li>`).join("")}</ol>`
-        : `<p class="none">No recent ${PRINT_NAME[p].toLowerCase()} sales on TCGplayer.</p>`}
+        : `<p class="none">No sales of this version on TCGplayer lately.</p>`}
     </section>
     <a class="btn" href="https://www.tcgplayer.com/product/${c.id}" target="_blank" rel="noopener">See it live on TCGplayer
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <p class="fine">Prices from TCGplayer, checked ${ago(state.data.listingsUpdated || state.data.updated)}. Lowest is the cheapest English copy listed in that condition, shipping to the US. Sold is the item price without shipping.</p>
+    <p class="fine">Prices from TCGplayer, checked ${ago(state.data.listingsUpdated || state.data.updated)}. Lowest is the cheapest copy listed in that condition, shipping to the US. Sold is the item price without shipping.</p>
   </div>`;
-  const avail = PRINTS.filter(([k]) => hasPrinting(c, k));
-  buildSeg($("sprint"), avail, p, "sprint");
+  if (c.prints.length > 1) buildSeg($("sprint"), c.prints.map((x) => [x, pstyle(x).short]), p, "sprint");
   renderVerdict(false);
 }
 
@@ -529,7 +555,7 @@ function renderVerdict(pop) {
     else if (loT != null) { e = "😬"; title = "Pricey"; sub = `Online is ${fmt(ask - loT)} cheaper (${fmt(loT)} shipped). ${pct}.`; }
     else if (m != null && ask <= m) { e = "👍"; title = "Under market"; sub = `${pct}. None listed online in ${cond} right now.`; }
     else if (m != null) { e = "😬"; title = "Over market"; sub = `${pct}. None listed online in ${cond} right now.`; }
-    else { e = "🤷"; title = "Not enough data"; sub = `TCGplayer has no ${cond} market or listings for this printing.`; }
+    else { e = "🤷"; title = "Not enough data"; sub = `TCGplayer has no ${cond} market or listings for this version.`; }
   }
   out.innerHTML = `<span class="emoji" aria-hidden="true">${e}</span><span>${title ? `<b>${title}</b>` : ""}${sub}</span>`;
   if (pop && !reduceMotion.matches) { out.classList.remove("pop"); void out.offsetWidth; out.classList.add("pop"); }
@@ -555,7 +581,7 @@ function renderCollection(msg) {
        <button class="btn primary" type="button" data-pick>📥 Import a newer export</button>
        <button class="btn quiet" type="button" data-forget>Remove my collection</button>`
     : `<h2 id="sheet-title">Mark what you own</h2>
-       <p>Export your portfolio from Collectr as a CSV file, then pick it here. I'll match your Expedition, Aquapolis and Skyridge cards.</p>
+       <p>Export your portfolio from Collectr as a CSV file, then pick it here. I'll match every set I track.</p>
        <button class="btn primary" type="button" data-pick>📥 Choose Collectr file</button>`;
   sheet.innerHTML = `<div class="sheet-inner">
     <div class="grabzone"><button class="close" type="button" data-close aria-label="Close">✕</button><div class="grab" aria-hidden="true"></div></div>
@@ -575,7 +601,7 @@ $("csv").addEventListener("change", async (e) => {
     importCollectr(await f.text(), f.name);
     renderControls(); renderList(true);
     renderCollection(`Found ${state.coll.cards} of your cards! 🎉`);
-    factQueue = []; mood("happy", 2000); say(`I found ${state.coll.cards} of your cards! Tap 🎯 Need to see what's missing.`, 9000);
+    mood("happy", 2000); say(`${state.coll.cards} cards and you still want more. Classic. Tap 🎯 Need to see what's missing.`);
   } catch (err) {
     renderCollection();
     sheet.querySelector(".coll").insertAdjacentHTML("afterbegin", `<p class="tag need">⚠️ ${esc(err.message)}</p>`);
@@ -625,7 +651,7 @@ sheet.addEventListener("click", (e) => {
     renderControls(); renderList(true); renderCollection(); return;
   }
   const pb = e.target.closest("[data-sprint]");
-  if (pb && !pb.disabled) {
+  if (pb) {
     sheetState.print = pb.dataset.sprint;
     setSeg($("sprint"), sheetState.print, "sprint");
     setTimeout(renderCard, reduceMotion.matches ? 0 : 160);
@@ -655,17 +681,12 @@ $("sets").addEventListener("click", (e) => {
     $("sets").querySelectorAll("[data-own]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.own === state.own)));
     renderList(true); return;
   }
-  const b = e.target.closest("[data-set]");
+  const b = e.target.closest("[data-tab]");
   if (!b) return;
-  state.setId = b.dataset.set; store.set("set", state.setId);
-  $("sets").querySelectorAll("[data-set]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.set === state.setId)));
+  state.tab = b.dataset.tab; store.set("tab", state.tab);
+  $("sets").querySelectorAll("[data-tab]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.tab === state.tab)));
   b.scrollIntoView({ inline: "nearest", block: "nearest", behavior: reduceMotion.matches ? "auto" : "smooth" });
   renderList(true);
-});
-$("printing").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-print]"); if (!b) return;
-  state.print = b.dataset.print; store.set("print", state.print);
-  setSeg($("printing"), state.print, "print"); renderList(true);
 });
 $("condition").addEventListener("click", (e) => {
   const b = e.target.closest("[data-cond]"); if (!b) return;
@@ -685,13 +706,14 @@ $("q").addEventListener("input", (e) => {
   qTimer = setTimeout(() => { state.q = e.target.value; renderList(false); }, 90);
 });
 $("list").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-id]"); if (b) openCard(b.dataset.id);
+  const b = e.target.closest("[data-id]"); if (b) openCard(b.dataset.id, b.dataset.p);
 });
 $("nudge").addEventListener("click", (e) => { if (e.target.closest("[data-open-coll]")) openCollection(); });
 $("collection").addEventListener("click", () => { if (state.data) openCollection(); });
 $("refresh").addEventListener("click", () => refresh(true));
-$("buddy").addEventListener("click", () => { mood("happy", 1400); nextFact(true); });
-$("bubble").addEventListener("click", () => nextFact(true));
+$("theme").addEventListener("click", () => { applyTheme(state.theme === "dark" ? "light" : "dark"); store.set("theme", state.theme); });
+$("buddy").addEventListener("click", () => { mood("happy", 1400); smug(); });
+$("bubble").addEventListener("click", () => smug());
 
 const finder = document.querySelector(".finder");
 let ticking = false;
@@ -701,30 +723,31 @@ addEventListener("scroll", () => {
 }, { passive: true });
 
 addEventListener("online", () => { renderStatus(); refresh(); });
-addEventListener("offline", () => { renderStatus(); mood("sleepy", 6000); say("Uh oh, no signal. Don't worry, I saved everything 📦", 6000); });
+addEventListener("offline", () => { renderStatus(); mood("sleepy", 6000); say("No signal. Relax, I saved everything 📦"); });
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && navigator.onLine && state.data &&
-      Date.now() - new Date(state.data.updated).getTime() > 30 * 60000) refresh();
+  if (document.visibilityState === "visible") {
+    smug();
+    if (navigator.onLine && state.data && Date.now() - new Date(state.data.updated).getTime() > 30 * 60000) refresh();
+  }
 });
 
 /* ================= start ================= */
 
 (async function start() {
   $("buddy").innerHTML = mascot();
+  $("buddy").dataset.mood = "idle";
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
     navigator.serviceWorker.ready.then(() => setTimeout(warmImages, 600));
     navigator.serviceWorker.addEventListener("controllerchange", () => setTimeout(warmImages, 600));
   }
-  $("buddy").dataset.mood = "idle";
+  smug();
   renderControls();
   await loadSaved();
   renderControls();
   renderList(true);
   renderStatus();
-  say(state.data ? "Hi! I'm Equire. Tap a card to see what it's worth 📖" : "Hi! I'm Equire. Let me grab some prices…", 5000);
   setTimeout(idleLoop, 3000);
-  setInterval(() => { if (!document.hidden) nextFact(false); }, 14000);
   if (navigator.onLine) await refresh();
-  else { renderStatus(); if (state.data) { mood("sleepy", 6000); say("No signal? No problem. I saved everything 📦", 7000); } }
+  else { renderStatus(); if (state.data) mood("sleepy", 6000); }
 })();

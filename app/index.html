@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Equire</title>
-  <meta name="description" content="TCGplayer market, lowest listed and last sold for Expedition, Aquapolis and Skyridge, saved for offline use at card shows.">
-  <meta name="theme-color" content="#FFF7F2" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#21181F" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="TCGplayer market, lowest listed and last sold for e-Reader era, WotC promo and Japanese vending and VS cards, saved for offline use at card shows.">
+  <meta name="theme-color" content="#1E1720">
+  <script>try{var t=JSON.parse(localStorage.getItem("eq:theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
   <meta name="apple-mobile-web-app-title" content="Equire">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png">
@@ -23,6 +23,7 @@
         <button id="collection" class="icon-btn" type="button" aria-label="Your collection">
           <span class="emoji" aria-hidden="true">📚</span>
         </button>
+        <button id="theme" class="icon-btn" type="button" aria-label="Switch to light mode"></button>
         <button id="refresh" class="icon-btn" type="button" aria-label="Refresh prices">
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -30,7 +31,7 @@
     </div>
     <p id="status" class="status" role="status">Loading saved prices…</p>
     <div class="buddy-row">
-      <button class="buddy" id="buddy" type="button" data-mood="idle" aria-label="Tell me a fun fact"></button>
+      <button class="buddy" id="buddy" type="button" data-mood="idle" aria-label="Poke Equire"></button>
       <p id="bubble" class="bubble" aria-live="polite"></p>
     </div>
   </header>
@@ -51,8 +52,7 @@
   <div id="nudge"></div>
   <main id="list" class="list" aria-live="polite"></main>
 
-  <nav class="dock" aria-label="Printing and condition">
-    <div class="seg" id="printing" role="group" aria-label="Printing"></div>
+  <nav class="dock" aria-label="Condition">
     <div class="seg" id="condition" role="group" aria-label="Condition"></div>
   </nav>
 
