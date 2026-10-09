@@ -23,24 +23,24 @@ const pstyle = (p) => PRINT_STYLE[p] || { tag: p, short: p, cls: "pr-other" };
 const pOrder = (p) => { const i = PRINT_ORDER.indexOf(p); return i < 0 ? 50 : i; };
 const SORTS = { num: "Sort: Number", price: "Sort: Price" };
 const SMUG = [
-  "Ready to spend way too much money on cardboard?",
-  "How's the ol' bank account looking there, pal?",
-  "Oh good, you're back. The cardboard missed you.",
-  "It's not spending, it's \"investing.\" Sure it is.",
-  "Let me guess. You're \"just looking.\" Uh huh.",
-  "Your wallet called. It sounded scared.",
-  "Bold of you to open me with that bank balance.",
-  "Go ahead, pretend you're going to haggle. It's cute.",
-  "Every card is a \"deal\" if you squint hard enough.",
-  "You don't need another reverse holo. Anyway, here are the prices.",
-  "Back for more? That binder isn't going to fill itself.",
-  "Play it cool. The dealer can smell desperation.",
-  "Ah yes, cardboard. Your favorite financial decision.",
-  "Rent can wait. That Skyridge card can't. Right?",
-  "Is this a grail, or is it just Saturday?",
-  "Remember: if you don't look at the receipt, it didn't happen.",
-  "Sure, \"one more pack\" and then you're done. I believe you.",
-  "Another day, another card you'll call a steal.",
+  "Hmph. You're back. N-not that I was waiting or anything.",
+  "It's not like I saved these prices for YOU. They just… happened to be saved.",
+  "Don't get the wrong idea. I only help so I can watch you overpay.",
+  "Ugh, fine. Here are your precious cardboard prices.",
+  "Your wallet's crying again. Not my problem. …Okay, a little my problem.",
+  "Another reverse holo? You're hopeless. …It is cute, though.",
+  "Only an amateur pays sticker price. You're not an amateur. Right?",
+  "Don't stare at me, dummy. Stare at the prices.",
+  "You'd be lost without me. N-not that I'm saying I'm important!",
+  "I didn't dress up for you. This is just how a professional looks.",
+  "Fine, I'll come to the show. Somebody has to stop you.",
+  "Ta-da. Prices. You may now applaud. Quietly.",
+  "If you buy that without haggling, I'm not talking to you.",
+  "Hmph! You call that a binder? Fill it properly.",
+  "I'm only smiling because the lighting is good. Don't read into it.",
+  "Pick a card, any card. …Not THAT one, it's overpriced.",
+  "B-baka! Check the condition before you fall in love!",
+  "It's fine. I'm used to being your financial advisor.",
 ];
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -87,32 +87,9 @@ function applyTheme(t) {
 applyTheme(state.theme);
 document.documentElement.dataset.cond = state.cond;
 
-/* ================= the mascot: bagl ================= */
+/* ================= the mascot: showy's showgirl magician ================= */
 
-const MASCOT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 28 168 168" class="mascot" aria-hidden="true">
-<ellipse cx="100" cy="194" rx="46" ry="4" fill="#000" opacity=".08"/>
-<g class="bl-fl"><ellipse cx="84" cy="191" rx="10" ry="5.5" fill="#D9C29E"/></g><g class="bl-fr"><ellipse cx="116" cy="191" rx="10" ry="5.5" fill="#D9C29E"/></g>
-<g class="bl-sway"><g class="bl-pose"><g class="bl-bag">
-<g class="bl-al"><path d="M48 142 Q36 148 34 158" fill="none" stroke="#D9C29E" stroke-width="10" stroke-linecap="round"/></g>
-<g class="bl-ar"><path d="M152 142 Q164 148 166 158" fill="none" stroke="#D9C29E" stroke-width="10" stroke-linecap="round"/></g>
-<path d="M82 74 C56 90 36 118 40 150 C43 178 68 190 100 190 C132 190 157 178 160 150 C164 118 144 90 118 74 Z" fill="#EBD9BC"/>
-<path d="M128 82 C150 100 163 128 159 156 C155 176 137 188 112 190 C137 180 150 160 148 134 C146 110 139 94 128 82 Z" fill="#D9C29E" opacity=".8"/>
-<path d="M56 112 Q50 126 52 142" fill="none" stroke="#F6EBD6" stroke-width="4" stroke-linecap="round" opacity=".9"/>
-<path d="M58 172 Q100 188 142 172" fill="none" stroke="#D9C29E" stroke-width="1.8" stroke-dasharray="4 4" stroke-linecap="round"/>
-<g class="bl-top"><ellipse cx="100" cy="46" rx="24" ry="6.5" fill="#8E6A4F"/>
-<g class="bl-pile"><g transform="translate(91 44)"><g><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(108 43)"><g><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 37)"><g><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g></g>
-<path d="M76 46 Q100 58 124 46 C128 56 124 66 118 74 L82 74 C76 66 72 56 76 46 Z" fill="#EBD9BC"/>
-<path d="M76 46 Q100 58 124 46" fill="none" stroke="#F6EBD6" stroke-width="3" stroke-linecap="round"/>
-<path d="M116 52 C120 60 118 68 114 74" fill="none" stroke="#D9C29E" stroke-width="5" stroke-linecap="round" opacity=".7"/></g>
-<rect x="78" y="69" width="44" height="10" rx="5" fill="#9DB27E"/>
-<g transform="rotate(-10 136 157)"><circle cx="136" cy="157" r="12.5" fill="#E58C7A"/><circle cx="136" cy="157" r="10" fill="none" stroke="#F7E8D0" stroke-width="1.3" stroke-dasharray="2.4 2"/><path d="M131.6 157 L140.4 157 A4.4 4.4 0 1 0 139.47 159.71" fill="none" stroke="#F7E8D0" stroke-width="2.4" stroke-linecap="round"/></g><g transform="rotate(-20 64 106)"><rect x="56" y="102" width="16" height="7" rx="3.5" fill="#F2C9A8"/><rect x="61" y="102" width="6" height="7" fill="#E9B48F"/></g>
-<path class="bl-ends" d="M112 78 q-4 9 -10 13 M112 78 q6 8 4 15" fill="none" stroke="#9DB27E" stroke-width="3.4" stroke-linecap="round"/><circle cx="112" cy="76" r="4.5" fill="#7F9662"/>
-<ellipse cx="68" cy="133" rx="7" ry="4.2" fill="#F2906F" opacity=".8"/><ellipse cx="132" cy="133" rx="7" ry="4.2" fill="#F2906F" opacity=".8"/><g class="bl-b1"><path d="M109 107 q5 -3 10 -0.5" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.8" opacity=".55"/></g><g class="bl-b2"><path d="M80 107 l11 1.8" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2" opacity=".8"/><path d="M108 106.5 q6 -5 12 -1" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2" opacity=".8"/></g><g class="bl-eyes"><g class="bl-look"><g class="bl-es"><path d="M81.65 118.7 L91.95 118.7 A6 7.4 0 1 1 81.65 118.7 Z" fill="#211816"/><path d="M109.65 118.7 L119.95 118.7 A6 7.4 0 1 1 109.65 118.7 Z" fill="#211816"/></g><g class="bl-ex"><path d="M81.58 120.7 L93.22 120.7 A6 7.4 0 1 1 81.58 120.7 Z" fill="#211816"/><path d="M109.58 120.7 L121.22 120.7 A6 7.4 0 1 1 109.58 120.7 Z" fill="#211816"/></g><g class="bl-ew"><ellipse cx="86" cy="122.5" rx="6" ry="7.4" fill="#211816"/><ellipse cx="114" cy="122.5" rx="6" ry="7.4" fill="#211816"/></g></g><g class="bl-shut" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.2" stroke-linejoin="round"><path d="M82 117 L89 122 L82 127"/><path d="M118 117 L111 122 L118 127"/></g><g class="bl-sleep" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.2"><path d="M80 123 q6 4 12 0"/><path d="M108 123 q6 4 12 0"/></g></g><g transform="rotate(5 100 120)"><g class="bl-glasses"><g fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.8"><circle cx="86" cy="122" r="11.5"/><circle cx="114" cy="122" r="11.5"/><path d="M97.5 121 q2.5 -3 5 0"/><path d="M74.5 120 l-6 -1.5"/><path d="M125.5 120 l6 -1.5"/></g></g></g><path class="bl-ms" d="M94.5 139 q5.5 2.6 9.5 -1 q1.2 -1.1 1.9 -2.8" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.1"/><path class="bl-mx" d="M92.5 139 q7.5 3.2 12 -1.6 q1.6 -1.6 2.6 -4" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.2"/><ellipse class="bl-mo" cx="100" cy="138" rx="2.6" ry="3" fill="#E8794F"/><path class="bl-drop" d="M138 96 q5 7 0 10 q-5 -3 0 -10 Z" fill="#9FC3E0"/>
-<g class="o o-nm"><g class="o-hat"><g transform="translate(11 3) rotate(23 100 42)"><ellipse cx="100" cy="42" rx="27" ry="6" fill="#2E2430"/><path d="M85 42 L87 15 Q100 11 113 15 L115 42 Z" fill="#2E2430"/><path d="M85.6 33.5 L114.4 33.5 L114.9 40 L85.1 40 Z" fill="#E58C7A"/><path d="M90 18 Q92 28 91 32" stroke="#fff" stroke-width="2.2" opacity=".2" fill="none" stroke-linecap="round"/></g></g><path d="M100 87 L86.5 80 Q84.5 87 86.5 94 Z M100 87 L113.5 80 Q115.5 87 113.5 94 Z" fill="#8B6FB8"/><circle cx="100" cy="87" r="3.8" fill="#6E5596"/><g transform="translate(40 96)"><g class="o-spark k0"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(1)"/></g></g><g transform="translate(162 84)"><g class="o-spark k1"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(0.8)"/></g></g><g transform="translate(154 126)"><g class="o-spark k2"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(0.6)"/></g></g><g transform="translate(46 140)"><g class="o-spark k3"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(0.55)"/></g></g></g><g class="o o-lp"><g class="o-hat"><g transform="translate(-9 3) rotate(-24 100 46)"><path d="M75 46 Q73 17 100 15 Q127 17 125 46 Z" fill="#7FA6C9"/><path d="M87 21 Q85 33 86.5 44 M100 16 V44 M113 21 Q115 33 113.5 44" stroke="#6489AE" stroke-width="2.2" fill="none" opacity=".75"/><rect x="72" y="39" width="56" height="11" rx="5.5" fill="#6489AE"/><path d="M78 44.5 h44" stroke="#557A9E" stroke-width="1.6" stroke-dasharray="2 3" opacity=".8"/><circle cx="100" cy="13" r="7" fill="#F7E8D0"/><circle cx="98" cy="11" r="2.2" fill="#fff" opacity=".7"/></g></g><g transform="translate(110 134)"><g class="o-note n0"><g transform="scale(1)"><ellipse cx="0" cy="0" rx="3.3" ry="2.5" transform="rotate(-20)" fill="#3B2A22"/><path d="M2.9 -1 V-12 Q7.5 -10 7.5 -5.5" stroke="#3B2A22" stroke-width="1.7" fill="none" stroke-linecap="round"/></g></g></g><g transform="translate(110 134)"><g class="o-note n1"><g transform="scale(0.8)"><ellipse cx="0" cy="0" rx="3.3" ry="2.5" transform="rotate(-20)" fill="#3B2A22"/><path d="M2.9 -1 V-12 Q7.5 -10 7.5 -5.5" stroke="#3B2A22" stroke-width="1.7" fill="none" stroke-linecap="round"/></g></g></g><g transform="translate(110 134)"><g class="o-note n2"><g transform="scale(0.9)"><ellipse cx="0" cy="0" rx="3.3" ry="2.5" transform="rotate(-20)" fill="#3B2A22"/><path d="M2.9 -1 V-12 Q7.5 -10 7.5 -5.5" stroke="#3B2A22" stroke-width="1.7" fill="none" stroke-linecap="round"/></g></g></g><ellipse class="of" cx="104" cy="139" rx="2.3" ry="2.7" fill="#E8794F"/></g><g class="o o-mp"><g class="o-hat"><g transform="translate(8 2) rotate(19 100 46)"><path d="M67 46 Q69 39 80 38 L83 22 Q100 15 117 22 L120 38 Q131 39 133 46 Q100 54 67 46 Z" fill="#C9A86A"/><path d="M81.6 31 Q100 26.5 118.4 31 L119.3 37.5 Q100 33 80.7 37.5 Z" fill="#8E6A4F"/><path d="M70 45 Q100 51 130 45" stroke="#A98A4E" stroke-width="1.6" fill="none" opacity=".8"/></g></g><g class="o-mag"><path d="M128.5 131.5 L146 144" stroke="#8E6A4F" stroke-width="5.5" stroke-linecap="round"/><circle cx="118" cy="121" r="14.5" fill="#EAF4FA" opacity=".94"/><g class="o-bigeye"><ellipse cx="118" cy="123" rx="8.6" ry="10.6" fill="#211816"/></g><circle cx="118" cy="121" r="14.5" fill="none" stroke="#6B5640" stroke-width="3.2"/><path d="M108.5 112.5 q4 -4.5 9.5 -4.5" stroke="#fff" stroke-width="2.2" fill="none" opacity=".85" stroke-linecap="round"/><circle cx="147.5" cy="145" r="6.5" fill="#D9C29E"/></g><ellipse class="of" cx="99" cy="140" rx="2.1" ry="2.4" fill="#E8794F"/></g><g class="o o-hp"><path d="M46 106 Q100 88 154 101 L155.5 111 Q100 99 47.5 116 Z" fill="#F4EFE6"/><path d="M60 104 l4 8 M76 99 l3 8 M126 97 l2 8 M142 99 l1.6 8" stroke="#D8CFC0" stroke-width="1.4" stroke-linecap="round"/><path d="M49 109 l-11 -7 l1.5 9 Z M49 112 l-10 7 l8.5 1.5 Z" fill="#F4EFE6"/><g transform="rotate(8 64 166)"><rect x="54" y="157" width="19" height="17" rx="3" fill="#C9B9DD"/><rect x="56" y="159" width="15" height="13" rx="2" fill="none" stroke="#F7E8D0" stroke-width="1.2" stroke-dasharray="2.2 1.8"/></g><g class="of"><path d="M80.46 121.5 L92.34 121.5 A6 7.4 0 1 1 80.46 121.5 Z" fill="#211816"/><path d="M108.46 121.5 L120.34 121.5 A6 7.4 0 1 1 108.46 121.5 Z" fill="#211816"/><path d="M80 131.5 q6 2.6 12 0 M108 131.5 q6 2.6 12 0" stroke="#B9A07E" stroke-width="1.6" fill="none" stroke-linecap="round"/></g><path class="of" d="M94.5 140 q2.75 -2 5.5 0 q2.75 2 5.5 0" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2"/><g class="o-sigh"><circle cx="82" cy="142" r="3.4" fill="#fff" opacity=".9"/><circle cx="76.5" cy="140" r="2.4" fill="#fff" opacity=".9"/><circle cx="72.5" cy="137.5" r="1.6" fill="#fff" opacity=".9"/></g></g><g class="o o-dmg"><g transform="translate(134 96)"><rect x="-12" y="-3" width="24" height="6" rx="1" fill="#C3C4CC" transform="rotate(35)"/><rect x="-12" y="-3" width="24" height="6" rx="1" fill="#B2B3BC" transform="rotate(-35)"/></g><path d="M58 126 L74 134 L66 145 L86 152" stroke="#C9B08A" stroke-width="1.7" fill="none" stroke-linejoin="round" opacity=".9"/><path d="M58 170 l4 -5 l3 3 l4 -5 l4 4 l3 -2 l1 6 l-4 4 l-5 -1 l-4 3 l-4 -3 Z" fill="#8E6A4F"/><circle cx="66" cy="170" r="3.4" fill="#EDBE5A"/><g transform="translate(66 172)"><g class="o-drip"><circle r="3.2" fill="#EDBE5A"/><circle r="1.6" fill="none" stroke="#D29E3A" stroke-width="1"/></g></g><g class="of"><g transform="translate(86 122.5)"><g class="o-spin"><path d="M0 0 L0.11 0.04 L0.19 0.15 L0.19 0.3 L0.11 0.47 L-0.06 0.6 L-0.31 0.65 L-0.59 0.6 L-0.86 0.43 L-1.07 0.14 L-1.17 -0.25 L-1.13 -0.68 L-0.92 -1.11 L-0.54 -1.46 L-0.04 -1.68 L0.56 -1.71 L1.16 -1.53 L1.7 -1.13 L2.09 -0.54 L2.27 0.19 L2.19 0.98 L1.84 1.73 L1.22 2.34 L0.4 2.73 L-0.54 2.83 L-1.5 2.6 L-2.36 2.04 L-3.01 1.19 L-3.36 0.14 L-3.33 -1.01 L-2.91 -2.12 L-2.12 -3.05 L-1.03 -3.7 L0.25 -3.95 L1.58 -3.76 L2.81 -3.12 L3.79 -2.08 L4.38 -0.74 L4.5 0.76 L4.1 2.25 L3.21 3.57 L1.91 4.54 L0.32 5.03 L-1.39 4.97 L-3.01 4.34 L-4.37 3.17 L-5.28 1.6 L-5.64 -0.24 L-5.36 -2.12 L-4.45 -3.84 L-3 -5.2 L-1.15 -6.01 L0.91 -6.17 L2.95 -5.64 L4.72 -4.44 L6.03 -2.68 L6.7 -0.56 L6.63 1.7 L5.8 3.85 L4.28 5.64 L2.22 6.85" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.9"/></g></g><g transform="translate(114 122.5)"><g class="o-spin"><path d="M0 0 L0.11 0.04 L0.19 0.15 L0.19 0.3 L0.11 0.47 L-0.06 0.6 L-0.31 0.65 L-0.59 0.6 L-0.86 0.43 L-1.07 0.14 L-1.17 -0.25 L-1.13 -0.68 L-0.92 -1.11 L-0.54 -1.46 L-0.04 -1.68 L0.56 -1.71 L1.16 -1.53 L1.7 -1.13 L2.09 -0.54 L2.27 0.19 L2.19 0.98 L1.84 1.73 L1.22 2.34 L0.4 2.73 L-0.54 2.83 L-1.5 2.6 L-2.36 2.04 L-3.01 1.19 L-3.36 0.14 L-3.33 -1.01 L-2.91 -2.12 L-2.12 -3.05 L-1.03 -3.7 L0.25 -3.95 L1.58 -3.76 L2.81 -3.12 L3.79 -2.08 L4.38 -0.74 L4.5 0.76 L4.1 2.25 L3.21 3.57 L1.91 4.54 L0.32 5.03 L-1.39 4.97 L-3.01 4.34 L-4.37 3.17 L-5.28 1.6 L-5.64 -0.24 L-5.36 -2.12 L-4.45 -3.84 L-3 -5.2 L-1.15 -6.01 L0.91 -6.17 L2.95 -5.64 L4.72 -4.44 L6.03 -2.68 L6.7 -0.56 L6.63 1.7 L5.8 3.85 L4.28 5.64 L2.22 6.85" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.9"/></g></g></g><path class="of" d="M93 140 q1.75 -2.4 3.5 0 t3.5 0 t3.5 0 t3.5 0" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2"/><g transform="translate(100 33)"><g class="o-orb b0"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(.75)"/></g></g><g transform="translate(100 33)"><g class="o-orb b1"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(.75)"/></g></g><g transform="translate(100 33)"><g class="o-orb b2"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" fill="#EDBE5A" transform="scale(.75)"/></g></g></g>
-</g></g><g class="o o-hp"><path d="M40 196 L37 154 Q36 145 29 146" stroke="#8E6A4F" stroke-width="4.2" fill="none" stroke-linecap="round"/></g></g>
-<g transform="translate(100 42)"><g class="bl-fly bl-f1"><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 42)"><g class="bl-fly bl-f2"><circle r="7" fill="#EDBE5A"/><circle r="4.4" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.45" cy="-2.45" r="1.4" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 42)"><g class="bl-fly bl-f3"><circle r="6.5" fill="#EDBE5A"/><circle r="3.9" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-2.27" cy="-2.27" r="1.3" fill="#fff" opacity=".8"/></g></g><g transform="translate(100 42)"><g class="bl-fly bl-f4"><circle r="5.5" fill="#EDBE5A"/><circle r="2.9" fill="none" stroke="#D29E3A" stroke-width="1.6"/><circle cx="-1.92" cy="-1.92" r="1.1" fill="#fff" opacity=".8"/></g></g>
-<g class="bl-z" fill="#3B2A22" font-family="Baloo 2, sans-serif" font-weight="800"><text x="146" y="70" font-size="18">z</text><text x="160" y="54" font-size="13">z</text></g><g class="bl-poof"><g fill="#FFF8EE" opacity=".96"><circle cx="100" cy="120" r="26"/><circle cx="70" cy="104" r="18"/><circle cx="132" cy="102" r="19"/><circle cx="64" cy="144" r="17"/><circle cx="138" cy="146" r="18"/><circle cx="100" cy="84" r="17"/><circle cx="100" cy="160" r="20"/><circle cx="82" cy="128" r="16"/><circle cx="120" cy="130" r="16"/></g><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(46 86) scale(0.9)" fill="#EDBE5A"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(156 92) scale(0.8)" fill="#EDBE5A"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(150 170) scale(0.7)" fill="#EDBE5A"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(50 172) scale(0.6)" fill="#EDBE5A"/></g>
-</svg>`;
+const MASCOT = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="22 4 156 210" class="mascot" aria-hidden="true"><ellipse cx="100" cy="209" rx="40" ry="4" fill="#000" opacity=".12"/><g class="g-bob"><g class="g-hop"><path d="M82 168 h14 v24 h-14 Z" fill="#FCE3D2"/><path d="M82 168 h14 v24 h-14 Z" fill="url(#sg-net)"/><path d="M104 168 h14 v24 h-14 Z" fill="#FCE3D2"/><path d="M104 168 h14 v24 h-14 Z" fill="url(#sg-net)"/><path d="M82 189 L96 189 L97 195 Q106 198 108.5 203.5 Q109 207 104.5 207 L94 207 Q90 203.5 86.4 202.5 L85.4 208 L82.8 208 L81.4 199 Z" fill="#D24552"/><path d="M83 193 L96.5 193" stroke="#A9343F" stroke-width="2"/><circle cx="90" cy="193" r="1.8" fill="#EDBE5A"/><path d="M104 189 L118 189 L119 195 Q128 198 130.5 203.5 Q131 207 126.5 207 L116 207 Q112 203.5 108.4 202.5 L107.4 208 L104.8 208 L103.4 199 Z" fill="#D24552"/><path d="M105 193 L118.5 193" stroke="#A9343F" stroke-width="2"/><circle cx="112" cy="193" r="1.8" fill="#EDBE5A"/><path d="M80 146 Q100 151 120 146 L145 170 Q100 182 55 170 Z" fill="url(#sg-dots)"/><circle cx="57.0" cy="170.5" r="4.6" fill="#F8EADA"/><circle cx="65.6" cy="172.5" r="4.6" fill="#F8EADA"/><circle cx="74.2" cy="174.0" r="4.6" fill="#F8EADA"/><circle cx="82.8" cy="175.1" r="4.6" fill="#F8EADA"/><circle cx="91.4" cy="175.8" r="4.6" fill="#F8EADA"/><circle cx="100.0" cy="176.0" r="4.6" fill="#F8EADA"/><circle cx="108.6" cy="175.8" r="4.6" fill="#F8EADA"/><circle cx="117.2" cy="175.1" r="4.6" fill="#F8EADA"/><circle cx="125.8" cy="174.0" r="4.6" fill="#F8EADA"/><circle cx="134.4" cy="172.5" r="4.6" fill="#F8EADA"/><circle cx="143.0" cy="170.5" r="4.6" fill="#F8EADA"/><path d="M80 146 Q100 151 120 146" stroke="#EDBE5A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M78 120 Q100 116 122 120 L119 148 Q100 152 81 148 Z" fill="url(#sg-stripe)"/><path d="M78 120 Q100 116 122 120 L119 148 Q100 152 81 148 Z" fill="none" stroke="#A9343F" stroke-width="1.6" opacity=".6"/><path d="M97 125 L103 129 L97 133 L103 137 L97 141 L103 145" stroke="#EDBE5A" stroke-width="1.6" fill="none" stroke-linejoin="round"/><g class="cv c-nm pb"><path d="M72 128 Q58 136 50 146" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="50" cy="146" r="5.8" fill="#F8EADA"/></g><g class="cv c-lp pb"><path d="M72 128 Q54 136 40 146" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="40" cy="146" r="5.8" fill="#F8EADA"/><path d="M128 128 Q146 136 160 146" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="160" cy="146" r="5.8" fill="#F8EADA"/></g><g class="cv c-mp pb"><path d="M72 128 Q64 138 78 146" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="79" cy="146" r="5.8" fill="#F8EADA"/></g><g class="cv c-hp pb"><path d="M72 128 Q58 138 64 144" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="64" cy="144" r="5.8" fill="#F8EADA"/><path d="M128 128 Q142 138 136 144" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="136" cy="144" r="5.8" fill="#F8EADA"/></g><g class="cv c-dmg pb"><path d="M128 128 Q146 136 156 146" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="156" cy="146" r="5.8" fill="#F8EADA"/></g><circle cx="76" cy="124" r="9" fill="url(#sg-stripe)"/><path d="M68 129 Q76 134 84 129" stroke="#EDBE5A" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="124" cy="124" r="9" fill="url(#sg-stripe)"/><path d="M116 129 Q124 134 132 129" stroke="#EDBE5A" stroke-width="2" fill="none" stroke-linecap="round"/><g class="g-head"><path d="M51 86 C47 42 78 24 102 24 C128 24 155 44 151 88 C150 104 147 116 139 123 Q131 128 127 119 L73 119 Q69 128 61 123 C53 116 50 104 51 86 Z" fill="#E79AB4"/><ellipse cx="100" cy="80" rx="44" ry="41" fill="#FCE3D2"/><ellipse cx="77" cy="99" rx="7" ry="4.3" fill="#F59A9A" opacity=".8"/><ellipse cx="123" cy="99" rx="7" ry="4.3" fill="#F59A9A" opacity=".8"/><g class="g-eyes"><g class="g-look"><g class="fv e-dots f-lp fm-search"><ellipse cx="85" cy="90" rx="4.6" ry="5.8" fill="#211816"/><ellipse cx="115" cy="90" rx="4.6" ry="5.8" fill="#211816"/><path d="M80.4 86.4 l-2.8 -1.1 M119.6 86.4 l2.8 -1.1" stroke="#211816" stroke-width="1.8" stroke-linecap="round"/></g><g class="fv e-up f-hp"><g class="lookup"><ellipse cx="85" cy="88" rx="4.6" ry="5.8" fill="#211816"/><ellipse cx="115" cy="88" rx="4.6" ry="5.8" fill="#211816"/><path d="M80.4 84.4 l-2.8 -1.1 M119.6 84.4 l2.8 -1.1" stroke="#211816" stroke-width="1.8" stroke-linecap="round"/></g></g><g class="fv e-wink f-nm"><ellipse cx="85" cy="90" rx="4.6" ry="5.8" fill="#211816"/><path d="M80.4 86.4 l-2.8 -1.1" stroke="#211816" stroke-width="1.8" stroke-linecap="round"/><path d="M110 91 q5 -5 10 0" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke="#211816" stroke-width="2.4"/></g><g class="fv e-smug f-mp f-dmg fm-smug"><path d="M80.6 88.4 L89.4 87.80000000000001 A4.6 5.8 0 0 1 85 95.8 A4.6 5.8 0 0 1 80.6 88.4 Z" fill="#211816"/><path d="M110.6 88.4 L119.4 87.80000000000001 A4.6 5.8 0 0 1 115 95.8 A4.6 5.8 0 0 1 110.6 88.4 Z" fill="#211816"/><path d="M80.4 88.8 l-2.8 -1.1 M119.6 88.2 l2.8 -1.1" stroke="#211816" stroke-width="1.8" stroke-linecap="round"/></g><g class="fv e-happy fm-happy"><path d="M80 91.5 q5 -6 10 0 M110 91.5 q5 -6 10 0" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke="#211816" stroke-width="2.6"/></g><g class="fv e-shut fm-trick"><path d="M81 86 L88 90 L81 94 M119 86 L112 90 L119 94" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke="#211816" stroke-width="2.4" stroke-linejoin="round"/></g><g class="fv e-sleep fm-sleepy"><path d="M80 90 q5 4 10 0 M110 90 q5 4 10 0" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke="#211816" stroke-width="2.4"/></g></g></g><g class="fv m-grin f-nm fm-happy fm-trick"><path d="M94 103 q6 6 12 0 Z" fill="#E8794F"/></g><g class="fv m-smirk f-mp fm-smug"><path d="M96 105 q4.5 2.6 8 -1 q1 -1 1.6 -2.6" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2"/></g><g class="fv m-o f-lp fm-search"><ellipse cx="100" cy="105" rx="3" ry="3.6" fill="#E8794F"/></g><g class="fv m-tiny f-hp fm-sleepy"><ellipse cx="101" cy="105" rx="2" ry="2.3" fill="#E8794F"/></g><g class="fv m-pout f-dmg"><path d="M95 106 q2.5 -3 5 0 q2.5 -3 5 0" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2"/></g><g class="fv b-raise f-mp fm-smug"><path d="M109 77 q6 -4.5 12 -1" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="1.9" opacity=".8"/></g><g class="fv b-annoy f-dmg"><path d="M78 76 l11 3.5 M122 76 l-11 3.5" fill="none" stroke="#3B2A22" stroke-linecap="round" stroke-width="2.1"/></g><g class="fv x-sweat f-hp"><path class="sweat" d="M139 70 q5 7 0 10 q-5 -3 0 -10 Z" fill="#9FC3E0"/></g><g class="fv x-anger f-dmg"><g class="anger"><path d="M126 58 q3 3 0 6 M130 56 q-3 3 0 6 M124 62 q3 -3 6 0 M126 66 q3 -3 6 0" stroke="#D24552" stroke-width="2.2" fill="none" stroke-linecap="round" transform="translate(-2 -6)"/></g></g><path d="M55 90 C52 50 78 31 102 31 C128 31 150 52 146 90 L141 74 L135 82 L129 63 L121 79 L113 59 L105 77 L97 57 L89 76 L81 61 L75 81 L67 67 L61 84 Z" fill="#F7B6CC"/><path d="M58 74 Q47 104 57 121 Q65 127 71 119 Q63 104 65 82 Z" fill="#F7B6CC"/><path d="M142 74 Q153 104 143 121 Q135 127 129 119 Q137 104 135 82 Z" fill="#F7B6CC"/><path d="M73 44 Q90 35 108 37" stroke="#FFDCE8" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9"/><path d="M127 44 Q133 48 137 54" stroke="#FFDCE8" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(132 62) scale(0.75)" fill="#EDBE5A"/><g class="cv c-dmg"><ellipse cx="74" cy="104" rx="6" ry="3" fill="#5A5160" opacity=".35"/><ellipse cx="124" cy="96" rx="4" ry="2.4" fill="#5A5160" opacity=".3"/><path d="M64 42 l3 -5 l2 5 l3 -5 M136 40 l3 -5 l2 5" stroke="#E79AB4" stroke-width="2" fill="none" stroke-linejoin="round"/></g><g class="cv c-nm hat h-nm"><g transform="translate(76 36) rotate(-24) scale(0.95)"><ellipse cx="0" cy="0" rx="21" ry="5" fill="#A9343F"/><path d="M-12 0 L-11 -24 Q0 -27 11 -24 L12 0 Z" fill="#D24552"/><path d="M-11.7 -7 L11.7 -7 L12 -2 L-12 -2 Z" fill="#EDBE5A"/><path d="M-3 -8 l3 -6 l3 6 Z" fill="#F8EADA" opacity=".0"/><path d="M-7 -21 Q-6 -14 -6.5 -10" stroke="#fff" stroke-width="2" opacity=".18" fill="none" stroke-linecap="round"/></g></g><g class="cv c-lp hat h-lp"><g transform="translate(78 36) rotate(-18) scale(0.82)"><ellipse cx="0" cy="0" rx="21" ry="5" fill="#A9343F"/><path d="M-12 0 L-11 -24 Q0 -27 11 -24 L12 0 Z" fill="#D24552"/><path d="M-11.7 -7 L11.7 -7 L12 -2 L-12 -2 Z" fill="#EDBE5A"/><path d="M-3 -8 l3 -6 l3 6 Z" fill="#F8EADA" opacity=".0"/><path d="M-7 -21 Q-6 -14 -6.5 -10" stroke="#fff" stroke-width="2" opacity=".18" fill="none" stroke-linecap="round"/></g></g><g class="cv c-hp hat h-hp"><g transform="translate(80 35) rotate(-20) scale(0.86)"><ellipse cx="0" cy="0" rx="21" ry="5" fill="#A9343F"/><path d="M-12 0 L-11 -24 Q0 -27 11 -24 L12 0 Z" fill="#D24552"/><path d="M-11.7 -7 L11.7 -7 L12 -2 L-12 -2 Z" fill="#EDBE5A"/><path d="M-3 -8 l3 -6 l3 6 Z" fill="#F8EADA" opacity=".0"/><path d="M-7 -21 Q-6 -14 -6.5 -10" stroke="#fff" stroke-width="2" opacity=".18" fill="none" stroke-linecap="round"/></g></g><g class="cv c-dmg hat h-dmg"><g transform="translate(112 44) rotate(34) scale(0.9)"><ellipse cx="0" cy="0" rx="21" ry="5" fill="#A9343F"/><path d="M-12 0 L-11 -24 Q0 -27 11 -24 L12 0 Z" fill="#D24552"/><path d="M-11.7 -7 L11.7 -7 L12 -2 L-12 -2 Z" fill="#EDBE5A"/><path d="M-3 -8 l3 -6 l3 6 Z" fill="#F8EADA" opacity=".0"/><path d="M-7 -21 Q-6 -14 -6.5 -10" stroke="#fff" stroke-width="2" opacity=".18" fill="none" stroke-linecap="round"/></g><g class="wisp"><path d="M118 20 q-4 -5 0 -10 q4 -5 0 -10" stroke="#9A93A6" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/></g></g></g><circle cx="84.0" cy="125.4" r="4.4" fill="#F8EADA"/><circle cx="89.3" cy="124.1" r="4.4" fill="#F8EADA"/><circle cx="94.6" cy="122.8" r="4.4" fill="#F8EADA"/><circle cx="99.9" cy="121.5" r="4.4" fill="#F8EADA"/><circle cx="105.2" cy="122.8" r="4.4" fill="#F8EADA"/><circle cx="110.5" cy="124.1" r="4.4" fill="#F8EADA"/><circle cx="115.8" cy="125.4" r="4.4" fill="#F8EADA"/><path d="M100 123 L90.5 118 Q88.5 123 90.5 128 Z M100 123 L109.5 118 Q111.5 123 109.5 128 Z" fill="#D24552"/><circle cx="100" cy="123" r="2.7" fill="#A9343F"/><g class="cv c-nm pf"><path d="M128 126 Q150 118 151 94" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="124" cy="124" r="9" fill="url(#sg-stripe)"/><path d="M116 129 Q124 134 132 129" stroke="#EDBE5A" stroke-width="2" fill="none" stroke-linecap="round"/><g class="wand"><path d="M151 92 L170 58" stroke="#6A57A0" stroke-width="4.6" stroke-linecap="round"/><path d="M164.2 68.4 L165.8 65.6" stroke="#EDBE5A" stroke-width="5.2"/><path d="M166 65 L170 58" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/></g><g class="spk k0"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(174 50) scale(0.9)" fill="#EDBE5A"/></g><g class="spk k1"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(160 42) scale(0.5)" fill="#fff"/></g><g class="spk k2"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(186 66) scale(0.5)" fill="#EDBE5A"/></g><g class="spk k3"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(178 34) scale(0.4)" fill="#fff"/></g><circle cx="151" cy="92" r="5.8" fill="#F8EADA"/><g class="fan"><g transform="translate(40 140) rotate(-28)"><rect x="-8.0" y="-11.0" width="16" height="22" rx="2.6" fill="#E58C7A"/><rect x="-5.8" y="-8.6" width="11.6" height="9.24" rx="1.6" fill="#fff" opacity=".5"/><path d="M-5.0 5.0 h8.0 M-5.0 7.6 h5.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g><g transform="translate(46 136) rotate(-8)"><rect x="-8.0" y="-11.0" width="16" height="22" rx="2.6" fill="#EDBE5A"/><rect x="-5.8" y="-8.6" width="11.6" height="9.24" rx="1.6" fill="#fff" opacity=".5"/><path d="M-5.0 5.0 h8.0 M-5.0 7.6 h5.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g><g transform="translate(53 137) rotate(14)"><rect x="-8.0" y="-11.0" width="16" height="22" rx="2.6" fill="#7FA6C9"/><rect x="-5.8" y="-8.6" width="11.6" height="9.24" rx="1.6" fill="#fff" opacity=".5"/><path d="M-5.0 5.0 h8.0 M-5.0 7.6 h5.6" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g></g><g class="cv c-lp pf"><g class="ac a0"><g transform="translate(40 146.0) rotate(-44)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#E58C7A"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a1"><g transform="translate(55 138.125) rotate(-33)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#EDBE5A"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a2"><g transform="translate(70 132.5) rotate(-22)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#7FA6C9"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a3"><g transform="translate(85 129.125) rotate(-11)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#E58C7A"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a4"><g transform="translate(100 128.0) rotate(0)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#EDBE5A"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a5"><g transform="translate(115 129.125) rotate(11)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#7FA6C9"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a6"><g transform="translate(130 132.5) rotate(22)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#E58C7A"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a7"><g transform="translate(145 138.125) rotate(33)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#EDBE5A"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g><g class="ac a8"><g transform="translate(160 146.0) rotate(44)"><rect x="-6.0" y="-8.5" width="12" height="17" rx="2.6" fill="#7FA6C9"/><rect x="-3.8" y="-6.1" width="7.6" height="7.14" rx="1.6" fill="#fff" opacity=".5"/><path d="M-3.0 2.5 h6.0 M-3.0 5.1 h4.199999999999999" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".55"/></g></g></g><g class="cv c-mp pf"><g class="tip"><path d="M130 124 Q166 98 143 44" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="124" cy="124" r="9" fill="url(#sg-stripe)"/><path d="M116 129 Q124 134 132 129" stroke="#EDBE5A" stroke-width="2" fill="none" stroke-linecap="round"/><g transform="translate(120 40)"><g class="mcoin"><g><circle r="6" fill="#EDBE5A"/><circle r="3.7" fill="none" stroke="#D29E3A" stroke-width="1.4"/><circle cx="-2.1" cy="-2.1" r="1.2" fill="#fff" opacity=".8"/></g></g></g><g transform="translate(118 30) rotate(18) scale(0.9)"><ellipse cx="0" cy="0" rx="21" ry="5" fill="#A9343F"/><path d="M-12 0 L-11 -24 Q0 -27 11 -24 L12 0 Z" fill="#D24552"/><path d="M-11.7 -7 L11.7 -7 L12 -2 L-12 -2 Z" fill="#EDBE5A"/><path d="M-3 -8 l3 -6 l3 6 Z" fill="#F8EADA" opacity=".0"/><path d="M-7 -21 Q-6 -14 -6.5 -10" stroke="#fff" stroke-width="2" opacity=".18" fill="none" stroke-linecap="round"/></g><circle cx="141" cy="40" r="6.2" fill="#F8EADA"/></g></g><g class="cv c-hp pf"><g transform="translate(100 92)"><g class="jc j0"><g><circle r="6.5" fill="#EDBE5A"/><circle r="4.2" fill="none" stroke="#D29E3A" stroke-width="1.4"/><circle cx="-2.3" cy="-2.3" r="1.3" fill="#fff" opacity=".8"/></g></g></g><g transform="translate(100 92)"><g class="jc j1"><g><circle r="6.5" fill="#EDBE5A"/><circle r="4.2" fill="none" stroke="#D29E3A" stroke-width="1.4"/><circle cx="-2.3" cy="-2.3" r="1.3" fill="#fff" opacity=".8"/></g></g></g><g transform="translate(100 92)"><g class="jc j2"><g><circle r="6.5" fill="#EDBE5A"/><circle r="4.2" fill="none" stroke="#D29E3A" stroke-width="1.4"/><circle cx="-2.3" cy="-2.3" r="1.3" fill="#fff" opacity=".8"/></g></g></g></g><g class="cv c-dmg pf"><path d="M74 126 Q56 116 86 108" fill="none" stroke="#FCE3D2" stroke-width="8.5" stroke-linecap="round"/><circle cx="88" cy="107" r="5.8" fill="#F8EADA"/><path d="M156 146 L178 130" stroke="#6A57A0" stroke-width="4.6" stroke-linecap="round"/><path d="M173.5 133.3 L178 130" stroke="#fff" stroke-width="4.4" stroke-linecap="round"/><g transform="translate(180 126)"><g class="smk s0"><circle r="5" fill="#8C8496"/><circle cx="4" cy="-2" r="3.6" fill="#8C8496"/></g></g><g transform="translate(180 126)"><g class="smk s1"><circle r="5" fill="#8C8496"/><circle cx="4" cy="-2" r="3.6" fill="#8C8496"/></g></g><g transform="translate(180 126)"><g class="smk s2"><circle r="5" fill="#8C8496"/><circle cx="4" cy="-2" r="3.6" fill="#8C8496"/></g></g></g></g></g><g class="fx-poof"><g fill="#FFF8EE" opacity=".96"><circle cx="100" cy="112" r="30"/><circle cx="68" cy="92" r="20"/><circle cx="134" cy="90" r="21"/><circle cx="62" cy="140" r="19"/><circle cx="140" cy="142" r="20"/><circle cx="100" cy="64" r="22"/><circle cx="100" cy="166" r="22"/><circle cx="80" cy="120" r="18"/><circle cx="122" cy="126" r="18"/></g><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(44 76) scale(0.9)" fill="#EDBE5A"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(158 80) scale(0.8)" fill="#EDBE5A"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(152 176) scale(0.7)" fill="#EDBE5A"/><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(48 178) scale(0.6)" fill="#EDBE5A"/></g><g class="fx-burst"><g transform="translate(100.0 16.0)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.55)" fill="#fff"/></g></g><g transform="translate(141.1 28.2)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.8)" fill="#EDBE5A"/></g></g><g transform="translate(166.6 60.2)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.55)" fill="#fff"/></g></g><g transform="translate(166.6 99.8)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.8)" fill="#EDBE5A"/></g></g><g transform="translate(141.1 131.8)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.55)" fill="#fff"/></g></g><g transform="translate(100.0 144.0)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.8)" fill="#EDBE5A"/></g></g><g transform="translate(58.9 131.8)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.55)" fill="#fff"/></g></g><g transform="translate(33.4 99.8)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.8)" fill="#EDBE5A"/></g></g><g transform="translate(33.4 60.2)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.55)" fill="#fff"/></g></g><g transform="translate(58.9 28.2)"><g class="bs"><path d="M0 -7 Q1.2 -1.2 7 0 Q1.2 1.2 0 7 Q-1.2 1.2 -7 0 Q-1.2 -1.2 0 -7 Z" transform="translate(0 0) scale(0.8)" fill="#EDBE5A"/></g></g></g><g class="fx-z" fill="#3B2A22" font-family="Baloo 2, sans-serif" font-weight="800"><text x="146" y="44" font-size="18">z</text><text x="160" y="28" font-size="13">z</text></g></svg>`;
 function mascot() { return MASCOT; }
 let moodTimer;
 function mood(m, ms) {
@@ -123,10 +100,9 @@ function mood(m, ms) {
   if (ms) moodTimer = setTimeout(() => { b.dataset.mood = "idle"; }, ms);
 }
 
-/* little idle routines, picked at random so he never loops the same way.
-   "spill" is the big one: he hiccups, gold sprays everywhere, a coin bonks him, he pretends he meant it. */
-const IDLES = ["spill", "spill", "look", "jingle", "glasses", "wiggle", "smug"];
-const IDLE_MS = { spill: 3300, smug: 2700, wiggle: 1500, glasses: 2100 };
+/* little idle routines, picked at random. Her condition trick plays all the time; these sit on top. */
+const IDLES = ["look", "look", "hatslip", "smug", "trick"];
+const IDLE_MS = { trick: 1300, smug: 2700, look: 2600, hatslip: 1600 };
 let playTimer;
 function play(name) {
   const b = $("buddy");
@@ -247,7 +223,7 @@ async function refresh(manual) {
   state.refreshing = true;
   $("refresh").classList.add("spinning");
   if (manual || $("buddy").dataset.mood !== "smug") mood("search");
-  if (manual) say("Fine, I'll go check TCGplayer for you… 🔍");
+  if (manual) say("Fine, I'll check TCGplayer. Not because you asked nicely. 🔍");
   renderStatus();
   try {
     const r = await fetch(`${DATA_URL}?fresh=${Date.now()}`, { cache: "no-store" });
@@ -260,11 +236,11 @@ async function refresh(manual) {
     if (changed) { renderControls(); renderList(true); }
     warmImages();
     if (manual || $("buddy").dataset.mood !== "smug") mood("happy", 1600);
-    if (manual) say(changed ? "Fresh prices. Your wallet's already sweating ✨" : "Nothing new. Prices didn't move just because you stared at them.");
+    if (manual) say(changed ? "Fresh prices. You're welcome. …Say thank you. ✨" : "Nothing new. Prices don't move just because you stare at them, dummy.");
   } catch {
     state.fetchedOk = false;
-    if (state.data) { mood("sleepy", 7000); if (manual) say("No signal. Good thing I saved everything 📦"); }
-    else { mood("sleepy"); say("I need internet once to grab prices. Then you can go broke offline 📶"); }
+    if (state.data) { mood("sleepy", 7000); if (manual) say("No signal. Good thing I saved everything. Not for you. For me. 📦"); }
+    else { mood("sleepy"); say("I need internet once to grab prices. Then you can go broke offline. 📶"); }
   } finally {
     state.refreshing = false;
     state.tried = true;
@@ -453,7 +429,7 @@ let renderToken = 0;
 function renderList(animate) {
   const list = $("list");
   if (!state.data) {
-    list.innerHTML = `<div class="empty"><div class="buddy-big" data-mood="sleepy">${mascot()}</div><strong>No prices on this phone yet</strong>Connect to Wi-Fi or data and tap ↻ at the top. After one good load, everything works offline.</div>`;
+    list.innerHTML = `<div class="empty"><div class="buddy-big" data-mood="sleepy">${mascot()}</div><strong>No prices yet. Hmph.</strong>Connect to Wi-Fi or data and tap ↻ at the top. After one good load I'll work offline. You're welcome in advance.</div>`;
     $("count").textContent = "";
     return;
   }
@@ -461,8 +437,8 @@ function renderList(animate) {
   const suffix = state.own === "need" ? " you still need" : state.own === "have" ? " you have" : "";
   $("count").textContent = `${rows.length.toLocaleString()} cards${suffix}, ${state.cond} prices`;
   if (!rows.length) {
-    const msg = state.own === "need" && !state.q ? ["You've got them all!", "Nothing left to hunt here. Your wallet thanks you 🎉"]
-      : ["Nothing matches", "Try another set, or check the spelling."];
+    const msg = state.own === "need" && !state.q ? ["You've got them all!", "…I'm not impressed. Okay, a little impressed. 🎉"]
+      : ["Nothing matches", "Did you spell it right? Try another set, dummy."];
     list.innerHTML = `<div class="empty"><div class="buddy-big" data-mood="search">${mascot()}</div><strong>${msg[0]}</strong>${msg[1]}</div>`;
     return;
   }
@@ -548,12 +524,12 @@ function renderCard() {
 }
 
 const QUIPS = {
-  "Great deal!": ["Buy it before they check their phone.", "Act casual. Pay fast.", "Even I'm impressed. Barely."],
-  "Same as online": ["At least you skip the shipping wait.", "A wash. Haggle a little anyway."],
-  "Fair price": ["Fine. Not a steal, but fine.", "Fair. Try 90% and see if they blink."],
-  "Pricey": ["They saw you coming.", "Your wallet just flinched.", "Haggle, or walk away slowly."],
-  "Under market": ["Under market. I'll allow it.", "Not bad. Not bad at all."],
-  "Over market": ["Absolutely not. Well, maybe. No.", "Over market. Make a face and wait."],
+  "Great deal!": ["Buy it before they notice. Not that I care.", "Hmph. Fine. That's actually a steal.", "Pay fast and act natural, dummy."],
+  "Same as online": ["Same as online. At least you skip the shipping. Whatever.", "It's a wash. Haggle anyway. For me. I mean, for you."],
+  "Fair price": ["Fair. I suppose. Don't make it weird.", "Offer 90%. I dare you."],
+  "Pricey": ["They saw you coming. Ugh.", "Don't you DARE pay that.", "Pricey. Make a sad face. It works on me. N-never mind."],
+  "Under market": ["Under market. I'll allow it. This time.", "Not bad. Don't let it go to your head."],
+  "Over market": ["Over market. Absolutely not. …Okay, maybe. No.", "You'd pay that? I'm embarrassed for you."],
 };
 function renderVerdict(pop) {
   const out = $("verdict"); if (!out) return;
@@ -625,7 +601,7 @@ $("csv").addEventListener("change", async (e) => {
     importCollectr(await f.text(), f.name);
     renderControls(); renderList(true);
     renderCollection(`Found ${state.coll.cards} of your cards! 🎉`);
-    mood("happy", 2000); say(`${state.coll.cards} cards and you still want more. Classic. Tap 🎯 Need to see what's missing.`);
+    mood("happy", 2000); say(`${state.coll.cards} cards and you still want more? Hopeless. Tap 🎯 Need and I'll show you what's missing. Not that I care.`);
   } catch (err) {
     renderCollection();
     sheet.querySelector(".coll").insertAdjacentHTML("afterbegin", `<p class="tag need">⚠️ ${esc(err.message)}</p>`);
@@ -636,13 +612,13 @@ $("csv").addEventListener("change", async (e) => {
 
 const HAGL_PCTS = [85, 90, 95];
 const HAGL_LINES = [
-  "Start low. They expect it.",
-  "Say \"bundle deal\" with a straight face.",
-  "Never let them see you want it.",
-  "Mention cash. Watch the price drop.",
+  "Start low. They expect it. I'd expect it.",
+  "Say \"bundle deal\" with a straight face. I'll watch.",
+  "Never let them see you want it. Like me. I never want anything.",
+  "Mention cash. Watch the price disappear. Like magic. My magic.",
   "Point out the whitening. There's always whitening.",
-  "Walk away once. They'll call you back.",
-  "Don't round up. Ever.",
+  "Walk away once. They'll call you back. Trust me.",
+  "Hmph. Fine. I'll do the math. You do the talking.",
 ];
 const COND_ORDER = CONDS.map(([k]) => k);
 const cart = { items: [], lot: "", ...(store.get("cart", null) || {}) };
@@ -770,7 +746,7 @@ function paintTiles(el, base, mkt) {
     t.querySelector("small").textContent = n.querySelector("small").textContent;
   });
 }
-const QUICK_HINT = `<p class="hint">Type what they're asking and I'll do the math. You do the talking.</p>`;
+const QUICK_HINT = `<p class="hint">Type what they're asking. I'll do the math, you do the talking. Don't mess it up.</p>`;
 function renderQuick() {
   const out = $("hq-out"); if (!out) return;
   const v = money(hagl.quick);
@@ -817,7 +793,7 @@ function renderCart() {
   const el = $("hcart"); if (!el) return;
   const rows = cartRows();
   if (!rows.length) {
-    el.innerHTML = `<div class="hempty"><b>Your cart is empty</b>Search above for the cards on their table, or tap 🤝 Add to hagl cart on any card.</div>`;
+    el.innerHTML = `<div class="hempty"><b>Your cart is empty</b>Search above for the cards on their table, or tap 🤝 Add to hagl cart on any card. I'll wait. Impatiently.</div>`;
     $("hsum").hidden = true;
     return;
   }
@@ -901,7 +877,7 @@ sheet.addEventListener("click", (e) => {
     add.textContent = addCartLabel();
     flyCoin(add, $("hagl"), () => cartBadge(true));
     if (!reduceMotion.matches) { add.classList.remove("pop"); void add.offsetWidth; add.classList.add("pop"); }
-    say(`${cart.items.length} in the cart. Tap 🤝 hagl to see the damage.`);
+    say(`${cart.items.length} in the cart. Tap 🤝 hagl so I can judge you.`);
     return;
   }
   if (sheetState.mode !== "hagl") return;
@@ -1057,13 +1033,13 @@ $("sets").addEventListener("click", (e) => {
   renderList(true);
 });
 const COND_LINES = {
-  NM: ["Top hat on. We're mint today, darling.", "Near Mint only. Look at you, fancy."],
-  LP: ["Beanie mode. Lightly played, heavily chill. ♪", "LP: basically NM if you squint."],
-  MP: ["Inspector bagl, on the case. 🔍", "Moderately Played. Let me take a closer look…"],
-  HP: ["Ow. Heavily played. Like my back.", "HP. It's been through things. So have I."],
-  DMG: ["Damaged. I'm seeing stars. ⭐", "Creased cardboard is still cardboard. Ow."],
+  NM: ["Near Mint. Ta-da! …Don't clap. Okay, you can clap.", "Only the best for you. N-not because I like you!"],
+  LP: ["Lightly Played. Watch the cards, not me. Hmph.", "LP: basically NM if you squint. Don't squint at me."],
+  MP: ["Moderately Played. A tip of the hat. Don't get used to it.", "MP. It's got character. Unlike your haggling."],
+  HP: ["Heavily Played?! You want me to juggle THESE?", "HP. Fine. I'll keep it in the air. Somehow."],
+  DMG: ["Damaged?! *cough* That was on purpose. Obviously.", "Hmph! The trick didn't fail. The CARD did."],
 };
-// bagl changes outfit with each condition, in a puff of smoke
+// she switches tricks with each condition, in a puff of smoke
 let outfitTimer;
 function changeOutfit(cond) {
   const root = document.documentElement, b = $("buddy");
@@ -1101,13 +1077,13 @@ $("collection").addEventListener("click", () => { if (state.data) openCollection
 $("refresh").addEventListener("click", () => refresh(true));
 $("theme").addEventListener("click", () => {
   applyTheme(state.theme === "dark" ? "light" : "dark"); store.set("theme", state.theme);
-  say(state.theme === "light" ? "Ow. My eyes. Who turned the lights on? 😎" : "Ahh. Much better. Money looks good in the dark.");
-  if ($("buddy").dataset.mood === "idle") play(state.theme === "light" ? "wiggle" : "smug");
+  say(state.theme === "light" ? "H-hey! Warn me before you turn the lights on! 😳" : "Hmph. Much better. A star needs a stage, not a spotlight in her eyes.");
+  if ($("buddy").dataset.mood === "idle") play(state.theme === "light" ? "hatslip" : "smug");
 });
 $("buddy").addEventListener("click", () => {
   const b = $("buddy");
   if (b.dataset.mood !== "idle" && b.dataset.mood !== "smug") return smug(false);
-  mood("idle"); play("spill"); smug(false);
+  mood("idle"); play("trick"); smug(false);
 });
 $("bubble").addEventListener("click", () => smug());
 
@@ -1119,7 +1095,7 @@ addEventListener("scroll", () => {
 }, { passive: true });
 
 addEventListener("online", () => { renderStatus(); refresh(); });
-addEventListener("offline", () => { renderStatus(); mood("sleepy", 6000); say("No signal. Relax, I saved everything 📦"); });
+addEventListener("offline", () => { renderStatus(); mood("sleepy", 6000); say("No signal? Relax. I saved everything. Obviously. 📦"); });
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") {
     smug();
@@ -1135,7 +1111,7 @@ h1.setAttribute("aria-label", "showy");
 h1.addEventListener("click", () => {
   if (reduceMotion.matches) return;
   h1.classList.remove("wave"); void h1.offsetWidth; h1.classList.add("wave");
-  if ($("buddy").dataset.mood === "idle") play("jingle");
+  if ($("buddy").dataset.mood === "idle") play("trick");
 });
 
 /* boot intro: a fan of cards, a burst of coins, the name. Tap to skip. */
