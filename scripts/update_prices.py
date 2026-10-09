@@ -336,24 +336,30 @@ def fetch_sales(card, lang_id, stats):
     cutoff = (today - timedelta(days=SALES_DAYS)).strftime("%Y-%m-%d")
     meta = card.get("sm") or {}
     prev = [list(x) for x in card.get("s", [])]
-    deep = not prev or not meta.get("deep") or meta["deep"] < (today - timedelta(days=DEEP_EVERY_DAYS)).strftime("%Y-%m-%d")
+    deep = not prev or not meta.get("deep2") or meta["deep2"] < (today - timedelta(days=DEEP_EVERY_DAYS)).strftime("%Y-%m-%d")
     known = set() if deep else {tuple(x) for x in prev}
     langs = [lang_id]
-    found, offset = [], 0
+    found, offset, last = [], 0, None
     for page in range(SALES_MAX_PAGES if deep else 4):
-        rows, raw, more = sales_page(card["id"], langs, offset)
+        rows, raw, _ = sales_page(card["id"], langs, offset)
         if page == 0 and raw == 0 and not prev:
             langs = [7 if lang_id == 1 else 1]   # card sits in the other language's catalogue
-            rows, raw, more = sales_page(card["id"], langs, offset)
+            rows, raw, _ = sales_page(card["id"], langs, offset)
         stats["salesRequests"] += 1
+        if raw == 0 or rows == last:   # nothing more, or the feed ignored the offset
+            break
+        last = rows
         new = [r for r in rows if tuple(r) not in known]
         found.extend(new)
-        if raw == 0 or not more or len(new) < len(rows) or min(r[3] for r in rows) < cutoff:
+        if page:
+            stats["salesPagedDeeper"] += 1
+        if len(new) < len(rows) or (rows and min(r[3] for r in rows) < cutoff):
             break
         offset += raw
         time.sleep(DELAY)
     if deep:
-        meta["deep"] = today.strftime("%Y-%m-%d")
+        meta["deep2"] = today.strftime("%Y-%m-%d")
+        meta.pop("deep", None)
         merged = found
     else:
         merged = found + prev
@@ -497,7 +503,7 @@ def main():
         log("Could not reach the TCGplayer price guide for any set. Nothing written.")
         sys.exit(1)
 
-    diag = {"salesRequests": 0, "targetedHits": 0, "salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
+    diag = {"salesRequests": 0, "salesPagedDeeper": 0, "targetedHits": 0, "salesOk": 0, "salesFailed": 0, "listingsOk": 0, "listingsFailed": 0, "listingsEmpty": 0,
             "salesError": None, "listingsError": None, "setLookupErrors": set_errors,
             "setsFound": [f"{s['name']} ({s['id']})" for s in extra], "setCandidates": candidates,
             "emptySets": [s["name"] for s in sets_out if not s["count"]], "searchDebug": search_debug}
