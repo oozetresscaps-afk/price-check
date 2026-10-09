@@ -162,6 +162,7 @@ function smug(face = true) {
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 const fmt = (v) => (v == null ? "—" : usd.format(v));
+const usd0 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const shortDate = (iso) => {
@@ -526,6 +527,7 @@ function renderCard() {
         <span class="money">$<input id="ask" inputmode="decimal" type="text" placeholder="0.00" value="${esc(sheetState.ask)}" autocomplete="off"></span>
       </label>
       <div class="verdict" id="verdict" aria-live="polite"></div>
+      <div id="askoff"></div>
       <button class="btn addcart" type="button" data-addcart>${addCartLabel()}</button>
     </div>
     <section class="sales">
@@ -561,6 +563,8 @@ function renderVerdict(pop) {
     else { e = "🤷"; title = "Not enough data"; sub = `TCGplayer has no ${cond} market or listings for this version.`; }
   }
   out.innerHTML = `<span class="emoji" aria-hidden="true">${e}</span><span>${title ? `<b>${title}</b>` : ""}${sub}</span>`;
+  const off = $("askoff");
+  if (off) off.innerHTML = ask ? `<h3 class="hh ask-h">Offer them</h3>${tiles(ask, m)}` : "";
   if (pop && !reduceMotion.matches) { out.classList.remove("pop"); void out.offsetWidth; out.classList.add("pop"); }
 }
 
@@ -713,7 +717,7 @@ function renderHaglBody() {
 function tiles(base, mkt) {
   return `<div class="htiles">${HAGL_PCTS.map((p) => {
     const v = Math.round(base * p) / 100;
-    return `<div class="htile"><span class="hp">${p}%</span><b>${fmt(v)}</b><small>${mkt ? `${pctOf(v, mkt)} of market` : `save ${fmt(base - v)}`}</small></div>`;
+    return `<div class="htile"><span class="hp">${p}%</span><b>${v >= 100 ? usd0.format(Math.round(v)) : fmt(v)}</b><small>${mkt ? `${pctOf(v, mkt)} of market` : `save ${fmt(base - v)}`}</small></div>`;
   }).join("")}</div>`;
 }
 
