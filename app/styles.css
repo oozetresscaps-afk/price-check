@@ -486,3 +486,85 @@ h1 { margin: 0; font: 800 34px/1 var(--fun); letter-spacing: -.01em; color: var(
 }
 .pr-holo .thumb-foil, .pr-firstholo .thumb-foil { background-image: linear-gradient(115deg, transparent 25%, #fff3b0 42%, #ffffff 50%, #ffd36b 58%, transparent 75%); }
 .chip-gap { flex: none; width: 2px; margin: 6px 2px; border-radius: 1px; background: var(--line); }
+
+/* ---------- hagl: haggle tools ---------- */
+.hagl-btn {
+  display: inline-flex; align-items: center; gap: 5px; height: 38px; margin: 3px 4px 0 0; padding: 0 13px 0 10px;
+  border: 0; border-radius: 19px; background: var(--ink); color: var(--bg);
+  font: 800 17px/1 var(--fun); box-shadow: 0 3px 0 var(--sun);
+  transition: transform .2s var(--spring), box-shadow .2s;
+}
+.hagl-btn .emoji { font-size: 17px; }
+.hagl-btn:active { transform: translateY(2px) scale(.96); box-shadow: 0 1px 0 var(--sun); }
+.hagl-head { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
+.hagl-head .buddy-big { width: 64px; }
+.hagl-head h2 { margin: 0; font: 800 30px/1 var(--fun); }
+.hagl-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 15px; }
+.hagl .seg { margin: 16px 0 4px; }
+
+.hq { margin-top: 14px; }
+.hq-in { display: grid; gap: 8px; font: 800 17px/1.1 var(--fun); }
+.hq-in .money { height: 64px; }
+.hq-in .money, .hq-in .money input { font-size: 32px; }
+.hint { margin: 14px 2px 0; color: var(--ink-2); font-size: 15px; }
+.htiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.htile {
+  display: grid; justify-items: center; gap: 3px; padding: 12px 6px 11px; border-radius: 16px;
+  background: var(--chip); text-align: center; animation: verdict-pop .35s var(--spring);
+}
+.htile .hp { font: 800 15px/1 var(--fun); color: var(--berry-ink); }
+.htile b { font: 800 25px/1.05 var(--fun); font-variant-numeric: tabular-nums; color: var(--ink); overflow-wrap: anywhere; }
+.htile small { font-size: 12.5px; color: var(--ink-2); }
+
+.hsearch { margin-top: 14px; }
+.hres { display: grid; gap: 6px; margin-top: 6px; }
+.hres-row {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 28px; gap: 10px; align-items: center; width: 100%;
+  padding: 7px 8px; border: 2px solid var(--line); border-radius: 14px; background: var(--surface); text-align: left;
+}
+.hres-row:active { transform: scale(.98); }
+.hres-row img, .hres-row .noimg, .hitem img, .hitem .noimg { width: 34px; height: 47px; border-radius: 4px; object-fit: cover; background: var(--chip); }
+.hres-row .who { display: grid; min-width: 0; }
+.hres-row .who b { font: 800 16px/1.15 var(--fun); }
+.hres-row .who span { font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hres-row .m { font: 800 16px/1 var(--fun); text-align: right; font-variant-numeric: tabular-nums; }
+.hres-row .m small { display: block; font: 400 11.5px/1.3 var(--text); color: var(--ink-2); }
+.hres-row .plus { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 14px; background: var(--ink); color: var(--bg); font: 800 17px/1 var(--fun); }
+
+.hcart { display: grid; gap: 10px; margin-top: 14px; }
+.hempty { padding: 22px 14px; border: 2px dashed var(--line); border-radius: 18px; text-align: center; color: var(--ink-2); font-size: 15px; }
+.hempty b { display: block; margin-bottom: 4px; font: 800 19px/1.2 var(--fun); color: var(--ink); }
+.hitem { padding: 10px; border: 2px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: 0 3px 0 var(--line); }
+.hitem.pr-rev { background: var(--rev-wash); border-color: var(--rev-line); box-shadow: 0 3px 0 var(--rev-line); }
+.hitem.pr-holo, .hitem.pr-firstholo { background: var(--holo-wash); border-color: var(--holo-line); box-shadow: 0 3px 0 var(--holo-line); }
+.hitem.pr-first { background: var(--first-wash); border-color: var(--first-line); box-shadow: 0 3px 0 var(--first-line); }
+.htop { display: grid; grid-template-columns: 40px minmax(0, 1fr) 36px; gap: 10px; align-items: center; }
+.hitem img, .hitem .noimg { width: 40px; height: 56px; border-radius: 5px; }
+.hwho { min-width: 0; }
+.hwho b { display: block; font: 800 17px/1.15 var(--fun); }
+.hwho span:not(.ptag) { display: block; font-size: 13px; color: var(--ink-2); }
+.hwho .ptag { margin-top: 3px; }
+.hx { width: 36px; height: 36px; border: 0; border-radius: 18px; background: var(--chip); font-size: 16px; color: var(--ink-2); align-self: start; }
+.hcond { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 10px 0 8px; }
+.hcond button { height: 34px; border: 0; border-radius: 10px; background: var(--chip); font: 800 14px/1 var(--fun); color: var(--ink-2); transition: background .2s, color .2s; }
+.hcond button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.hnums { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr); gap: 8px; align-items: end; }
+.hnums small { display: block; font-size: 12px; color: var(--ink-2); margin-bottom: 3px; }
+.hnums b { display: block; font: 800 19px/1.1 var(--fun); font-variant-numeric: tabular-nums; }
+.hnums b small { margin: 2px 0 0; font: 400 11.5px/1.2 var(--text); }
+.hnums b.none { color: var(--ink-2); }
+.money.sm { height: 42px; padding: 0 10px; font-size: 19px; border-radius: 12px; }
+.money.sm input { font-size: 19px; }
+
+.htotals { margin-top: 16px; padding: 4px 14px; border-radius: 18px; background: var(--chip); }
+.trow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); }
+#htot .trow:first-child { border-top: 0; }
+.trow > span:first-child { font: 800 16px/1.2 var(--fun); }
+.trow small { display: block; font: 400 12.5px/1.3 var(--text); color: var(--ink-2); }
+.trow > b { font: 800 22px/1 var(--fun); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.trow.lot .money { flex: none; width: 128px; background: var(--surface); }
+.hverdict { margin: 12px 2px 0; font-size: 15px; color: var(--ink-2); }
+.hverdict b { color: var(--ink); }
+.hh { margin: 18px 0 0; font: 800 19px/1.2 var(--fun); }
+.btn.addcart { margin-top: 12px; }
+.btn.pop { animation: verdict-pop .45s var(--spring); }

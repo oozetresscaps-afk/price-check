@@ -193,6 +193,7 @@ function prepare(data) {
   const setOf = new Map(data.sets.map((s) => [s.id, s]));
   for (const s of data.sets) s.tab = s.tab || s.name;
   data.byKey = new Map();
+  data.byId = new Map(data.cards.map((c) => [String(c.id), c]));
   data.rows = [];
   for (const c of data.cards) {
     for (const k of ["p", "l"]) c[k] = Object.fromEntries(Object.entries(c[k] || {}).map(([p, v]) => [CODE_NAMES[p] || p, v]));
@@ -525,6 +526,7 @@ function renderCard() {
         <span class="money">$<input id="ask" inputmode="decimal" type="text" placeholder="0.00" value="${esc(sheetState.ask)}" autocomplete="off"></span>
       </label>
       <div class="verdict" id="verdict" aria-live="polite"></div>
+      <button class="btn addcart" type="button" data-addcart>${addCartLabel()}</button>
     </div>
     <section class="sales">
       <h3>🏷️ Recent sales</h3>
@@ -608,6 +610,278 @@ $("csv").addEventListener("change", async (e) => {
     sheet.querySelector(".coll").insertAdjacentHTML("afterbegin", `<p class="tag need">⚠️ ${esc(err.message)}</p>`);
   }
 });
+
+/* ================= hagl: haggle tools ================= */
+
+const HAGL_PCTS = [85, 90, 95];
+const HAGL_LINES = [
+  "Start low. They expect it.",
+  "Say \"bundle deal\" with a straight face.",
+  "Never let them see you want it.",
+  "Mention cash. Watch the price drop.",
+  "Point out the whitening. There's always whitening.",
+  "Walk away once. They'll call you back.",
+  "Don't round up. Ever.",
+];
+const COND_ORDER = CONDS.map(([k]) => k);
+const cart = { items: [], lot: "", ...(store.get("cart", null) || {}) };
+const saveCart = () => store.set("cart", { items: cart.items, lot: cart.lot });
+const hagl = { tab: store.get("hagltab", "quick"), quick: "", q: "", line: "" };
+const money = (s) => { const v = parseFloat(String(s ?? "").replace(/[^0-9.]/g, "")); return Number.isFinite(v) && v > 0 ? v : null; };
+const pctOf = (v, of) => (of ? `${Math.round((v / of) * 100)}%` : "");
+
+// cheapest copy on TCGplayer in this condition; if there's none, the cheapest one in better shape
+function bestListing(c, p, cond) {
+  const exact = lowest(c, p, cond);
+  if (exact) return { price: exact[0], ship: exact[1], cond, exact: true };
+  let best = null;
+  for (const k of COND_ORDER.slice(0, COND_ORDER.indexOf(cond))) {
+    const v = lowest(c, p, k);
+    if (v && (!best || v[0] + v[1] < best.price + best.ship)) best = { price: v[0], ship: v[1], cond: k, exact: false };
+  }
+  return best;
+}
+
+function addToCart(c, p, cond, ask) {
+  cart.items.unshift({ id: String(c.id), p, cond, ask: ask || "" });
+  saveCart();
+}
+function addCartLabel() {
+  const c = sheetState.card;
+  const n = c ? cart.items.filter((it) => it.id === String(c.id) && it.p === sheetState.print).length : 0;
+  return n ? `✅ In your hagl cart${n > 1 ? ` ×${n}` : ""}. Add another` : `🤝 Add to hagl cart`;
+}
+
+function openHagl(tab) {
+  if (!state.data && tab !== "quick") tab = "quick";
+  if (tab) { hagl.tab = tab; store.set("hagltab", tab); }
+  sheetState.mode = "hagl";
+  hagl.line = HAGL_LINES[Math.floor(Math.random() * HAGL_LINES.length)];
+  renderHagl();
+  showSheet();
+  if (hagl.tab === "quick") setTimeout(() => $("hq")?.focus({ preventScroll: true }), 350);
+}
+
+function renderHagl() {
+  const n = cart.items.length;
+  sheet.innerHTML = `<div class="sheet-inner hagl">
+    <div class="grabzone"><button class="close" type="button" data-close aria-label="Close">✕</button><div class="grab" aria-hidden="true"></div></div>
+    <div class="hagl-head">
+      <div class="buddy-big" data-mood="smug">${mascot()}</div>
+      <div><h2 id="sheet-title">hagl</h2><p>${esc(hagl.line)}</p></div>
+    </div>
+    <div class="seg" id="htabs" role="group" aria-label="Tool"></div>
+    <div id="hbody"></div>
+  </div>`;
+  buildSeg($("htabs"), [["quick", "⚡ Quick %"], ["cart", `🛒 Cart${n ? ` (${n})` : ""}`]], hagl.tab, "htab");
+  renderHaglBody();
+}
+
+function renderHaglBody() {
+  const body = $("hbody"); if (!body) return;
+  if (hagl.tab === "quick") {
+    body.innerHTML = `<div class="hq">
+      <label class="hq-in" for="hq">Their price
+        <span class="money">$<input id="hq" inputmode="decimal" type="text" placeholder="0.00" autocomplete="off" value="${esc(hagl.quick)}"></span>
+      </label>
+      <div id="hq-out"></div>
+    </div>`;
+    renderQuick();
+    return;
+  }
+  if (!state.data) { body.innerHTML = `<p class="fine">The cart needs prices saved on this phone first. Tap ↻ with a connection.</p>`; return; }
+  body.innerHTML = `<label class="search hsearch">
+      <span class="visually-hidden">Add a card from their table</span>
+      <span class="emoji" aria-hidden="true">🔍</span>
+      <input id="hs" type="search" placeholder="Add a card from their table" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="${esc(hagl.q)}">
+    </label>
+    <div id="hs-res" class="hres"></div>
+    <div id="hcart" class="hcart"></div>
+    <div id="hsum" hidden>
+      <div class="htotals"><div id="htot"></div>
+        <label class="trow lot" for="hlot"><span>Price for the whole lot<small>if they quote one number</small></span>
+          <span class="money sm">$<input id="hlot" inputmode="decimal" type="text" autocomplete="off" placeholder="0.00" value="${esc(cart.lot)}"></span></label>
+      </div>
+      <div id="hoffer"></div>
+      <button class="btn quiet" type="button" data-hclear>Empty the cart</button>
+      <p class="fine">Shipping is counted per card, so buying several from one seller would cost a bit less. If a condition isn't listed, I use the cheapest copy in better shape.</p>
+    </div>`;
+  renderSearch();
+  renderCart();
+}
+
+function tiles(base, mkt) {
+  return `<div class="htiles">${HAGL_PCTS.map((p) => {
+    const v = Math.round(base * p) / 100;
+    return `<div class="htile"><span class="hp">${p}%</span><b>${fmt(v)}</b><small>${mkt ? `${pctOf(v, mkt)} of market` : `save ${fmt(base - v)}`}</small></div>`;
+  }).join("")}</div>`;
+}
+
+function renderQuick() {
+  const out = $("hq-out"); if (!out) return;
+  const v = money(hagl.quick);
+  out.innerHTML = v ? tiles(v) : `<p class="hint">Type what they're asking and I'll do the math. You do the talking.</p>`;
+}
+
+/* --- cart: search --- */
+function searchRows(raw) {
+  const { print, q } = parseQuery(raw);
+  if (!q) return [];
+  const isNum = /^[a-z]*\d+[a-z]?(\/[a-z]*\d*)?$/.test(q);
+  return state.data.rows.filter(({ c, p }) => printMatches(p, print) && (isNum
+    ? (q.includes("/") ? c.num.toLowerCase().startsWith(q) : c.nk === q || c.nk.replace(/[a-z]$/, "") === q)
+    : c.key.includes(q)));
+}
+function renderSearch() {
+  const el = $("hs-res"); if (!el) return;
+  if (!hagl.q.trim()) { el.innerHTML = ""; return; }
+  const all = searchRows(hagl.q), rows = all.slice(0, 8);
+  el.innerHTML = rows.length
+    ? rows.map(({ c, p }) => {
+        const st = pstyle(p), m = market(c, p, "NM");
+        return `<button class="hres-row ${st.cls}" type="button" data-hadd="${c.id}" data-p="${esc(p)}">
+          ${c.img ? `<img src="img/${c.id}.jpg" alt="" loading="lazy" width="34" height="47">` : `<span class="noimg"></span>`}
+          <span class="who"><b>${esc(c.name)}</b><span>${esc([c.abbr, c.num].filter(Boolean).join(" "))}${st.tag ? ` · ${st.short}` : ""}</span></span>
+          <span class="m">${fmt(m)}<small>NM</small></span><span class="plus" aria-hidden="true">＋</span>
+        </button>`;
+      }).join("") + (all.length > rows.length ? `<p class="fine">${all.length - rows.length} more. Add a number or "rev" / "holo" to narrow it down.</p>` : "")
+    : `<p class="fine">Nothing matches "${esc(hagl.q)}".</p>`;
+}
+
+/* --- cart: items and totals --- */
+function cartRows() {
+  return cart.items.map((it, i) => {
+    const c = state.data.byId.get(it.id);
+    if (!c) return { it, i, c: null };
+    return { it, i, c, m: market(c, it.p, it.cond), lo: bestListing(c, it.p, it.cond), ask: money(it.ask) };
+  });
+}
+
+function renderCart() {
+  const el = $("hcart"); if (!el) return;
+  const rows = cartRows();
+  if (!rows.length) {
+    el.innerHTML = `<div class="hempty"><b>Your cart is empty</b>Search above for the cards on their table, or tap 🤝 Add to hagl cart on any card.</div>`;
+    $("hsum").hidden = true;
+    return;
+  }
+  el.innerHTML = rows.map(({ it, i, c, m, lo }) => {
+    if (!c) return `<div class="hitem"><div class="hwho"><b>Card not found</b><span>It isn't in the latest prices.</span></div><button class="hx" type="button" data-hrm="${i}" aria-label="Remove">✕</button></div>`;
+    const st = pstyle(it.p);
+    const loTxt = lo
+      ? `${fmt(lo.price + lo.ship)}<small>${lo.exact ? (lo.ship ? `incl. ${fmt(lo.ship)} ship` : "free ship") : `only ${lo.cond} listed`}</small>`
+      : `—<small>none listed</small>`;
+    return `<div class="hitem ${st.cls}">
+      <div class="htop">
+        ${c.img ? `<img src="img/${c.id}.jpg" alt="" loading="lazy" width="40" height="56">` : `<span class="noimg"></span>`}
+        <div class="hwho"><b>${esc(c.name)}</b><span>${esc([c.abbr, c.num].filter(Boolean).join(" "))}</span>${st.tag ? `<span class="ptag">${st.tag}</span>` : ""}</div>
+        <button class="hx" type="button" data-hrm="${i}" aria-label="Remove ${esc(c.name)}">✕</button>
+      </div>
+      <div class="hcond" role="group" aria-label="Condition">${COND_ORDER.map((k) => `<button type="button" data-hcond="${k}" data-i="${i}" aria-pressed="${k === it.cond}">${k}</button>`).join("")}</div>
+      <div class="hnums">
+        <span><small>Market</small><b class="${m == null ? "none" : ""}">${fmt(m)}</b></span>
+        <span><small>🛒 TCG low</small><b class="${lo ? "" : "none"}">${loTxt}</b></span>
+        <label><small>🏪 Sticker</small><span class="money sm">$<input data-hask="${i}" inputmode="decimal" type="text" placeholder="0.00" autocomplete="off" value="${esc(it.ask)}"></span></label>
+      </div>
+    </div>`;
+  }).join("");
+  renderTotals();
+}
+
+function renderTotals() {
+  const el = $("htot"); if (!el) return;
+  const rows = cartRows().filter((r) => r.c);
+  $("hsum").hidden = !rows.length;
+  if (!rows.length) return;
+  const n = rows.length;
+  const withM = rows.filter((r) => r.m != null), withLo = rows.filter((r) => r.lo), withAsk = rows.filter((r) => r.ask != null);
+  const mTot = withM.reduce((s, r) => s + r.m, 0);
+  const loTot = withLo.reduce((s, r) => s + r.lo.price + r.lo.ship, 0);
+  const askSum = withAsk.reduce((s, r) => s + r.ask, 0);
+  const lot = money(cart.lot);
+  const sticker = lot ?? (withAsk.length ? askSum : null);
+  const base = sticker ?? mTot;
+  const missM = n - withM.length, missLo = n - withLo.length;
+
+  el.innerHTML = `<div class="trow"><span>Market total<small>${n} card${n > 1 ? "s" : ""}${missM ? `, ${missM} with no market price` : ""}</small></span><b>${fmt(mTot)}</b></div>
+    <div class="trow"><span>🛒 Buy it all on TCGplayer<small>lowest listed + shipping${missLo ? `, ${missLo} not listed` : ""}</small></span><b>${withLo.length ? fmt(loTot) : "—"}</b></div>
+    <div class="trow"><span>🏪 Their stickers<small>${withAsk.length ? `${withAsk.length} of ${n} priced` : "type them on each card"}</small></span><b>${withAsk.length ? fmt(askSum) : "—"}</b></div>`;
+  $("hlot").placeholder = withAsk.length ? askSum.toFixed(2) : "0.00";
+
+  // compare like with like: a lot price covers every card, stickers only cover the cards that have one
+  const cover = lot ? rows : withAsk;
+  const partial = !lot && withAsk.length && withAsk.length < n;
+  const mCmp = cover.every((r) => r.m != null) ? cover.reduce((s, r) => s + r.m, 0) : null;
+  const loCmp = cover.every((r) => r.lo) ? cover.reduce((s, r) => s + r.lo.price + r.lo.ship, 0) : null;
+  const mRef = sticker != null ? mCmp : mTot;
+  let verdict = "";
+  if (sticker != null) {
+    const bits = [];
+    if (mCmp) bits.push(`${lot ? "The lot price is" : "Their stickers are"} <b>${pctOf(sticker, mCmp)}</b> of market`);
+    if (loCmp != null) {
+      const d = sticker - loCmp;
+      bits.push(Math.abs(d) < 0.005 ? "the same as buying online" : d < 0 ? `<b>${fmt(-d)} less</b> than buying online` : `<b>${fmt(d)} more</b> than buying online`);
+    }
+    if (bits.length) verdict = `<p class="hverdict">${bits.join(", ")}${partial ? ` (for the ${withAsk.length} priced card${withAsk.length > 1 ? "s" : ""})` : ""}.</p>`;
+  }
+  $("hoffer").innerHTML = `${verdict}
+    <h3 class="hh">Offer ${sticker != null ? (lot ? "on the lot price" : "on their stickers") : "on market"}</h3>
+    ${base ? tiles(base, mRef || null) : `<p class="fine">Add stickers or a lot price to work out offers.</p>`}`;
+}
+
+function setCartCount() {
+  const b = $("htabs")?.querySelector('[data-htab="cart"]');
+  if (b) b.textContent = `🛒 Cart${cart.items.length ? ` (${cart.items.length})` : ""}`;
+}
+
+sheet.addEventListener("click", (e) => {
+  const add = e.target.closest("[data-addcart]");
+  if (add && sheetState.mode === "card") {
+    addToCart(sheetState.card, sheetState.print, sheetState.cond, sheetState.ask);
+    add.textContent = addCartLabel();
+    if (!reduceMotion.matches) { add.classList.remove("pop"); void add.offsetWidth; add.classList.add("pop"); }
+    say(`${cart.items.length} in the cart. Tap 🤝 hagl to see the damage.`);
+    return;
+  }
+  if (sheetState.mode !== "hagl") return;
+  const t = e.target.closest("[data-htab]");
+  if (t) {
+    if (t.dataset.htab === "cart" && !state.data) return;
+    hagl.tab = t.dataset.htab; store.set("hagltab", hagl.tab);
+    setSeg($("htabs"), hagl.tab, "htab");
+    renderHaglBody();
+    if (hagl.tab === "quick") $("hq")?.focus({ preventScroll: true });
+    return;
+  }
+  const a = e.target.closest("[data-hadd]");
+  if (a) {
+    const c = state.data.byId.get(a.dataset.hadd);
+    if (!c) return;
+    addToCart(c, a.dataset.p, state.cond, "");
+    hagl.q = ""; const inp = $("hs"); if (inp) inp.value = "";
+    renderSearch(); renderCart(); setCartCount();
+    return;
+  }
+  const rm = e.target.closest("[data-hrm]");
+  if (rm) { cart.items.splice(Number(rm.dataset.hrm), 1); saveCart(); renderCart(); setCartCount(); return; }
+  const hc = e.target.closest("[data-hcond]");
+  if (hc) { const it = cart.items[Number(hc.dataset.i)]; if (it) { it.cond = hc.dataset.hcond; saveCart(); renderCart(); } return; }
+  if (e.target.closest("[data-hclear]")) { cart.items = []; cart.lot = ""; saveCart(); const l = $("hlot"); if (l) l.value = ""; renderCart(); setCartCount(); }
+});
+
+let hTimer;
+sheet.addEventListener("input", (e) => {
+  if (sheetState.mode !== "hagl") return;
+  const el = e.target;
+  if (el.id === "hq") { hagl.quick = el.value; renderQuick(); return; }
+  if (el.id === "hs") { hagl.q = el.value; clearTimeout(hTimer); hTimer = setTimeout(renderSearch, 80); return; }
+  if (el.id === "hlot") { cart.lot = el.value; saveCart(); renderTotals(); return; }
+  if (el.dataset.hask != null) {
+    const it = cart.items[Number(el.dataset.hask)]; if (!it) return;
+    it.ask = el.value; saveCart(); renderTotals();
+  }
+});
+$("hagl").addEventListener("click", () => openHagl());
 
 /* ================= sheet open/close + drag ================= */
 

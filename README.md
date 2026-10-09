@@ -17,6 +17,7 @@ Live at **https://oozetresscaps-afk.github.io/price-check/**
 - **Search** by name or number (`33`, `33/165`, `h12`, `74a`).
 - **Set chips** at the top, **condition** at the bottom. Every printing is listed, with reverse holos, holos and 1st Editions tinted so they stand out. Each card shows market price, 🛒 the cheapest listing on TCGplayer, and 🏷️ the last sale for that exact printing and condition.
 - **Tap a card** for every condition side by side, recent sales, and a **🏪 Table price** box. Type what the vendor is asking and it tells you whether that beats buying online (with shipping) and what percent of market it is.
+- **🤝 hagl** (top right): **Quick %** turns a vendor's price into 85%, 90% and 95% offers. **Cart** holds the cards on a vendor's table, each with its own condition and sticker price, and totals market, the cost of buying them all on TCGplayer at the lowest listing (with shipping), their stickers or a lot price, plus 85/90/95% offers on the lot. Add cards by searching in the cart or with **Add to hagl cart** on any card. The cart is saved on the phone.
 - **📚 Your collection**: import your Collectr CSV export and owned cards get a ✓ badge. The **🎯 Need** and **✅ Have** chips filter to what you're missing or already own, per printing. The collection stays on the phone; it is never uploaded.
 
 ## How the data works
